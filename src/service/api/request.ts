@@ -11,21 +11,21 @@ import type {
   UpdateAuthDto,
 } from "./definition";
 
-/** @description response type for get */
-export interface GetResponse {
+/** @description response type for getApi */
+export interface GetApiResponse {
   /** @description */
   200: string;
 }
 
-export type GetResponseSuccess = GetResponse[200];
+export type GetApiResponseSuccess = GetApiResponse[200];
 /** @tags App */
-export const get = /* #__PURE__ */ (() => {
+export const getApi = /* #__PURE__ */ (() => {
   const method = "get";
-  const url = "/";
-  function request(): Promise<GetResponseSuccess> {
+  const url = "/api";
+  function request(): Promise<GetApiResponseSuccess> {
     return requester(request.url, {
       method: request.method,
-    }) as unknown as Promise<GetResponseSuccess>;
+    }) as unknown as Promise<GetApiResponseSuccess>;
   }
 
   /** http method */
@@ -35,8 +35,8 @@ export const get = /* #__PURE__ */ (() => {
   return request;
 })();
 
-/** @description request parameter type for getUserPage */
-export interface GetUserPageOption {
+/** @description request parameter type for getApiUserPage */
+export interface GetApiUserPageOption {
   query?: {
     page?: number;
     pageSize?: number;
@@ -44,24 +44,24 @@ export interface GetUserPageOption {
   };
 }
 
-/** @description response type for getUserPage */
-export interface GetUserPageResponse {
+/** @description response type for getApiUserPage */
+export interface GetApiUserPageResponse {
   /** @description */
   200: any;
 }
 
-export type GetUserPageResponseSuccess = GetUserPageResponse[200];
+export type GetApiUserPageResponseSuccess = GetApiUserPageResponse[200];
 /** @tags User */
-export const getUserPage = /* #__PURE__ */ (() => {
+export const getApiUserPage = /* #__PURE__ */ (() => {
   const method = "get";
-  const url = "/user/page";
+  const url = "/api/user/page";
   function request(
-    option?: GetUserPageOption
-  ): Promise<GetUserPageResponseSuccess> {
+    option?: GetApiUserPageOption
+  ): Promise<GetApiUserPageResponseSuccess> {
     return requester(request.url, {
       method: request.method,
       ...option,
-    }) as unknown as Promise<GetUserPageResponseSuccess>;
+    }) as unknown as Promise<GetApiUserPageResponseSuccess>;
   }
 
   /** http method */
@@ -71,29 +71,31 @@ export const getUserPage = /* #__PURE__ */ (() => {
   return request;
 })();
 
-/** @description request parameter type for getUserId */
-export interface GetUserIdOption {
+/** @description request parameter type for getApiUserId */
+export interface GetApiUserIdOption {
   path: {
     id: string;
   };
 }
 
-/** @description response type for getUserId */
-export interface GetUserIdResponse {
+/** @description response type for getApiUserId */
+export interface GetApiUserIdResponse {
   /** @description */
   200: UserVO;
 }
 
-export type GetUserIdResponseSuccess = GetUserIdResponse[200];
+export type GetApiUserIdResponseSuccess = GetApiUserIdResponse[200];
 /** @tags User */
-export const getUserId = /* #__PURE__ */ (() => {
+export const getApiUserId = /* #__PURE__ */ (() => {
   const method = "get";
-  const url = "/user/:id";
-  function request(option: GetUserIdOption): Promise<GetUserIdResponseSuccess> {
+  const url = "/api/user/:id";
+  function request(
+    option: GetApiUserIdOption
+  ): Promise<GetApiUserIdResponseSuccess> {
     return requester(request.url, {
       method: request.method,
       ...option,
-    }) as unknown as Promise<GetUserIdResponseSuccess>;
+    }) as unknown as Promise<GetApiUserIdResponseSuccess>;
   }
 
   /** http method */
@@ -103,34 +105,36 @@ export const getUserId = /* #__PURE__ */ (() => {
   return request;
 })();
 
-/** @description request parameter type for putUserId */
-export interface PutUserIdOption {
+/** @description request parameter type for putApiUserId */
+export interface PutApiUserIdOption {
   path: {
     id: string;
   };
 }
 
-/** @description request parameter type for putUserId */
-export interface PutUserIdOption {
+/** @description request parameter type for putApiUserId */
+export interface PutApiUserIdOption {
   body: UpdateUserDto;
 }
 
-/** @description response type for putUserId */
-export interface PutUserIdResponse {
+/** @description response type for putApiUserId */
+export interface PutApiUserIdResponse {
   /** @description */
   200: UserVO;
 }
 
-export type PutUserIdResponseSuccess = PutUserIdResponse[200];
+export type PutApiUserIdResponseSuccess = PutApiUserIdResponse[200];
 /** @tags User */
-export const putUserId = /* #__PURE__ */ (() => {
+export const putApiUserId = /* #__PURE__ */ (() => {
   const method = "put";
-  const url = "/user/:id";
-  function request(option: PutUserIdOption): Promise<PutUserIdResponseSuccess> {
+  const url = "/api/user/:id";
+  function request(
+    option: PutApiUserIdOption
+  ): Promise<PutApiUserIdResponseSuccess> {
     return requester(request.url, {
       method: request.method,
       ...option,
-    }) as unknown as Promise<PutUserIdResponseSuccess>;
+    }) as unknown as Promise<PutApiUserIdResponseSuccess>;
   }
 
   /** http method */
@@ -140,31 +144,31 @@ export const putUserId = /* #__PURE__ */ (() => {
   return request;
 })();
 
-/** @description request parameter type for deleteUserId */
-export interface DeleteUserIdOption {
+/** @description request parameter type for deleteApiUserId */
+export interface DeleteApiUserIdOption {
   path: {
     id: string;
   };
 }
 
-/** @description response type for deleteUserId */
-export interface DeleteUserIdResponse {
+/** @description response type for deleteApiUserId */
+export interface DeleteApiUserIdResponse {
   /** @description */
   200: UserVO;
 }
 
-export type DeleteUserIdResponseSuccess = DeleteUserIdResponse[200];
+export type DeleteApiUserIdResponseSuccess = DeleteApiUserIdResponse[200];
 /** @tags User */
-export const deleteUserId = /* #__PURE__ */ (() => {
+export const deleteApiUserId = /* #__PURE__ */ (() => {
   const method = "delete";
-  const url = "/user/:id";
+  const url = "/api/user/:id";
   function request(
-    option: DeleteUserIdOption
-  ): Promise<DeleteUserIdResponseSuccess> {
+    option: DeleteApiUserIdOption
+  ): Promise<DeleteApiUserIdResponseSuccess> {
     return requester(request.url, {
       method: request.method,
       ...option,
-    }) as unknown as Promise<DeleteUserIdResponseSuccess>;
+    }) as unknown as Promise<DeleteApiUserIdResponseSuccess>;
   }
 
   /** http method */
@@ -174,27 +178,29 @@ export const deleteUserId = /* #__PURE__ */ (() => {
   return request;
 })();
 
-/** @description request parameter type for postUser */
-export interface PostUserOption {
+/** @description request parameter type for postApiUser */
+export interface PostApiUserOption {
   body: CreateUserDto;
 }
 
-/** @description response type for postUser */
-export interface PostUserResponse {
+/** @description response type for postApiUser */
+export interface PostApiUserResponse {
   /** @description */
   201: UserVO;
 }
 
-export type PostUserResponseSuccess = PostUserResponse[201];
+export type PostApiUserResponseSuccess = PostApiUserResponse[201];
 /** @tags User */
-export const postUser = /* #__PURE__ */ (() => {
+export const postApiUser = /* #__PURE__ */ (() => {
   const method = "post";
-  const url = "/user";
-  function request(option: PostUserOption): Promise<PostUserResponseSuccess> {
+  const url = "/api/user";
+  function request(
+    option: PostApiUserOption
+  ): Promise<PostApiUserResponseSuccess> {
     return requester(request.url, {
       method: request.method,
       ...option,
-    }) as unknown as Promise<PostUserResponseSuccess>;
+    }) as unknown as Promise<PostApiUserResponseSuccess>;
   }
 
   /** http method */
@@ -204,21 +210,22 @@ export const postUser = /* #__PURE__ */ (() => {
   return request;
 })();
 
-/** @description response type for postUserRegister */
-export interface PostUserRegisterResponse {
+/** @description response type for postApiUserRegister */
+export interface PostApiUserRegisterResponse {
   /** @description */
   201: any;
 }
 
-export type PostUserRegisterResponseSuccess = PostUserRegisterResponse[201];
+export type PostApiUserRegisterResponseSuccess =
+  PostApiUserRegisterResponse[201];
 /** @tags User */
-export const postUserRegister = /* #__PURE__ */ (() => {
+export const postApiUserRegister = /* #__PURE__ */ (() => {
   const method = "post";
-  const url = "/user/register";
-  function request(): Promise<PostUserRegisterResponseSuccess> {
+  const url = "/api/user/register";
+  function request(): Promise<PostApiUserRegisterResponseSuccess> {
     return requester(request.url, {
       method: request.method,
-    }) as unknown as Promise<PostUserRegisterResponseSuccess>;
+    }) as unknown as Promise<PostApiUserRegisterResponseSuccess>;
   }
 
   /** http method */
@@ -228,21 +235,21 @@ export const postUserRegister = /* #__PURE__ */ (() => {
   return request;
 })();
 
-/** @description response type for getAuth */
-export interface GetAuthResponse {
+/** @description response type for getApiAuth */
+export interface GetApiAuthResponse {
   /** @description */
   200: string;
 }
 
-export type GetAuthResponseSuccess = GetAuthResponse[200];
+export type GetApiAuthResponseSuccess = GetApiAuthResponse[200];
 /** @tags Auth */
-export const getAuth = /* #__PURE__ */ (() => {
+export const getApiAuth = /* #__PURE__ */ (() => {
   const method = "get";
-  const url = "/auth";
-  function request(): Promise<GetAuthResponseSuccess> {
+  const url = "/api/auth";
+  function request(): Promise<GetApiAuthResponseSuccess> {
     return requester(request.url, {
       method: request.method,
-    }) as unknown as Promise<GetAuthResponseSuccess>;
+    }) as unknown as Promise<GetApiAuthResponseSuccess>;
   }
 
   /** http method */
@@ -252,93 +259,29 @@ export const getAuth = /* #__PURE__ */ (() => {
   return request;
 })();
 
-/** @description request parameter type for postAuth */
-export interface PostAuthOption {
+/** @description request parameter type for postApiAuth */
+export interface PostApiAuthOption {
   body: CreateAuthDto;
 }
 
-/** @description response type for postAuth */
-export interface PostAuthResponse {
+/** @description response type for postApiAuth */
+export interface PostApiAuthResponse {
   /** @description */
   201: string;
 }
 
-export type PostAuthResponseSuccess = PostAuthResponse[201];
+export type PostApiAuthResponseSuccess = PostApiAuthResponse[201];
 /** @tags Auth */
-export const postAuth = /* #__PURE__ */ (() => {
+export const postApiAuth = /* #__PURE__ */ (() => {
   const method = "post";
-  const url = "/auth";
-  function request(option: PostAuthOption): Promise<PostAuthResponseSuccess> {
-    return requester(request.url, {
-      method: request.method,
-      ...option,
-    }) as unknown as Promise<PostAuthResponseSuccess>;
-  }
-
-  /** http method */
-  request.method = method;
-  /** request url */
-  request.url = url;
-  return request;
-})();
-
-/** @description request parameter type for getAuthId */
-export interface GetAuthIdOption {
-  path: {
-    id: string;
-  };
-}
-
-/** @description response type for getAuthId */
-export interface GetAuthIdResponse {
-  /** @description */
-  200: string;
-}
-
-export type GetAuthIdResponseSuccess = GetAuthIdResponse[200];
-/** @tags Auth */
-export const getAuthId = /* #__PURE__ */ (() => {
-  const method = "get";
-  const url = "/auth/:id";
-  function request(option: GetAuthIdOption): Promise<GetAuthIdResponseSuccess> {
-    return requester(request.url, {
-      method: request.method,
-      ...option,
-    }) as unknown as Promise<GetAuthIdResponseSuccess>;
-  }
-
-  /** http method */
-  request.method = method;
-  /** request url */
-  request.url = url;
-  return request;
-})();
-
-/** @description request parameter type for deleteAuthId */
-export interface DeleteAuthIdOption {
-  path: {
-    id: string;
-  };
-}
-
-/** @description response type for deleteAuthId */
-export interface DeleteAuthIdResponse {
-  /** @description */
-  200: string;
-}
-
-export type DeleteAuthIdResponseSuccess = DeleteAuthIdResponse[200];
-/** @tags Auth */
-export const deleteAuthId = /* #__PURE__ */ (() => {
-  const method = "delete";
-  const url = "/auth/:id";
+  const url = "/api/auth";
   function request(
-    option: DeleteAuthIdOption
-  ): Promise<DeleteAuthIdResponseSuccess> {
+    option: PostApiAuthOption
+  ): Promise<PostApiAuthResponseSuccess> {
     return requester(request.url, {
       method: request.method,
       ...option,
-    }) as unknown as Promise<DeleteAuthIdResponseSuccess>;
+    }) as unknown as Promise<PostApiAuthResponseSuccess>;
   }
 
   /** http method */
@@ -348,36 +291,104 @@ export const deleteAuthId = /* #__PURE__ */ (() => {
   return request;
 })();
 
-/** @description request parameter type for patchAuthId */
-export interface PatchAuthIdOption {
+/** @description request parameter type for getApiAuthId */
+export interface GetApiAuthIdOption {
   path: {
     id: string;
   };
 }
 
-/** @description request parameter type for patchAuthId */
-export interface PatchAuthIdOption {
+/** @description response type for getApiAuthId */
+export interface GetApiAuthIdResponse {
+  /** @description */
+  200: string;
+}
+
+export type GetApiAuthIdResponseSuccess = GetApiAuthIdResponse[200];
+/** @tags Auth */
+export const getApiAuthId = /* #__PURE__ */ (() => {
+  const method = "get";
+  const url = "/api/auth/:id";
+  function request(
+    option: GetApiAuthIdOption
+  ): Promise<GetApiAuthIdResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<GetApiAuthIdResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for deleteApiAuthId */
+export interface DeleteApiAuthIdOption {
+  path: {
+    id: string;
+  };
+}
+
+/** @description response type for deleteApiAuthId */
+export interface DeleteApiAuthIdResponse {
+  /** @description */
+  200: string;
+}
+
+export type DeleteApiAuthIdResponseSuccess = DeleteApiAuthIdResponse[200];
+/** @tags Auth */
+export const deleteApiAuthId = /* #__PURE__ */ (() => {
+  const method = "delete";
+  const url = "/api/auth/:id";
+  function request(
+    option: DeleteApiAuthIdOption
+  ): Promise<DeleteApiAuthIdResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<DeleteApiAuthIdResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for patchApiAuthId */
+export interface PatchApiAuthIdOption {
+  path: {
+    id: string;
+  };
+}
+
+/** @description request parameter type for patchApiAuthId */
+export interface PatchApiAuthIdOption {
   body: UpdateAuthDto;
 }
 
-/** @description response type for patchAuthId */
-export interface PatchAuthIdResponse {
+/** @description response type for patchApiAuthId */
+export interface PatchApiAuthIdResponse {
   /** @description */
   200: string;
 }
 
-export type PatchAuthIdResponseSuccess = PatchAuthIdResponse[200];
+export type PatchApiAuthIdResponseSuccess = PatchApiAuthIdResponse[200];
 /** @tags Auth */
-export const patchAuthId = /* #__PURE__ */ (() => {
+export const patchApiAuthId = /* #__PURE__ */ (() => {
   const method = "patch";
-  const url = "/auth/:id";
+  const url = "/api/auth/:id";
   function request(
-    option: PatchAuthIdOption
-  ): Promise<PatchAuthIdResponseSuccess> {
+    option: PatchApiAuthIdOption
+  ): Promise<PatchApiAuthIdResponseSuccess> {
     return requester(request.url, {
       method: request.method,
       ...option,
-    }) as unknown as Promise<PatchAuthIdResponseSuccess>;
+    }) as unknown as Promise<PatchApiAuthIdResponseSuccess>;
   }
 
   /** http method */

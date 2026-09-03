@@ -19,3 +19,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: #f5f5f5;
 }
+
+.ant-layout-sider-collapsed .layout-brand-text {
+  display: none;
+}
