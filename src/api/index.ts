@@ -1,9 +1,8 @@
 /**
  * API 模块入口
- * 按业务拆分文件后在此统一导出，例如：
- * export * from './user'
- * export * from './knowledge'
+ * Swagger 生成代码：`@/service/api`
+ * 手工封装可按业务拆分后在此导出
  */
 
-export { get, post, put, del } from '@/utils/request';
-export type { ApiResponse } from '@/utils/request';
+export { request, get, post, put, del } from '@/utils/request';
+export type { ApiResponse, RequestOption } from '@/utils/request';

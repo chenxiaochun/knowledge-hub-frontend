@@ -13,7 +13,20 @@ export interface ApiResponse<T = unknown> {
   message: string;
 }
 
-const request: AxiosInstance = axios.create({
+/** ts-gear 生成代码传入的请求参数 */
+export type RequestOption = {
+  method?: string;
+  body?: unknown;
+  query?: Record<string, unknown>;
+  path?: Record<string, string | number | boolean>;
+  header?: HeadersInit;
+  formData?: Record<string, Blob | string>;
+  /** 是否附带 Authorization，默认 true */
+  auth?: boolean;
+  signal?: AbortSignal;
+};
+
+const http: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 15000,
   headers: {
@@ -21,7 +34,7 @@ const request: AxiosInstance = axios.create({
   },
 });
 
-request.interceptors.request.use(
+http.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -32,7 +45,7 @@ request.interceptors.request.use(
   (error: AxiosError) => Promise.reject(error),
 );
 
-request.interceptors.response.use(
+http.interceptors.response.use(
   (response: AxiosResponse<ApiResponse>) => {
     const res = response.data;
 
@@ -63,11 +76,63 @@ request.interceptors.response.use(
   },
 );
 
+/** 将 `/user/:id` + `{ path: { id } }` 编译为实际路径 */
+function resolvePath(url: string, path?: RequestOption['path']): string {
+  if (!path) return url;
+  let resolved = url;
+  for (const [key, value] of Object.entries(path)) {
+    resolved = resolved.replace(
+      new RegExp(`:${key}(?=/|$)`, 'g'),
+      encodeURIComponent(String(value)),
+    );
+  }
+  return resolved;
+}
+
+function headersInitToRecord(header?: HeadersInit): Record<string, string> | undefined {
+  if (!header) return undefined;
+  if (header instanceof Headers) {
+    return Object.fromEntries(header.entries());
+  }
+  if (Array.isArray(header)) {
+    return Object.fromEntries(header);
+  }
+  return { ...header };
+}
+
+/**
+ * ts-gear 兼容的请求函数：`request(url, { method, body, query, path, ... })`
+ */
+export async function request<T = unknown>(url: string, option: RequestOption = {}): Promise<T> {
+  const method = (option.method ?? 'GET').toUpperCase();
+  const headers = headersInitToRecord(option.header);
+
+  let data: unknown = option.body;
+  if (option.formData) {
+    const formData = new FormData();
+    for (const [key, value] of Object.entries(option.formData)) {
+      formData.append(key, value);
+    }
+    data = formData;
+  }
+
+  const res = await http.request<T>({
+    url: resolvePath(url, option.path),
+    method,
+    data,
+    params: option.query,
+    headers,
+    signal: option.signal,
+  });
+
+  return res.data;
+}
+
 export function get<T = unknown>(
   url: string,
   config?: AxiosRequestConfig,
 ): Promise<ApiResponse<T>> {
-  return request.get<ApiResponse<T>>(url, config).then((res) => res.data);
+  return http.get<ApiResponse<T>>(url, config).then((res) => res.data);
 }
 
 export function post<T = unknown>(
@@ -75,7 +140,7 @@ export function post<T = unknown>(
   data?: unknown,
   config?: AxiosRequestConfig,
 ): Promise<ApiResponse<T>> {
-  return request.post<ApiResponse<T>>(url, data, config).then((res) => res.data);
+  return http.post<ApiResponse<T>>(url, data, config).then((res) => res.data);
 }
 
 export function put<T = unknown>(
@@ -83,14 +148,14 @@ export function put<T = unknown>(
   data?: unknown,
   config?: AxiosRequestConfig,
 ): Promise<ApiResponse<T>> {
-  return request.put<ApiResponse<T>>(url, data, config).then((res) => res.data);
+  return http.put<ApiResponse<T>>(url, data, config).then((res) => res.data);
 }
 
 export function del<T = unknown>(
   url: string,
   config?: AxiosRequestConfig,
 ): Promise<ApiResponse<T>> {
-  return request.delete<ApiResponse<T>>(url, config).then((res) => res.data);
+  return http.delete<ApiResponse<T>>(url, config).then((res) => res.data);
 }
 
-export default request;
+export default http;
