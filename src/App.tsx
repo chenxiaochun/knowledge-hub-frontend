@@ -1,13 +1,13 @@
-import { BookOutlined } from '@ant-design/icons'
-import { Button, Layout, Space, Typography, theme } from 'antd'
+import { BookOutlined } from '@ant-design/icons';
+import { Button, Layout, Space, Typography, theme } from 'antd';
 
-const { Header, Content, Footer } = Layout
-const { Title, Paragraph, Text } = Typography
+const { Header, Content, Footer } = Layout;
+const { Title, Paragraph, Text } = Typography;
 
 function App() {
   const {
     token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken()
+  } = theme.useToken();
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -57,7 +57,7 @@ function App() {
         Knowledge Hub Frontend ©{new Date().getFullYear()}
       </Footer>
     </Layout>
-  )
+  );
 }
 
-export default App
+export default App;

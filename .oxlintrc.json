@@ -8,7 +8,7 @@
     "builtin": true,
     "browser": true
   },
-  "ignorePatterns": ["dist", "node_modules"],
+  "ignorePatterns": ["dist", "coverage", "node_modules"],
   "rules": {
     "typescript/no-explicit-any": "off",
     "react/rules-of-hooks": "error",

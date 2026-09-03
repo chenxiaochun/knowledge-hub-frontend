@@ -5,5 +5,5 @@
  * export * from './knowledge'
  */
 
-export { get, post, put, del } from '@/utils/request'
-export type { ApiResponse } from '@/utils/request'
+export { get, post, put, del } from '@/utils/request';
+export type { ApiResponse } from '@/utils/request';
