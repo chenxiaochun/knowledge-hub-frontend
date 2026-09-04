@@ -1,4 +1,11 @@
-import { BookOutlined, HomeOutlined, LogoutOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  BookOutlined,
+  FileTextOutlined,
+  HomeOutlined,
+  LogoutOutlined,
+  TeamOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import { Dropdown, Layout, Menu, Space, theme, Typography } from 'antd';
 import type { MenuProps } from 'antd';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
@@ -10,6 +17,7 @@ const { Header, Sider, Content } = Layout;
 
 const menuItems = [
   { key: '/', icon: <HomeOutlined />, label: '首页' },
+  { key: '/documents', icon: <FileTextOutlined />, label: '文档管理' },
   { key: '/users', icon: <TeamOutlined />, label: '用户管理' },
 ];
 
@@ -22,6 +30,7 @@ export default function BasicLayout() {
   } = theme.useToken();
 
   const selectedKeys = useMemo(() => {
+    if (location.pathname.startsWith('/documents')) return ['/documents'];
     if (location.pathname.startsWith('/users')) return ['/users'];
     return ['/'];
   }, [location.pathname]);

@@ -25,6 +25,8 @@ export type RequestOption = {
   /** 是否附带 Authorization，默认 true */
   auth?: boolean;
   signal?: AbortSignal;
+  /** 覆盖默认超时（毫秒），上传等长耗时可单独加大 */
+  timeout?: number;
 };
 
 const http: AxiosInstance = axios.create({
@@ -114,7 +116,9 @@ function headersInitToRecord(header?: HeadersInit): Record<string, string> | und
  */
 export async function request<T = unknown>(url: string, option: RequestOption = {}): Promise<T> {
   const method = (option.method ?? 'GET').toUpperCase();
-  const headers = headersInitToRecord(option.header);
+  const headers: Record<string, string> = {
+    ...headersInitToRecord(option.header),
+  };
 
   let data: unknown = option.body;
   if (option.formData) {
@@ -123,6 +127,8 @@ export async function request<T = unknown>(url: string, option: RequestOption = 
       formData.append(key, value);
     }
     data = formData;
+    // 交给浏览器自动带 boundary，避免沿用实例默认的 application/json
+    delete headers['Content-Type'];
   }
 
   const res = await http.request<T>({
@@ -132,6 +138,18 @@ export async function request<T = unknown>(url: string, option: RequestOption = 
     params: option.query,
     headers,
     signal: option.signal,
+    timeout: option.timeout,
+    // FormData 时显式去掉默认 JSON Content-Type
+    ...(data instanceof FormData
+      ? { transformRequest: [(payload, reqHeaders) => {
+          if (reqHeaders && typeof reqHeaders === 'object' && 'delete' in reqHeaders) {
+            (reqHeaders as { delete: (name: string) => void }).delete('Content-Type');
+          } else if (reqHeaders && typeof reqHeaders === 'object') {
+            delete (reqHeaders as Record<string, unknown>)['Content-Type'];
+          }
+          return payload;
+        }] }
+      : {}),
   });
 
   return res.data;

@@ -11,6 +11,7 @@ import type {
   LoginDto,
   RefreshTokenDto,
   UploadParseDto,
+  DocumentEntity,
 } from "./definition";
 
 /** @description response type for getApi */
@@ -480,6 +481,41 @@ export const getApiDocumentId = /* #__PURE__ */ (() => {
       method: request.method,
       ...option,
     }) as unknown as Promise<GetApiDocumentIdResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for putApiDocumentIdPublish */
+export interface PutApiDocumentIdPublishOption {
+  path: {
+    id: string;
+  };
+}
+
+/** @description response type for putApiDocumentIdPublish */
+export interface PutApiDocumentIdPublishResponse {
+  /** @description */
+  200: DocumentEntity;
+}
+
+export type PutApiDocumentIdPublishResponseSuccess =
+  PutApiDocumentIdPublishResponse[200];
+/** @tags Document */
+export const putApiDocumentIdPublish = /* #__PURE__ */ (() => {
+  const method = "put";
+  const url = "/api/document/:id/publish";
+  function request(
+    option: PutApiDocumentIdPublishOption
+  ): Promise<PutApiDocumentIdPublishResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<PutApiDocumentIdPublishResponseSuccess>;
   }
 
   /** http method */

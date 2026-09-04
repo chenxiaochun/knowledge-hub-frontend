@@ -2,7 +2,7 @@
 /* tslint:disable */
 /** Do not modify manually.
 content is generated automatically by `ts-gear`. */
-
+export type ComponentsSchemasDocumentEntityStatus = 0 | 1 | 2 | 3;
 export interface UserVO {
   id: string;
   username: string;
@@ -66,4 +66,27 @@ export interface RefreshTokenDto {
 export interface UploadParseDto {
   tags?: string;
   remark?: string;
+}
+
+export interface DocumentEntity {
+  id: string;
+  title: string;
+  /**
+   * @description
+   *   对应 Mongo document_content._id
+   */
+  contentId: string;
+  authorId?: string | null;
+  fileUrl?: string | null;
+  fileExt?: string | null;
+  status: ComponentsSchemasDocumentEntityStatus;
+  wordCount: number;
+  tags?: string | null;
+  /** @format date-time */
+  createdAt: string;
+  /** @format date-time */
+  updatedAt: string;
+  /** @format date-time */
+  publishTime?: string | null;
+  deleted: boolean;
 }
