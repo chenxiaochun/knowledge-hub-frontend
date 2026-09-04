@@ -1,5 +1,6 @@
 import {
   BookOutlined,
+  FileSearchOutlined,
   FileTextOutlined,
   HomeOutlined,
   LogoutOutlined,
@@ -17,6 +18,7 @@ const { Header, Sider, Content } = Layout;
 
 const menuItems = [
   { key: '/', icon: <HomeOutlined />, label: '首页' },
+  { key: '/search', icon: <FileSearchOutlined />, label: '文档检索' },
   { key: '/documents', icon: <FileTextOutlined />, label: '文档管理' },
   { key: '/users', icon: <TeamOutlined />, label: '用户管理' },
 ];
@@ -30,6 +32,7 @@ export default function BasicLayout() {
   } = theme.useToken();
 
   const selectedKeys = useMemo(() => {
+    if (location.pathname.startsWith('/search')) return ['/search'];
     if (location.pathname.startsWith('/documents')) return ['/documents'];
     if (location.pathname.startsWith('/users')) return ['/users'];
     return ['/'];

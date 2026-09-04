@@ -23,3 +23,12 @@ body {
 .ant-layout-sider-collapsed .layout-brand-text {
   display: none;
 }
+
+.search-highlight em {
+  font-style: normal;
+  font-weight: 600;
+  color: #cf1322;
+  background: #fff1f0;
+  padding: 0 2px;
+  border-radius: 2px;
+}

@@ -9,7 +9,7 @@ export default function HomePage() {
         欢迎使用 Knowledge Hub
       </Title>
       <Paragraph type="secondary">
-        从左侧菜单进入「文档管理」上传与发布文档，或在「用户管理」维护系统用户。
+        从左侧菜单进入「文档检索」按关键词查找文档，或在「文档管理」上传与发布，以及「用户管理」维护用户。
       </Paragraph>
     </div>
   );

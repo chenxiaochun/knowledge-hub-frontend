@@ -5,6 +5,7 @@ import {
   Form,
   Input,
   Modal,
+  Popconfirm,
   Space,
   Table,
   Tag,
@@ -162,11 +163,11 @@ export default function DocumentsPage() {
     }
   };
 
-  const handlePublish = async (id: string) => {
+  const handlePublish = async (id: string, republish = false) => {
     setPublishingId(id);
     try {
       await putApiDocumentIdPublish({ path: { id } });
-      message.success('发布成功');
+      message.success(republish ? '重新发布成功' : '发布成功');
       await fetchList(query);
       if (detail?.id === id) {
         const res = (await getApiDocumentId({ path: { id } })) as DocumentDetail;
@@ -183,6 +184,42 @@ export default function DocumentsPage() {
     status === DocumentStatus.Draft ||
     status === DocumentStatus.Published ||
     status === DocumentStatus.Archived;
+
+  const isPublished = (status: number) => status === DocumentStatus.Published;
+
+  const renderPublishAction = (id: string, status: number, opts?: { drawer?: boolean }) => {
+    if (!isAdmin || !canPublish(status)) return null;
+
+    const republish = isPublished(status);
+    const loading = publishingId === id;
+
+    if (republish) {
+      return (
+        <Popconfirm
+          title="确认重新发布？"
+          description="将刷新发布时间并重新建立检索索引"
+          okText="重新发布"
+          cancelText="取消"
+          onConfirm={() => void handlePublish(id, true)}
+        >
+          <Button type={opts?.drawer ? 'primary' : 'link'} size={opts?.drawer ? 'middle' : 'small'} loading={loading}>
+            重新发布
+          </Button>
+        </Popconfirm>
+      );
+    }
+
+    return (
+      <Button
+        type={opts?.drawer ? 'primary' : 'link'}
+        size={opts?.drawer ? 'middle' : 'small'}
+        loading={loading}
+        onClick={() => void handlePublish(id, false)}
+      >
+        发布
+      </Button>
+    );
+  };
 
   const columns: ColumnsType<DocumentEntity> = [
     {
@@ -232,23 +269,14 @@ export default function DocumentsPage() {
     {
       title: '操作',
       key: 'action',
-      width: 160,
+      width: 180,
       fixed: 'right',
       render: (_, record) => (
         <Space>
           <Button type="link" size="small" onClick={() => void openDetail(record.id)}>
             详情
           </Button>
-          {isAdmin && canPublish(record.status) && record.status !== DocumentStatus.Published && (
-            <Button
-              type="link"
-              size="small"
-              loading={publishingId === record.id}
-              onClick={() => void handlePublish(record.id)}
-            >
-              发布
-            </Button>
-          )}
+          {renderPublishAction(record.id, record.status)}
         </Space>
       ),
     },
@@ -352,17 +380,7 @@ export default function DocumentsPage() {
         open={detailOpen}
         onClose={() => setDetailOpen(false)}
         destroyOnHidden
-        extra={
-          isAdmin && detail && canPublish(detail.status) && detail.status !== DocumentStatus.Published ? (
-            <Button
-              type="primary"
-              loading={publishingId === detail.id}
-              onClick={() => void handlePublish(detail.id)}
-            >
-              发布
-            </Button>
-          ) : null
-        }
+        extra={detail ? renderPublishAction(detail.id, detail.status, { drawer: true }) : null}
       >
         {detailLoading ? (
           <Typography.Text type="secondary">加载中…</Typography.Text>
