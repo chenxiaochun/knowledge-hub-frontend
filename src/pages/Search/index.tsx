@@ -12,7 +12,7 @@ import {
 } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { getApiDocumentId, postApiSearch, type DocumentEntity } from '@/service/api';
+import { getApiDocumentId, getApiSearch, type DocumentEntity } from '@/service/api';
 import { getDocumentStatusMeta } from '@/constants/document';
 
 type SearchHit = {
@@ -80,8 +80,8 @@ export default function SearchPage() {
     const seq = ++requestSeq.current;
     setLoading(true);
     try {
-      const res = (await postApiSearch({
-        body: {
+      const res = (await getApiSearch({
+        query: {
           keyword: next.keyword.trim(),
           page: next.page,
           pageSize: next.pageSize,

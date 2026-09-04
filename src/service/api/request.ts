@@ -12,7 +12,6 @@ import type {
   RefreshTokenDto,
   UploadParseDto,
   DocumentEntity,
-  SearchDocumentsDto,
 } from "./definition";
 
 /** @description response type for getApi */
@@ -526,29 +525,33 @@ export const putApiDocumentIdPublish = /* #__PURE__ */ (() => {
   return request;
 })();
 
-/** @description request parameter type for postApiSearch */
-export interface PostApiSearchOption {
-  body: SearchDocumentsDto;
+/** @description request parameter type for getApiSearch */
+export interface GetApiSearchOption {
+  query: {
+    keyword: string;
+    page?: number;
+    pageSize?: number;
+  };
 }
 
-/** @description response type for postApiSearch */
-export interface PostApiSearchResponse {
+/** @description response type for getApiSearch */
+export interface GetApiSearchResponse {
   /** @description */
-  201: any;
+  200: any;
 }
 
-export type PostApiSearchResponseSuccess = PostApiSearchResponse[201];
+export type GetApiSearchResponseSuccess = GetApiSearchResponse[200];
 /** @tags Search */
-export const postApiSearch = /* #__PURE__ */ (() => {
-  const method = "post";
+export const getApiSearch = /* #__PURE__ */ (() => {
+  const method = "get";
   const url = "/api/search";
   function request(
-    option: PostApiSearchOption
-  ): Promise<PostApiSearchResponseSuccess> {
+    option: GetApiSearchOption
+  ): Promise<GetApiSearchResponseSuccess> {
     return requester(request.url, {
       method: request.method,
       ...option,
-    }) as unknown as Promise<PostApiSearchResponseSuccess>;
+    }) as unknown as Promise<GetApiSearchResponseSuccess>;
   }
 
   /** http method */

@@ -90,11 +90,3 @@ export interface DocumentEntity {
   publishTime?: string | null;
   deleted: boolean;
 }
-
-export interface SearchDocumentsDto {
-  keyword: string;
-  /** @default 1 */
-  page?: number;
-  /** @default 10 */
-  pageSize?: number;
-}
