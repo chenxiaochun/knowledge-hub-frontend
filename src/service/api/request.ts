@@ -4,11 +4,13 @@
 content is generated automatically by `ts-gear`. */
 import { request as requester } from "../../utils/request";
 import type {
+  UserVO,
   UpdateUserDto,
   CreateUserDto,
   RegisterDto,
   LoginDto,
   RefreshTokenDto,
+  UploadParseDto,
 } from "./definition";
 
 /** @description response type for getApi */
@@ -81,7 +83,7 @@ export interface GetApiUserIdOption {
 /** @description response type for getApiUserId */
 export interface GetApiUserIdResponse {
   /** @description */
-  200: any;
+  200: UserVO;
 }
 
 export type GetApiUserIdResponseSuccess = GetApiUserIdResponse[200];
@@ -120,7 +122,7 @@ export interface PutApiUserIdOption {
 /** @description response type for putApiUserId */
 export interface PutApiUserIdResponse {
   /** @description */
-  200: any;
+  200: UserVO;
 }
 
 export type PutApiUserIdResponseSuccess = PutApiUserIdResponse[200];
@@ -154,7 +156,7 @@ export interface DeleteApiUserIdOption {
 /** @description response type for deleteApiUserId */
 export interface DeleteApiUserIdResponse {
   /** @description */
-  200: any;
+  200: UserVO;
 }
 
 export type DeleteApiUserIdResponseSuccess = DeleteApiUserIdResponse[200];
@@ -186,7 +188,7 @@ export interface PostApiUserOption {
 /** @description response type for postApiUser */
 export interface PostApiUserResponse {
   /** @description */
-  201: any;
+  201: UserVO;
 }
 
 export type PostApiUserResponseSuccess = PostApiUserResponse[201];
@@ -359,7 +361,7 @@ export const postApiAuthLogout = /* #__PURE__ */ (() => {
 /** @description response type for getApiAuthMe */
 export interface GetApiAuthMeResponse {
   /** @description */
-  200: any;
+  200: UserVO;
 }
 
 export type GetApiAuthMeResponseSuccess = GetApiAuthMeResponse[200];
@@ -371,6 +373,113 @@ export const getApiAuthMe = /* #__PURE__ */ (() => {
     return requester(request.url, {
       method: request.method,
     }) as unknown as Promise<GetApiAuthMeResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for postApiDocumentUploadParse */
+export interface PostApiDocumentUploadParseOption {
+  body: UploadParseDto;
+}
+
+/** @description response type for postApiDocumentUploadParse */
+export interface PostApiDocumentUploadParseResponse {
+  /** @description */
+  201: any;
+}
+
+export type PostApiDocumentUploadParseResponseSuccess =
+  PostApiDocumentUploadParseResponse[201];
+/** @tags Document */
+export const postApiDocumentUploadParse = /* #__PURE__ */ (() => {
+  const method = "post";
+  const url = "/api/document/upload/parse";
+  function request(
+    option: PostApiDocumentUploadParseOption
+  ): Promise<PostApiDocumentUploadParseResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<PostApiDocumentUploadParseResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for getApiDocument */
+export interface GetApiDocumentOption {
+  query?: {
+    page?: number;
+    pageSize?: number;
+    keyword?: string;
+  };
+}
+
+/** @description response type for getApiDocument */
+export interface GetApiDocumentResponse {
+  /** @description */
+  200: any;
+}
+
+export type GetApiDocumentResponseSuccess = GetApiDocumentResponse[200];
+/**
+ * @description
+ *   列表须在 :id 之前
+ * @tags Document
+ */
+export const getApiDocument = /* #__PURE__ */ (() => {
+  const method = "get";
+  const url = "/api/document";
+  function request(
+    option?: GetApiDocumentOption
+  ): Promise<GetApiDocumentResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<GetApiDocumentResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for getApiDocumentId */
+export interface GetApiDocumentIdOption {
+  path: {
+    id: string;
+  };
+}
+
+/** @description response type for getApiDocumentId */
+export interface GetApiDocumentIdResponse {
+  /** @description */
+  200: any;
+}
+
+export type GetApiDocumentIdResponseSuccess = GetApiDocumentIdResponse[200];
+/** @tags Document */
+export const getApiDocumentId = /* #__PURE__ */ (() => {
+  const method = "get";
+  const url = "/api/document/:id";
+  function request(
+    option: GetApiDocumentIdOption
+  ): Promise<GetApiDocumentIdResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<GetApiDocumentIdResponseSuccess>;
   }
 
   /** http method */

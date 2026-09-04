@@ -21,20 +21,9 @@ import {
   putApiUserId,
   type CreateUserDto,
   type UpdateUserDto,
+  type UserVO,
 } from '@/service/api';
-
-/** 后端分页列表项（Swagger 暂未导出 UserVO，按实际响应约定） */
-type UserVO = {
-  id: string;
-  username: string;
-  email?: string | null;
-  realName?: string | null;
-  avatar?: string | null;
-  status: number;
-  createdAt: string;
-  updatedAt: string;
-  roleCodes: string[];
-};
+import { getRoleLabel, ROLE_OPTIONS, RoleCode } from '@/constants/roles';
 
 type UserPageResult = {
   list: UserVO[];
@@ -111,7 +100,7 @@ export default function UsersPage() {
       realName: undefined,
       email: undefined,
       status: true,
-      roleCodes: [],
+      roleCodes: [RoleCode.USER],
     });
     setModalOpen(true);
   };
@@ -138,6 +127,7 @@ export default function UsersPage() {
           realName: values.realName,
           email: values.email,
           status: values.status ? 1 : 0,
+          roleCodes: values.roleCodes,
         };
         if (values.password) {
           body.password = values.password;
@@ -203,7 +193,7 @@ export default function UsersPage() {
         return (
           <Space size={[0, 4]} wrap>
             {cleaned.map((code) => (
-              <Tag key={code}>{code}</Tag>
+              <Tag key={code}>{getRoleLabel(code)}</Tag>
             ))}
           </Space>
         );
@@ -344,11 +334,19 @@ export default function UsersPage() {
             <Input placeholder="可选" />
           </Form.Item>
 
-          {!editing && (
-            <Form.Item name="roleCodes" label="角色">
-              <Select mode="tags" placeholder="输入后回车添加角色码" tokenSeparators={[',']} />
-            </Form.Item>
-          )}
+          <Form.Item
+            name="roleCodes"
+            label="角色"
+            rules={[{ required: true, message: '请选择角色' }]}
+          >
+            <Select
+              mode="multiple"
+              allowClear
+              placeholder="请选择角色"
+              options={ROLE_OPTIONS}
+              optionFilterProp="label"
+            />
+          </Form.Item>
 
           <Form.Item name="status" label="状态" valuePropName="checked">
             <Switch checkedChildren="启用" unCheckedChildren="禁用" />

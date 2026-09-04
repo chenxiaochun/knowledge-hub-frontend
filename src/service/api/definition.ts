@@ -3,6 +3,20 @@
 /** Do not modify manually.
 content is generated automatically by `ts-gear`. */
 
+export interface UserVO {
+  id: string;
+  username: string;
+  email?: string | null;
+  realName?: string | null;
+  avatar?: string | null;
+  status: number;
+  /** @format date-time */
+  createdAt: string;
+  /** @format date-time */
+  updatedAt: string;
+  roleCodes: Array<string>;
+}
+
 export interface CreateUserDto {
   username: string;
   password: string;
@@ -25,6 +39,11 @@ export interface UpdateUserDto {
   realName?: string;
   avatar?: string;
   status?: number;
+  /**
+   * @description
+   *   角色编码，如 ROLE_ADMIN / ROLE_USER / ROLE_REVIEWER
+   */
+  roleCodes?: Array<string>;
 }
 
 export interface RegisterDto {
@@ -42,4 +61,9 @@ export interface LoginDto {
 
 export interface RefreshTokenDto {
   refreshToken: string;
+}
+
+export interface UploadParseDto {
+  tags?: string;
+  remark?: string;
 }
