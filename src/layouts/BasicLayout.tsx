@@ -1,7 +1,10 @@
-import { BookOutlined, HomeOutlined, TeamOutlined } from '@ant-design/icons';
-import { Layout, Menu, theme } from 'antd';
+import { BookOutlined, HomeOutlined, LogoutOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons';
+import { Dropdown, Layout, Menu, Space, theme, Typography } from 'antd';
+import type { MenuProps } from 'antd';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useMemo } from 'react';
+import { clearAuth, getUserInfo } from '@/utils/auth';
+import { postApiAuthLogout } from '@/service/api';
 
 const { Header, Sider, Content } = Layout;
 
@@ -13,6 +16,7 @@ const menuItems = [
 export default function BasicLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const user = getUserInfo();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -21,6 +25,30 @@ export default function BasicLayout() {
     if (location.pathname.startsWith('/users')) return ['/users'];
     return ['/'];
   }, [location.pathname]);
+
+  const displayName = user?.realName || user?.username || '用户';
+
+  const onLogout = async () => {
+    try {
+      await postApiAuthLogout();
+    } catch {
+      // 即使 logout 接口失败也清理本地凭证
+    } finally {
+      clearAuth();
+      navigate('/login', { replace: true });
+    }
+  };
+
+  const userMenuItems: MenuProps['items'] = [
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: '退出登录',
+      onClick: () => {
+        void onLogout();
+      },
+    },
+  ];
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -56,9 +84,16 @@ export default function BasicLayout() {
             background: colorBgContainer,
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'space-between',
           }}
         >
           <span style={{ fontSize: 16, fontWeight: 500 }}>知识库管理后台</span>
+          <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
+            <Space style={{ cursor: 'pointer' }}>
+              <UserOutlined />
+              <Typography.Text>{displayName}</Typography.Text>
+            </Space>
+          </Dropdown>
         </Header>
         <Content style={{ margin: 24 }}>
           <div

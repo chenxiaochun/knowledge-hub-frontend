@@ -5,6 +5,7 @@ import axios, {
   type AxiosResponse,
 } from 'axios';
 import { message } from 'antd';
+import { clearAuth, getToken } from '@/utils/auth';
 
 /** 后端统一响应结构，可按实际接口调整 */
 export interface ApiResponse<T = unknown> {
@@ -36,7 +37,7 @@ const http: AxiosInstance = axios.create({
 
 http.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -66,8 +67,16 @@ http.interceptors.response.use(
     const msg = error.response?.data?.message || error.message || '网络异常，请稍后重试';
 
     if (status === 401) {
-      message.error('登录已过期，请重新登录');
-      localStorage.removeItem('token');
+      const isAuthApi = /\/auth\/(login|register)/.test(error.config?.url || '');
+      if (!isAuthApi) {
+        message.error('登录已过期，请重新登录');
+        clearAuth();
+        if (window.location.pathname !== '/login') {
+          window.location.assign('/login');
+        }
+      } else {
+        message.error(msg);
+      }
     } else {
       message.error(msg);
     }

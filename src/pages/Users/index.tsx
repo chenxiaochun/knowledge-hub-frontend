@@ -21,8 +21,20 @@ import {
   putApiUserId,
   type CreateUserDto,
   type UpdateUserDto,
-  type UserVO,
 } from '@/service/api';
+
+/** 后端分页列表项（Swagger 暂未导出 UserVO，按实际响应约定） */
+type UserVO = {
+  id: string;
+  username: string;
+  email?: string | null;
+  realName?: string | null;
+  avatar?: string | null;
+  status: number;
+  createdAt: string;
+  updatedAt: string;
+  roleCodes: string[];
+};
 
 type UserPageResult = {
   list: UserVO[];
