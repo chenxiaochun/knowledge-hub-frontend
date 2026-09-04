@@ -54,9 +54,15 @@ type ListQuery = {
 };
 
 type UploadFormValues = {
+  file?: UploadFile[];
   tags?: string;
   remark?: string;
 };
+
+function normFile(e: { fileList: UploadFile[] } | UploadFile[]) {
+  if (Array.isArray(e)) return e;
+  return e?.fileList ?? [];
+}
 
 export default function DocumentsPage() {
   const user = getUserInfo();
@@ -73,7 +79,6 @@ export default function DocumentsPage() {
   const requestSeq = useRef(0);
 
   const [uploadOpen, setUploadOpen] = useState(false);
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [uploadForm] = Form.useForm<UploadFormValues>();
 
   const [detailOpen, setDetailOpen] = useState(false);
@@ -113,17 +118,19 @@ export default function DocumentsPage() {
 
   const openUpload = () => {
     uploadForm.resetFields();
-    setFileList([]);
     setUploadOpen(true);
   };
 
   const handleUpload = async () => {
-    const values = await uploadForm.validateFields();
-    const file = fileList[0]?.originFileObj;
-    if (!file) {
-      message.warning('请先选择文件');
+    let values: UploadFormValues;
+    try {
+      values = await uploadForm.validateFields();
+    } catch {
       return;
     }
+
+    const file = values.file?.[0]?.originFileObj;
+    if (!file) return;
 
     setUploading(true);
     try {
@@ -248,7 +255,11 @@ export default function DocumentsPage() {
           cancelText="取消"
           onConfirm={() => void handlePublish(id, true)}
         >
-          <Button type={opts?.drawer ? 'primary' : 'link'} size={opts?.drawer ? 'middle' : 'small'} loading={loading}>
+          <Button
+            type={opts?.drawer ? 'primary' : 'link'}
+            size={opts?.drawer ? 'middle' : 'small'}
+            loading={loading}
+          >
             重新发布
           </Button>
         </Popconfirm>
@@ -379,11 +390,25 @@ export default function DocumentsPage() {
         cancelText="取消"
       >
         <Form form={uploadForm} layout="vertical" style={{ marginTop: 8 }}>
-          <Form.Item label="文件" required>
+          <Form.Item
+            name="file"
+            label="文件"
+            valuePropName="fileList"
+            getValueFromEvent={normFile}
+            rules={[
+              {
+                required: true,
+                validator: async (_, fileList?: UploadFile[]) => {
+                  if (!fileList?.length || !fileList[0]?.originFileObj) {
+                    return Promise.reject(new Error('请先选择文件'));
+                  }
+                },
+              },
+            ]}
+          >
             <Upload.Dragger
               accept={DOCUMENT_UPLOAD_ACCEPT}
               maxCount={1}
-              fileList={fileList}
               beforeUpload={(file) => {
                 const maxBytes = DOCUMENT_UPLOAD_MAX_MB * 1024 * 1024;
                 if (file.size > maxBytes) {
@@ -396,11 +421,6 @@ export default function DocumentsPage() {
                   return Upload.LIST_IGNORE;
                 }
                 return false;
-              }}
-              onChange={({ fileList: next }) => setFileList(next)}
-              onRemove={() => {
-                setFileList([]);
-                return true;
               }}
             >
               <p className="ant-upload-drag-icon">
@@ -448,7 +468,9 @@ export default function DocumentsPage() {
               <Typography.Text type="secondary">
                 字数 {detail.wordCount?.toLocaleString?.() ?? detail.wordCount}
               </Typography.Text>
-              {detail.tags ? <Typography.Text type="secondary">标签：{detail.tags}</Typography.Text> : null}
+              {detail.tags ? (
+                <Typography.Text type="secondary">标签：{detail.tags}</Typography.Text>
+              ) : null}
             </Space>
             <Typography.Paragraph type="secondary" style={{ marginBottom: 0 }}>
               创建于 {detail.createdAt ? dayjs(detail.createdAt).format('YYYY-MM-DD HH:mm') : '—'}
