@@ -18,6 +18,7 @@ import type { UploadFile } from 'antd/es/upload/interface';
 import { InboxOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import {
+  deleteApiDocumentId,
   getApiDocument,
   getApiDocumentId,
   postApiDocumentUploadParse,
@@ -64,6 +65,7 @@ export default function DocumentsPage() {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [publishingId, setPublishingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [data, setData] = useState<DocumentEntity[]>([]);
   const [total, setTotal] = useState(0);
   const [query, setQuery] = useState<ListQuery>({ page: 1, pageSize: 10, keyword: '' });
@@ -180,12 +182,56 @@ export default function DocumentsPage() {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    setDeletingId(id);
+    try {
+      await deleteApiDocumentId({ path: { id } });
+      message.success('文档已删除');
+      if (detail?.id === id) {
+        setDetailOpen(false);
+        setDetail(null);
+      }
+      if (data.length === 1 && query.page > 1) {
+        updateQuery({ page: query.page - 1 });
+      } else {
+        await fetchList(query);
+      }
+    } catch {
+      // 错误已由拦截器提示
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const canPublish = (status: number) =>
     status === DocumentStatus.Draft ||
     status === DocumentStatus.Published ||
     status === DocumentStatus.Archived;
 
   const isPublished = (status: number) => status === DocumentStatus.Published;
+
+  const renderDeleteAction = (id: string, opts?: { drawer?: boolean }) => {
+    if (!isAdmin) return null;
+    return (
+      <Popconfirm
+        title="确认删除该文档？"
+        description="删除后将从列表移除；已发布文档会同步清理检索索引"
+        okText="删除"
+        cancelText="取消"
+        okButtonProps={{ danger: true }}
+        onConfirm={() => void handleDelete(id)}
+      >
+        <Button
+          type={opts?.drawer ? 'default' : 'link'}
+          danger
+          size={opts?.drawer ? 'middle' : 'small'}
+          loading={deletingId === id}
+        >
+          删除
+        </Button>
+      </Popconfirm>
+    );
+  };
 
   const renderPublishAction = (id: string, status: number, opts?: { drawer?: boolean }) => {
     if (!isAdmin || !canPublish(status)) return null;
@@ -269,7 +315,7 @@ export default function DocumentsPage() {
     {
       title: '操作',
       key: 'action',
-      width: 180,
+      width: 220,
       fixed: 'right',
       render: (_, record) => (
         <Space>
@@ -277,6 +323,7 @@ export default function DocumentsPage() {
             详情
           </Button>
           {renderPublishAction(record.id, record.status)}
+          {renderDeleteAction(record.id)}
         </Space>
       ),
     },
@@ -380,7 +427,14 @@ export default function DocumentsPage() {
         open={detailOpen}
         onClose={() => setDetailOpen(false)}
         destroyOnHidden
-        extra={detail ? renderPublishAction(detail.id, detail.status, { drawer: true }) : null}
+        extra={
+          detail ? (
+            <Space>
+              {renderPublishAction(detail.id, detail.status, { drawer: true })}
+              {renderDeleteAction(detail.id, { drawer: true })}
+            </Space>
+          ) : null
+        }
       >
         {detailLoading ? (
           <Typography.Text type="secondary">加载中…</Typography.Text>

@@ -1,15 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  Button,
-  Drawer,
-  Empty,
-  Input,
-  List,
-  Space,
-  Tag,
-  Typography,
-  message,
-} from 'antd';
+import { Button, Drawer, Empty, Input, List, Space, Tag, Typography, message } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { getApiDocumentId, getApiSearch, type DocumentEntity } from '@/service/api';
@@ -138,7 +128,6 @@ export default function SearchPage() {
       <Typography.Paragraph type="secondary">
         按关键词全文检索已索引文档，支持标题与正文匹配高亮。
       </Typography.Paragraph>
-
       <Space.Compact style={{ width: '100%', maxWidth: 560, marginBottom: 24 }}>
         <Input
           allowClear
@@ -149,7 +138,12 @@ export default function SearchPage() {
           onChange={(e) => setKeywordInput(e.target.value)}
           onPressEnter={() => runSearch(keywordInput)}
         />
-        <Button type="primary" size="large" loading={loading} onClick={() => runSearch(keywordInput)}>
+        <Button
+          type="primary"
+          size="large"
+          loading={loading}
+          onClick={() => runSearch(keywordInput)}
+        >
           搜索
         </Button>
       </Space.Compact>
@@ -209,7 +203,9 @@ export default function SearchPage() {
                           发布于 {dayjs(item.publishTime).format('YYYY-MM-DD HH:mm')}
                         </Typography.Text>
                       ) : null}
-                      <Typography.Text type="secondary">相关度 {item.score.toFixed(3)}</Typography.Text>
+                      <Typography.Text type="secondary">
+                        相关度 {item.score.toFixed(3)}
+                      </Typography.Text>
                     </Space>
                   }
                 />
@@ -227,7 +223,11 @@ export default function SearchPage() {
                     ))}
                   </Space>
                 ) : item.summary ? (
-                  <Typography.Paragraph type="secondary" style={{ marginBottom: 0 }} ellipsis={{ rows: 2 }}>
+                  <Typography.Paragraph
+                    type="secondary"
+                    style={{ marginBottom: 0 }}
+                    ellipsis={{ rows: 2 }}
+                  >
                     {item.summary}
                   </Typography.Paragraph>
                 ) : null}

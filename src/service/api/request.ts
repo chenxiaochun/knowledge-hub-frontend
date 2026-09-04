@@ -490,6 +490,41 @@ export const getApiDocumentId = /* #__PURE__ */ (() => {
   return request;
 })();
 
+/** @description request parameter type for deleteApiDocumentId */
+export interface DeleteApiDocumentIdOption {
+  path: {
+    id: string;
+  };
+}
+
+/** @description response type for deleteApiDocumentId */
+export interface DeleteApiDocumentIdResponse {
+  /** @description */
+  200: any;
+}
+
+export type DeleteApiDocumentIdResponseSuccess =
+  DeleteApiDocumentIdResponse[200];
+/** @tags Document */
+export const deleteApiDocumentId = /* #__PURE__ */ (() => {
+  const method = "delete";
+  const url = "/api/document/:id";
+  function request(
+    option: DeleteApiDocumentIdOption
+  ): Promise<DeleteApiDocumentIdResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<DeleteApiDocumentIdResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
 /** @description request parameter type for putApiDocumentIdPublish */
 export interface PutApiDocumentIdPublishOption {
   path: {
