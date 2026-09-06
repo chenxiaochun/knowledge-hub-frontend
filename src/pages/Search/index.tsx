@@ -16,13 +16,14 @@ import { SearchOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import {
   getApiDocumentId,
+  getApiGraphSearch,
   getApiSearch,
   getApiSearchSemantic,
   type DocumentEntity,
 } from '@/service/api';
 import { getDocumentStatusMeta } from '@/constants/document';
 
-type SearchMode = 'keyword' | 'semantic';
+type SearchMode = 'keyword' | 'semantic' | 'graph';
 
 type KeywordHit = {
   id: string;
@@ -56,6 +57,18 @@ type SemanticHit = {
   chunk_index: number;
 };
 
+/** 图谱检索命中：Neo4j 节点 labels + properties */
+type GraphHit = {
+  labels: string[];
+  props: {
+    id?: string;
+    title?: string;
+    name?: string;
+    type?: string;
+    [key: string]: unknown;
+  };
+};
+
 type DocumentDetail = DocumentEntity & {
   content: string;
   contentLength: number;
@@ -74,7 +87,13 @@ type SemanticQuery = {
   topK: number;
 };
 
-type ActiveQuery = KeywordQuery | SemanticQuery;
+type GraphQuery = {
+  mode: 'graph';
+  keyword: string;
+  limit: number;
+};
+
+type ActiveQuery = KeywordQuery | SemanticQuery | GraphQuery;
 
 function HighlightHtml({ html }: { html: string }) {
   return (
@@ -86,14 +105,30 @@ function HighlightHtml({ html }: { html: string }) {
   );
 }
 
+function graphHitKey(item: GraphHit, index: number) {
+  return String(item.props.id ?? item.props.name ?? index);
+}
+
+function graphHitTitle(item: GraphHit) {
+  if (typeof item.props.title === 'string' && item.props.title) return item.props.title;
+  if (typeof item.props.name === 'string' && item.props.name) return item.props.name;
+  return '未命名节点';
+}
+
+function isDocumentNode(item: GraphHit) {
+  return item.labels.includes('KnowledgeDocument') && Boolean(item.props.id);
+}
+
 export default function SearchPage() {
   const [mode, setMode] = useState<SearchMode>('keyword');
   const [keywordInput, setKeywordInput] = useState('');
   const [topK, setTopK] = useState(5);
+  const [graphLimit, setGraphLimit] = useState(20);
   const [query, setQuery] = useState<ActiveQuery | null>(null);
   const [loading, setLoading] = useState(false);
   const [keywordItems, setKeywordItems] = useState<KeywordHit[]>([]);
   const [semanticItems, setSemanticItems] = useState<SemanticHit[]>([]);
+  const [graphItems, setGraphItems] = useState<GraphHit[]>([]);
   const [total, setTotal] = useState(0);
   const requestSeq = useRef(0);
 
@@ -105,6 +140,7 @@ export default function SearchPage() {
     if (!next.keyword.trim()) {
       setKeywordItems([]);
       setSemanticItems([]);
+      setGraphItems([]);
       setTotal(0);
       return;
     }
@@ -123,8 +159,9 @@ export default function SearchPage() {
         if (seq !== requestSeq.current) return;
         setKeywordItems(res.items ?? []);
         setSemanticItems([]);
+        setGraphItems([]);
         setTotal(res.total ?? 0);
-      } else {
+      } else if (next.mode === 'semantic') {
         const res = (await getApiSearchSemantic({
           query: {
             query: next.keyword.trim(),
@@ -135,6 +172,20 @@ export default function SearchPage() {
         const items = Array.isArray(res) ? res : [];
         setSemanticItems(items);
         setKeywordItems([]);
+        setGraphItems([]);
+        setTotal(items.length);
+      } else {
+        const res = (await getApiGraphSearch({
+          query: {
+            keyword: next.keyword.trim(),
+            limit: String(next.limit),
+          },
+        })) as GraphHit[];
+        if (seq !== requestSeq.current) return;
+        const items = Array.isArray(res) ? res : [];
+        setGraphItems(items);
+        setKeywordItems([]);
+        setSemanticItems([]);
         setTotal(items.length);
       }
     } catch {
@@ -165,21 +216,28 @@ export default function SearchPage() {
         page,
         pageSize: query?.mode === 'keyword' ? query.pageSize : 10,
       });
-    } else {
+    } else if (mode === 'semantic') {
       setQuery({
         mode: 'semantic',
         keyword,
         topK,
+      });
+    } else {
+      setQuery({
+        mode: 'graph',
+        keyword,
+        limit: graphLimit,
       });
     }
   };
 
   const switchMode = (nextMode: SearchMode) => {
     setMode(nextMode);
-    // 切换模式后清空结果，避免两种结果混读；保留输入词方便再次搜索
+    // 切换模式后清空结果，避免混读；保留输入词方便再次搜索
     setQuery(null);
     setKeywordItems([]);
     setSemanticItems([]);
+    setGraphItems([]);
     setTotal(0);
   };
 
@@ -198,7 +256,21 @@ export default function SearchPage() {
   };
 
   const hasSearched = Boolean(query?.keyword);
-  const isSemantic = query?.mode === 'semantic' || (!query && mode === 'semantic');
+  const activeMode = query?.mode ?? mode;
+
+  const emptyHint =
+    mode === 'keyword'
+      ? '输入关键词后开始检索'
+      : mode === 'semantic'
+        ? '输入问题后开始语义检索'
+        : '输入实体名或文档标题后开始图谱检索';
+
+  const placeholder =
+    mode === 'keyword'
+      ? '输入关键词，例如 demo'
+      : mode === 'semantic'
+        ? '用自然语言描述问题，例如 如何发布文档'
+        : '输入图谱节点关键词，例如 实体名或文档标题';
 
   return (
     <div>
@@ -206,7 +278,7 @@ export default function SearchPage() {
         文档检索
       </Typography.Title>
       <Typography.Paragraph type="secondary">
-        支持全文关键词检索与语义向量检索；语义检索返回最相关的文档片段。
+        支持全文检索、语义向量检索与知识图谱检索；图谱命中为实体或文档节点。
       </Typography.Paragraph>
 
       <Space direction="vertical" size={16} style={{ width: '100%', marginBottom: 24 }}>
@@ -216,6 +288,7 @@ export default function SearchPage() {
           options={[
             { label: '全文检索', value: 'keyword' },
             { label: '语义检索', value: 'semantic' },
+            { label: '图谱检索', value: 'graph' },
           ]}
         />
 
@@ -225,9 +298,7 @@ export default function SearchPage() {
               allowClear
               size="large"
               prefix={<SearchOutlined />}
-              placeholder={
-                mode === 'keyword' ? '输入关键词，例如 demo' : '用自然语言描述问题，例如 如何发布文档'
-              }
+              placeholder={placeholder}
               value={keywordInput}
               onChange={(e) => setKeywordInput(e.target.value)}
               onPressEnter={() => runSearch(keywordInput)}
@@ -253,12 +324,24 @@ export default function SearchPage() {
               />
             </Space>
           ) : null}
+
+          {mode === 'graph' ? (
+            <Space>
+              <Typography.Text type="secondary">返回条数</Typography.Text>
+              <InputNumber
+                min={1}
+                max={100}
+                value={graphLimit}
+                onChange={(value) => setGraphLimit(typeof value === 'number' ? value : 20)}
+              />
+            </Space>
+          ) : null}
         </Space>
       </Space>
 
       {!hasSearched ? (
-        <Empty description={mode === 'keyword' ? '输入关键词后开始检索' : '输入问题后开始语义检索'} />
-      ) : isSemantic ? (
+        <Empty description={emptyHint} />
+      ) : activeMode === 'semantic' ? (
         <List
           loading={loading}
           itemLayout="vertical"
@@ -305,6 +388,72 @@ export default function SearchPage() {
               </Typography.Paragraph>
             </List.Item>
           )}
+        />
+      ) : activeMode === 'graph' ? (
+        <List
+          loading={loading}
+          itemLayout="vertical"
+          dataSource={graphItems}
+          locale={{ emptyText: <Empty description="未找到匹配的图谱节点" /> }}
+          header={
+            total > 0 ? (
+              <Typography.Text type="secondary">共 {total} 个节点</Typography.Text>
+            ) : null
+          }
+          renderItem={(item, index) => {
+            const title = graphHitTitle(item);
+            const documentId = isDocumentNode(item) ? String(item.props.id) : null;
+
+            return (
+              <List.Item
+                key={graphHitKey(item, index)}
+                actions={
+                  documentId
+                    ? [
+                        <Button key="open" type="link" onClick={() => void openDetail(documentId)}>
+                          查看文档
+                        </Button>,
+                      ]
+                    : undefined
+                }
+              >
+                <List.Item.Meta
+                  title={
+                    documentId ? (
+                      <Button
+                        type="link"
+                        style={{ paddingInline: 0, height: 'auto', fontSize: 16 }}
+                        onClick={() => void openDetail(documentId)}
+                      >
+                        {title}
+                      </Button>
+                    ) : (
+                      <Typography.Text strong style={{ fontSize: 16 }}>
+                        {title}
+                      </Typography.Text>
+                    )
+                  }
+                  description={
+                    <Space wrap size="small">
+                      {item.labels.map((label) => (
+                        <Tag key={label} color={label === 'KnowledgeDocument' ? 'blue' : 'cyan'}>
+                          {label}
+                        </Tag>
+                      ))}
+                      {typeof item.props.type === 'string' && item.props.type ? (
+                        <Tag>{item.props.type}</Tag>
+                      ) : null}
+                    </Space>
+                  }
+                />
+                {typeof item.props.id === 'string' && item.props.id ? (
+                  <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                    ID：{item.props.id}
+                  </Typography.Text>
+                ) : null}
+              </List.Item>
+            );
+          }}
         />
       ) : (
         <List

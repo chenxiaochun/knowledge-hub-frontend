@@ -631,3 +631,38 @@ export const getApiSearchSemantic = /* #__PURE__ */ (() => {
   request.url = url;
   return request;
 })();
+
+/** @description request parameter type for getApiGraphSearch */
+export interface GetApiGraphSearchOption {
+  query: {
+    keyword: string;
+    limit?: string;
+  };
+}
+
+/** @description response type for getApiGraphSearch */
+export interface GetApiGraphSearchResponse {
+  /** @description */
+  200: any;
+}
+
+export type GetApiGraphSearchResponseSuccess = GetApiGraphSearchResponse[200];
+/** @tags Graph */
+export const getApiGraphSearch = /* #__PURE__ */ (() => {
+  const method = "get";
+  const url = "/api/graph/search";
+  function request(
+    option: GetApiGraphSearchOption
+  ): Promise<GetApiGraphSearchResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<GetApiGraphSearchResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
