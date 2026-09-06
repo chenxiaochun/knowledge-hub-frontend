@@ -595,3 +595,39 @@ export const getApiSearch = /* #__PURE__ */ (() => {
   request.url = url;
   return request;
 })();
+
+/** @description request parameter type for getApiSearchSemantic */
+export interface GetApiSearchSemanticOption {
+  query: {
+    query: string;
+    topK?: number;
+  };
+}
+
+/** @description response type for getApiSearchSemantic */
+export interface GetApiSearchSemanticResponse {
+  /** @description */
+  200: any;
+}
+
+export type GetApiSearchSemanticResponseSuccess =
+  GetApiSearchSemanticResponse[200];
+/** @tags Search */
+export const getApiSearchSemantic = /* #__PURE__ */ (() => {
+  const method = "get";
+  const url = "/api/search/semantic";
+  function request(
+    option: GetApiSearchSemanticOption
+  ): Promise<GetApiSearchSemanticResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<GetApiSearchSemanticResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
