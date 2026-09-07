@@ -7,6 +7,9 @@ import type {
   UserVO,
   UpdateUserDto,
   CreateUserDto,
+  PermissionEntity,
+  RoleEntity,
+  SetRolePermissionsDto,
   RegisterDto,
   LoginDto,
   RefreshTokenDto,
@@ -29,6 +32,30 @@ export const getApi = /* #__PURE__ */ (() => {
     return requester(request.url, {
       method: request.method,
     }) as unknown as Promise<GetApiResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description response type for getApiHealth */
+export interface GetApiHealthResponse {
+  /** @description */
+  200: any;
+}
+
+export type GetApiHealthResponseSuccess = GetApiHealthResponse[200];
+/** @tags App */
+export const getApiHealth = /* #__PURE__ */ (() => {
+  const method = "get";
+  const url = "/api/health";
+  function request(): Promise<GetApiHealthResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+    }) as unknown as Promise<GetApiHealthResponseSuccess>;
   }
 
   /** http method */
@@ -229,6 +256,229 @@ export const postApiUserRegister = /* #__PURE__ */ (() => {
     return requester(request.url, {
       method: request.method,
     }) as unknown as Promise<PostApiUserRegisterResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for getApiRbacPage */
+export interface GetApiRbacPageOption {
+  query?: {
+    page?: number;
+    pageSize?: number;
+    keyword?: string;
+  };
+}
+
+/** @description response type for getApiRbacPage */
+export interface GetApiRbacPageResponse {
+  /** @description */
+  200: any;
+}
+
+export type GetApiRbacPageResponseSuccess = GetApiRbacPageResponse[200];
+/** @tags Rbac */
+export const getApiRbacPage = /* #__PURE__ */ (() => {
+  const method = "get";
+  const url = "/api/rbac/page";
+  function request(
+    option?: GetApiRbacPageOption
+  ): Promise<GetApiRbacPageResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<GetApiRbacPageResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description response type for getApiRbacPermissions */
+export interface GetApiRbacPermissionsResponse {
+  /** @description */
+  200: Array<PermissionEntity>;
+}
+
+export type GetApiRbacPermissionsResponseSuccess =
+  GetApiRbacPermissionsResponse[200];
+/** @tags Rbac */
+export const getApiRbacPermissions = /* #__PURE__ */ (() => {
+  const method = "get";
+  const url = "/api/rbac/permissions";
+  function request(): Promise<GetApiRbacPermissionsResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+    }) as unknown as Promise<GetApiRbacPermissionsResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description response type for getApiRbacRoles */
+export interface GetApiRbacRolesResponse {
+  /** @description */
+  200: Array<RoleEntity>;
+}
+
+export type GetApiRbacRolesResponseSuccess = GetApiRbacRolesResponse[200];
+/** @tags Rbac */
+export const getApiRbacRoles = /* #__PURE__ */ (() => {
+  const method = "get";
+  const url = "/api/rbac/roles";
+  function request(): Promise<GetApiRbacRolesResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+    }) as unknown as Promise<GetApiRbacRolesResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description response type for getApiRbacRbacRoles */
+export interface GetApiRbacRbacRolesResponse {
+  /** @description */
+  200: Array<RoleEntity>;
+}
+
+export type GetApiRbacRbacRolesResponseSuccess =
+  GetApiRbacRbacRolesResponse[200];
+/**
+ * @description
+ *   兼容旧路径
+ * @tags Rbac
+ */
+export const getApiRbacRbacRoles = /* #__PURE__ */ (() => {
+  const method = "get";
+  const url = "/api/rbac/rbac/roles";
+  function request(): Promise<GetApiRbacRbacRolesResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+    }) as unknown as Promise<GetApiRbacRbacRolesResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for getApiRbacRolesRoleCodePermissions */
+export interface GetApiRbacRolesRoleCodePermissionsOption {
+  path: {
+    roleCode: string;
+  };
+}
+
+/** @description response type for getApiRbacRolesRoleCodePermissions */
+export interface GetApiRbacRolesRoleCodePermissionsResponse {
+  /** @description */
+  200: any;
+}
+
+export type GetApiRbacRolesRoleCodePermissionsResponseSuccess =
+  GetApiRbacRolesRoleCodePermissionsResponse[200];
+/** @tags Rbac */
+export const getApiRbacRolesRoleCodePermissions = /* #__PURE__ */ (() => {
+  const method = "get";
+  const url = "/api/rbac/roles/:roleCode/permissions";
+  function request(
+    option: GetApiRbacRolesRoleCodePermissionsOption
+  ): Promise<GetApiRbacRolesRoleCodePermissionsResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<GetApiRbacRolesRoleCodePermissionsResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for putApiRbacRolesRoleCodePermissions */
+export interface PutApiRbacRolesRoleCodePermissionsOption {
+  path: {
+    roleCode: string;
+  };
+}
+
+/** @description request parameter type for putApiRbacRolesRoleCodePermissions */
+export interface PutApiRbacRolesRoleCodePermissionsOption {
+  body: SetRolePermissionsDto;
+}
+
+/** @description response type for putApiRbacRolesRoleCodePermissions */
+export interface PutApiRbacRolesRoleCodePermissionsResponse {
+  /** @description */
+  200: any;
+}
+
+export type PutApiRbacRolesRoleCodePermissionsResponseSuccess =
+  PutApiRbacRolesRoleCodePermissionsResponse[200];
+/** @tags Rbac */
+export const putApiRbacRolesRoleCodePermissions = /* #__PURE__ */ (() => {
+  const method = "put";
+  const url = "/api/rbac/roles/:roleCode/permissions";
+  function request(
+    option: PutApiRbacRolesRoleCodePermissionsOption
+  ): Promise<PutApiRbacRolesRoleCodePermissionsResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<PutApiRbacRolesRoleCodePermissionsResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for putApiRbacIdRoles */
+export interface PutApiRbacIdRolesOption {
+  path: {
+    id: string;
+  };
+}
+
+/** @description response type for putApiRbacIdRoles */
+export interface PutApiRbacIdRolesResponse {
+  /** @description */
+  200: any;
+}
+
+export type PutApiRbacIdRolesResponseSuccess = PutApiRbacIdRolesResponse[200];
+/** @tags Rbac */
+export const putApiRbacIdRoles = /* #__PURE__ */ (() => {
+  const method = "put";
+  const url = "/api/rbac/:id/roles";
+  function request(
+    option: PutApiRbacIdRolesOption
+  ): Promise<PutApiRbacIdRolesResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<PutApiRbacIdRolesResponseSuccess>;
   }
 
   /** http method */

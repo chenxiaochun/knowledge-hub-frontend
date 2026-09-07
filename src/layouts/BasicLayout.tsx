@@ -4,6 +4,7 @@ import {
   FileTextOutlined,
   HomeOutlined,
   LogoutOutlined,
+  SafetyCertificateOutlined,
   TeamOutlined,
   UserOutlined,
 } from '@ant-design/icons';
@@ -13,28 +14,37 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useMemo } from 'react';
 import { clearAuth, getUserInfo } from '@/utils/auth';
 import { postApiAuthLogout } from '@/service/api';
+import { RoleCode } from '@/constants/roles';
 
 const { Header, Sider, Content } = Layout;
-
-const menuItems = [
-  { key: '/', icon: <HomeOutlined />, label: '首页' },
-  { key: '/search', icon: <FileSearchOutlined />, label: '文档检索' },
-  { key: '/documents', icon: <FileTextOutlined />, label: '文档管理' },
-  { key: '/users', icon: <TeamOutlined />, label: '用户管理' },
-];
 
 export default function BasicLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const user = getUserInfo();
+  const isAdmin = Boolean(user?.roles?.includes(RoleCode.ADMIN));
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+  const menuItems = useMemo(
+    () => [
+      { key: '/', icon: <HomeOutlined />, label: '首页' },
+      { key: '/search', icon: <FileSearchOutlined />, label: '文档检索' },
+      { key: '/documents', icon: <FileTextOutlined />, label: '文档管理' },
+      { key: '/users', icon: <TeamOutlined />, label: '用户管理' },
+      ...(isAdmin
+        ? [{ key: '/rbac', icon: <SafetyCertificateOutlined />, label: '角色权限' }]
+        : []),
+    ],
+    [isAdmin],
+  );
 
   const selectedKeys = useMemo(() => {
     if (location.pathname.startsWith('/search')) return ['/search'];
     if (location.pathname.startsWith('/documents')) return ['/documents'];
     if (location.pathname.startsWith('/users')) return ['/users'];
+    if (location.pathname.startsWith('/rbac')) return ['/rbac'];
     return ['/'];
   }, [location.pathname]);
 

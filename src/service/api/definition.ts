@@ -46,6 +46,30 @@ export interface UpdateUserDto {
   roleCodes?: Array<string>;
 }
 
+export interface PermissionEntity {
+  id: string;
+  permissionName: string;
+  permissionCode: string;
+  /**
+   * @description
+   *   练习版固定 3=接口
+   */
+  permissionType: number;
+  status: number;
+}
+
+export interface RoleEntity {
+  id: string;
+  roleName: string;
+  roleCode: string;
+  description?: string | null;
+  status: number;
+}
+
+export interface SetRolePermissionsDto {
+  permissionCodes: Array<string>;
+}
+
 export interface RegisterDto {
   username: string;
   password: string;
