@@ -1,3 +1,6 @@
+import { useMemo } from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+
 import {
   BookOutlined,
   FileSearchOutlined,
@@ -10,11 +13,10 @@ import {
 } from '@ant-design/icons';
 import { Dropdown, Layout, Menu, Space, theme, Typography } from 'antd';
 import type { MenuProps } from 'antd';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { useMemo } from 'react';
-import { clearAuth, getUserInfo } from '@/utils/auth';
-import { postApiAuthLogout } from '@/service/api';
+
 import { RoleCode } from '@/constants/roles';
+import { postApiAuthLogout } from '@/service/api';
+import { clearAuth, getUserInfo } from '@/utils/auth';
 
 const { Header, Sider, Content } = Layout;
 

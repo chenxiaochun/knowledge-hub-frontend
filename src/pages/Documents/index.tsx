@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+
+import { InboxOutlined } from '@ant-design/icons';
 import {
   Button,
   Drawer,
@@ -15,8 +17,18 @@ import {
 } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import type { UploadFile } from 'antd/es/upload/interface';
-import { InboxOutlined } from '@ant-design/icons';
+
 import dayjs from 'dayjs';
+
+import type { RequestOption } from '@/utils/request';
+
+import {
+  DOCUMENT_UPLOAD_ACCEPT,
+  DOCUMENT_UPLOAD_MAX_MB,
+  DocumentStatus,
+  getDocumentStatusMeta,
+} from '@/constants/document';
+import { RoleCode } from '@/constants/roles';
 import {
   deleteApiDocumentId,
   getApiDocument,
@@ -25,15 +37,7 @@ import {
   putApiDocumentIdPublish,
   type DocumentEntity,
 } from '@/service/api';
-import {
-  DOCUMENT_UPLOAD_ACCEPT,
-  DOCUMENT_UPLOAD_MAX_MB,
-  DocumentStatus,
-  getDocumentStatusMeta,
-} from '@/constants/document';
-import { RoleCode } from '@/constants/roles';
 import { getUserInfo } from '@/utils/auth';
-import type { RequestOption } from '@/utils/request';
 
 type DocumentPageResult = {
   list: DocumentEntity[];

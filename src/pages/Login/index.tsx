@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { App, Button, Card, Form, Input, Typography } from 'antd';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+
 import { postApiAuthLogin } from '@/service/api';
 import { isAuthenticated, setAuth, type LoginResult } from '@/utils/auth';
 
@@ -79,10 +81,7 @@ export default function LoginPage() {
           autoComplete="on"
           requiredMark={false}
         >
-          <Form.Item
-            name="username"
-            rules={[{ required: true, message: '请输入用户名' }]}
-          >
+          <Form.Item name="username" rules={[{ required: true, message: '请输入用户名' }]}>
             <Input
               prefix={<UserOutlined />}
               placeholder="用户名"
@@ -91,10 +90,7 @@ export default function LoginPage() {
             />
           </Form.Item>
 
-          <Form.Item
-            name="password"
-            rules={[{ required: true, message: '请输入密码' }]}
-          >
+          <Form.Item name="password" rules={[{ required: true, message: '请输入密码' }]}>
             <Input.Password
               prefix={<LockOutlined />}
               placeholder="密码"
