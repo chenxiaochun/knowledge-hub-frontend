@@ -1,0 +1,19 @@
+import { defineConfig } from 'oxlint';
+
+export default defineConfig({
+  plugins: ['react', 'typescript', 'unicorn', 'oxc'],
+  categories: {
+    correctness: 'error',
+  },
+  env: {
+    builtin: true,
+    browser: true,
+  },
+  ignorePatterns: ['dist', 'coverage', 'node_modules'],
+  rules: {
+    'typescript/no-explicit-any': 'off',
+    'react/rules-of-hooks': 'error',
+    'react/only-export-components': ['warn', { allowConstantExport: true }],
+    'react/set-state-in-effect': 'off',
+  },
+});
