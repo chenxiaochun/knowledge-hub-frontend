@@ -86,7 +86,7 @@ export default function LoginPage() {
               prefix={<UserOutlined />}
               placeholder="用户名"
               autoComplete="username"
-              allowClear
+              tabIndex={1}
             />
           </Form.Item>
 
@@ -95,11 +95,12 @@ export default function LoginPage() {
               prefix={<LockOutlined />}
               placeholder="密码"
               autoComplete="current-password"
+              tabIndex={2}
             />
           </Form.Item>
 
           <Form.Item style={{ marginBottom: 0 }}>
-            <Button type="primary" htmlType="submit" loading={loading} block>
+            <Button type="primary" htmlType="submit" loading={loading} block tabIndex={3}>
               登录
             </Button>
           </Form.Item>
