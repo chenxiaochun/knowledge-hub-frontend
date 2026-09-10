@@ -3,6 +3,7 @@
 /** Do not modify manually.
 content is generated automatically by `ts-gear`. */
 export type ComponentsSchemasDocumentEntityStatus = 0 | 1 | 2 | 3;
+export type ComponentsSchemasDocumentReviewEntityReviewResult = 1 | 2;
 export interface UserVO {
   id: string;
   username: string;
@@ -113,4 +114,18 @@ export interface DocumentEntity {
   /** @format date-time */
   publishTime?: string | null;
   deleted: boolean;
+}
+
+export interface DocumentReviewEntity {
+  id: string;
+  documentId: string;
+  reviewerId: string;
+  reviewerName: string;
+  reviewResult: ComponentsSchemasDocumentReviewEntityReviewResult;
+  reviewComment: string;
+  beforeStatus: number;
+  /** @format date-time */
+  reviewedAt: string;
+  /** @format date-time */
+  createdAt: string;
 }

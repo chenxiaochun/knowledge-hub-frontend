@@ -15,6 +15,7 @@ import type {
   RefreshTokenDto,
   UploadParseDto,
   DocumentEntity,
+  DocumentReviewEntity,
 } from "./definition";
 
 /** @description response type for getApi */
@@ -801,6 +802,136 @@ export const putApiDocumentIdPublish = /* #__PURE__ */ (() => {
       method: request.method,
       ...option,
     }) as unknown as Promise<PutApiDocumentIdPublishResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for putApiDocumentIdSubmitReview */
+export interface PutApiDocumentIdSubmitReviewOption {
+  path: {
+    id: string;
+  };
+}
+
+/** @description response type for putApiDocumentIdSubmitReview */
+export interface PutApiDocumentIdSubmitReviewResponse {
+  /** @description */
+  200: any;
+}
+
+export type PutApiDocumentIdSubmitReviewResponseSuccess =
+  PutApiDocumentIdSubmitReviewResponse[200];
+/** @tags Document */
+export const putApiDocumentIdSubmitReview = /* #__PURE__ */ (() => {
+  const method = "put";
+  const url = "/api/document/:id/submit-review";
+  function request(
+    option: PutApiDocumentIdSubmitReviewOption
+  ): Promise<PutApiDocumentIdSubmitReviewResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<PutApiDocumentIdSubmitReviewResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description response type for getApiDocumentReviewsPending */
+export interface GetApiDocumentReviewsPendingResponse {
+  /** @description */
+  200: Array<DocumentReviewEntity>;
+}
+
+export type GetApiDocumentReviewsPendingResponseSuccess =
+  GetApiDocumentReviewsPendingResponse[200];
+/** @tags Document */
+export const getApiDocumentReviewsPending = /* #__PURE__ */ (() => {
+  const method = "get";
+  const url = "/api/document/reviews/pending";
+  function request(): Promise<GetApiDocumentReviewsPendingResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+    }) as unknown as Promise<GetApiDocumentReviewsPendingResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for putApiDocumentReviewsReviewIdApprove */
+export interface PutApiDocumentReviewsReviewIdApproveOption {
+  path: {
+    reviewId: string;
+  };
+}
+
+/** @description response type for putApiDocumentReviewsReviewIdApprove */
+export interface PutApiDocumentReviewsReviewIdApproveResponse {
+  /** @description */
+  200: DocumentEntity;
+}
+
+export type PutApiDocumentReviewsReviewIdApproveResponseSuccess =
+  PutApiDocumentReviewsReviewIdApproveResponse[200];
+/** @tags Document */
+export const putApiDocumentReviewsReviewIdApprove = /* #__PURE__ */ (() => {
+  const method = "put";
+  const url = "/api/document/reviews/:reviewId/approve";
+  function request(
+    option: PutApiDocumentReviewsReviewIdApproveOption
+  ): Promise<PutApiDocumentReviewsReviewIdApproveResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<PutApiDocumentReviewsReviewIdApproveResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for putApiDocumentReviewsReviewIdReject */
+export interface PutApiDocumentReviewsReviewIdRejectOption {
+  path: {
+    reviewId: string;
+  };
+}
+
+/** @description response type for putApiDocumentReviewsReviewIdReject */
+export interface PutApiDocumentReviewsReviewIdRejectResponse {
+  /** @description */
+  200: DocumentEntity;
+}
+
+export type PutApiDocumentReviewsReviewIdRejectResponseSuccess =
+  PutApiDocumentReviewsReviewIdRejectResponse[200];
+/** @tags Document */
+export const putApiDocumentReviewsReviewIdReject = /* #__PURE__ */ (() => {
+  const method = "put";
+  const url = "/api/document/reviews/:reviewId/reject";
+  function request(
+    option: PutApiDocumentReviewsReviewIdRejectOption
+  ): Promise<PutApiDocumentReviewsReviewIdRejectResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<PutApiDocumentReviewsReviewIdRejectResponseSuccess>;
   }
 
   /** http method */
