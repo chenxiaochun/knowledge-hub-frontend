@@ -34,5 +34,16 @@ export function getDocumentStatusMeta(status: number) {
 }
 
 /** 后端当前解析支持的扩展名 */
-export const DOCUMENT_UPLOAD_ACCEPT = '.txt,.md';
+export const DOCUMENT_UPLOAD_EXTS = ['txt', 'md', 'docx', 'pdf', 'pptx', 'xlsx'] as const;
+
+export type DocumentUploadExt = (typeof DOCUMENT_UPLOAD_EXTS)[number];
+
+export const DOCUMENT_UPLOAD_ACCEPT = DOCUMENT_UPLOAD_EXTS.map((ext) => `.${ext}`).join(',');
+
+export const DOCUMENT_UPLOAD_HINT = DOCUMENT_UPLOAD_EXTS.map((ext) => `.${ext}`).join(' / ');
+
 export const DOCUMENT_UPLOAD_MAX_MB = 10;
+
+export function isSupportedDocumentExt(ext: string | undefined | null): ext is DocumentUploadExt {
+  return Boolean(ext && (DOCUMENT_UPLOAD_EXTS as readonly string[]).includes(ext.toLowerCase()));
+}

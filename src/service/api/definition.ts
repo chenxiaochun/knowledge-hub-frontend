@@ -89,8 +89,13 @@ export interface RefreshTokenDto {
 }
 
 export interface UploadParseDto {
+  categoryId?: string;
+  teamId?: string;
+  authorId?: string;
   tags?: string;
   remark?: string;
+  createBy?: string;
+  isPublic?: boolean;
 }
 
 export interface DocumentEntity {

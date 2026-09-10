@@ -24,9 +24,11 @@ import type { RequestOption } from '@/utils/request';
 
 import {
   DOCUMENT_UPLOAD_ACCEPT,
+  DOCUMENT_UPLOAD_HINT,
   DOCUMENT_UPLOAD_MAX_MB,
   DocumentStatus,
   getDocumentStatusMeta,
+  isSupportedDocumentExt,
 } from '@/constants/document';
 import { RoleCode } from '@/constants/roles';
 import {
@@ -420,8 +422,8 @@ export default function DocumentsPage() {
                   return Upload.LIST_IGNORE;
                 }
                 const ext = file.name.split('.').pop()?.toLowerCase();
-                if (!ext || !['txt', 'md'].includes(ext)) {
-                  message.error('仅支持 .txt / .md 文件');
+                if (!isSupportedDocumentExt(ext)) {
+                  message.error(`仅支持 ${DOCUMENT_UPLOAD_HINT} 文件`);
                   return Upload.LIST_IGNORE;
                 }
                 return false;
@@ -431,7 +433,9 @@ export default function DocumentsPage() {
                 <InboxOutlined />
               </p>
               <p className="ant-upload-text">点击或拖拽文件到此处</p>
-              <p className="ant-upload-hint">支持 .txt / .md，最大 {DOCUMENT_UPLOAD_MAX_MB}MB</p>
+              <p className="ant-upload-hint">
+                支持 {DOCUMENT_UPLOAD_HINT}，最大 {DOCUMENT_UPLOAD_MAX_MB}MB
+              </p>
             </Upload.Dragger>
           </Form.Item>
 
