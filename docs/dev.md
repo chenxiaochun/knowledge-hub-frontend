@@ -17,7 +17,8 @@
 | 页面编排 / 路由入口 | `pages/<Feature>/index.tsx` |
 | 可复用 UI 片段 | `pages/<Feature>/components/` 或 `components/` |
 | 请求与数据转换 | `hooks/`、`utils/` 或页面旁 `*.ts` |
-| 常量、枚举、纯类型 | `constants/`、`types` 或同目录 `types.ts` |
+| 常量、枚举、运行时配置 | `constants/`（不要在此文件内混写 `type` / `interface`） |
+| 纯类型（`type` / `interface`） | `types/` 或同目录 `types.ts`（不要与常量混在同一文件） |
 | 表格列、表单 schema 等配置 | 独立 `columns.tsx` / `form.tsx` 等 |
 
 复用原则：

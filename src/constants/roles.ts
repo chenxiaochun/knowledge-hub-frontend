@@ -1,11 +1,11 @@
+import type { RoleCodeValue } from '@/types/roles';
+
 /** 与后端 `RoleCode` 保持一致 */
 export const RoleCode = {
   ADMIN: 'ROLE_ADMIN',
   REVIEWER: 'ROLE_REVIEWER',
   USER: 'ROLE_USER',
-} as const;
-
-export type RoleCodeValue = (typeof RoleCode)[keyof typeof RoleCode];
+} as const satisfies Record<string, RoleCodeValue>;
 
 export const ROLE_OPTIONS: { label: string; value: RoleCodeValue }[] = [
   { label: '管理员', value: RoleCode.ADMIN },
