@@ -33,6 +33,30 @@ export function getDocumentStatusMeta(status: number): DocumentStatusOption {
   );
 }
 
+/** 草稿 / 已发布 可提交审核 */
+export function canSubmitReview(status: number): boolean {
+  return status === DocumentStatus.Draft || status === DocumentStatus.Published;
+}
+
+/** 仅已发布可归档 */
+export function canArchive(status: number): boolean {
+  return status === DocumentStatus.Published;
+}
+
+/** 仅已发布可转回草稿 */
+export function canSaveAsDraft(status: number): boolean {
+  return status === DocumentStatus.Published;
+}
+
+/** 待审核期间禁止改正文/标题 */
+export function canEditContent(status: number): boolean {
+  return (
+    status === DocumentStatus.Draft ||
+    status === DocumentStatus.Published ||
+    status === DocumentStatus.Archived
+  );
+}
+
 /** 后端当前解析支持的扩展名 */
 export const DOCUMENT_UPLOAD_EXTS = [
   'txt',

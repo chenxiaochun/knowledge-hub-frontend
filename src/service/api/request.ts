@@ -14,8 +14,9 @@ import type {
   LoginDto,
   RefreshTokenDto,
   UploadParseDto,
-  DocumentEntity,
   DocumentReviewEntity,
+  DocumentEntity,
+  UpdateDocumentDto,
 } from "./definition";
 
 /** @description response type for getApi */
@@ -685,7 +686,7 @@ export interface GetApiDocumentResponse {
 export type GetApiDocumentResponseSuccess = GetApiDocumentResponse[200];
 /**
  * @description
- *   列表须在 :id 之前
+ *   静态路径须在 :id 之前
  * @tags Document
  */
 export const getApiDocument = /* #__PURE__ */ (() => {
@@ -698,145 +699,6 @@ export const getApiDocument = /* #__PURE__ */ (() => {
       method: request.method,
       ...option,
     }) as unknown as Promise<GetApiDocumentResponseSuccess>;
-  }
-
-  /** http method */
-  request.method = method;
-  /** request url */
-  request.url = url;
-  return request;
-})();
-
-/** @description request parameter type for getApiDocumentId */
-export interface GetApiDocumentIdOption {
-  path: {
-    id: string;
-  };
-}
-
-/** @description response type for getApiDocumentId */
-export interface GetApiDocumentIdResponse {
-  /** @description */
-  200: any;
-}
-
-export type GetApiDocumentIdResponseSuccess = GetApiDocumentIdResponse[200];
-/** @tags Document */
-export const getApiDocumentId = /* #__PURE__ */ (() => {
-  const method = "get";
-  const url = "/api/document/:id";
-  function request(
-    option: GetApiDocumentIdOption
-  ): Promise<GetApiDocumentIdResponseSuccess> {
-    return requester(request.url, {
-      method: request.method,
-      ...option,
-    }) as unknown as Promise<GetApiDocumentIdResponseSuccess>;
-  }
-
-  /** http method */
-  request.method = method;
-  /** request url */
-  request.url = url;
-  return request;
-})();
-
-/** @description request parameter type for deleteApiDocumentId */
-export interface DeleteApiDocumentIdOption {
-  path: {
-    id: string;
-  };
-}
-
-/** @description response type for deleteApiDocumentId */
-export interface DeleteApiDocumentIdResponse {
-  /** @description */
-  200: any;
-}
-
-export type DeleteApiDocumentIdResponseSuccess =
-  DeleteApiDocumentIdResponse[200];
-/** @tags Document */
-export const deleteApiDocumentId = /* #__PURE__ */ (() => {
-  const method = "delete";
-  const url = "/api/document/:id";
-  function request(
-    option: DeleteApiDocumentIdOption
-  ): Promise<DeleteApiDocumentIdResponseSuccess> {
-    return requester(request.url, {
-      method: request.method,
-      ...option,
-    }) as unknown as Promise<DeleteApiDocumentIdResponseSuccess>;
-  }
-
-  /** http method */
-  request.method = method;
-  /** request url */
-  request.url = url;
-  return request;
-})();
-
-/** @description request parameter type for putApiDocumentIdPublish */
-export interface PutApiDocumentIdPublishOption {
-  path: {
-    id: string;
-  };
-}
-
-/** @description response type for putApiDocumentIdPublish */
-export interface PutApiDocumentIdPublishResponse {
-  /** @description */
-  200: DocumentEntity;
-}
-
-export type PutApiDocumentIdPublishResponseSuccess =
-  PutApiDocumentIdPublishResponse[200];
-/** @tags Document */
-export const putApiDocumentIdPublish = /* #__PURE__ */ (() => {
-  const method = "put";
-  const url = "/api/document/:id/publish";
-  function request(
-    option: PutApiDocumentIdPublishOption
-  ): Promise<PutApiDocumentIdPublishResponseSuccess> {
-    return requester(request.url, {
-      method: request.method,
-      ...option,
-    }) as unknown as Promise<PutApiDocumentIdPublishResponseSuccess>;
-  }
-
-  /** http method */
-  request.method = method;
-  /** request url */
-  request.url = url;
-  return request;
-})();
-
-/** @description request parameter type for putApiDocumentIdSubmitReview */
-export interface PutApiDocumentIdSubmitReviewOption {
-  path: {
-    id: string;
-  };
-}
-
-/** @description response type for putApiDocumentIdSubmitReview */
-export interface PutApiDocumentIdSubmitReviewResponse {
-  /** @description */
-  200: any;
-}
-
-export type PutApiDocumentIdSubmitReviewResponseSuccess =
-  PutApiDocumentIdSubmitReviewResponse[200];
-/** @tags Document */
-export const putApiDocumentIdSubmitReview = /* #__PURE__ */ (() => {
-  const method = "put";
-  const url = "/api/document/:id/submit-review";
-  function request(
-    option: PutApiDocumentIdSubmitReviewOption
-  ): Promise<PutApiDocumentIdSubmitReviewResponseSuccess> {
-    return requester(request.url, {
-      method: request.method,
-      ...option,
-    }) as unknown as Promise<PutApiDocumentIdSubmitReviewResponseSuccess>;
   }
 
   /** http method */
@@ -932,6 +794,219 @@ export const putApiDocumentReviewsReviewIdReject = /* #__PURE__ */ (() => {
       method: request.method,
       ...option,
     }) as unknown as Promise<PutApiDocumentReviewsReviewIdRejectResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for putApiDocumentIdSubmitReview */
+export interface PutApiDocumentIdSubmitReviewOption {
+  path: {
+    id: string;
+  };
+}
+
+/** @description response type for putApiDocumentIdSubmitReview */
+export interface PutApiDocumentIdSubmitReviewResponse {
+  /** @description */
+  200: any;
+}
+
+export type PutApiDocumentIdSubmitReviewResponseSuccess =
+  PutApiDocumentIdSubmitReviewResponse[200];
+/** @tags Document */
+export const putApiDocumentIdSubmitReview = /* #__PURE__ */ (() => {
+  const method = "put";
+  const url = "/api/document/:id/submit-review";
+  function request(
+    option: PutApiDocumentIdSubmitReviewOption
+  ): Promise<PutApiDocumentIdSubmitReviewResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<PutApiDocumentIdSubmitReviewResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for putApiDocumentIdArchive */
+export interface PutApiDocumentIdArchiveOption {
+  path: {
+    id: string;
+  };
+}
+
+/** @description response type for putApiDocumentIdArchive */
+export interface PutApiDocumentIdArchiveResponse {
+  /** @description */
+  200: DocumentEntity;
+}
+
+export type PutApiDocumentIdArchiveResponseSuccess =
+  PutApiDocumentIdArchiveResponse[200];
+/** @tags Document */
+export const putApiDocumentIdArchive = /* #__PURE__ */ (() => {
+  const method = "put";
+  const url = "/api/document/:id/archive";
+  function request(
+    option: PutApiDocumentIdArchiveOption
+  ): Promise<PutApiDocumentIdArchiveResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<PutApiDocumentIdArchiveResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for putApiDocumentIdSaveAsDraft */
+export interface PutApiDocumentIdSaveAsDraftOption {
+  path: {
+    id: string;
+  };
+}
+
+/** @description response type for putApiDocumentIdSaveAsDraft */
+export interface PutApiDocumentIdSaveAsDraftResponse {
+  /** @description */
+  200: DocumentEntity;
+}
+
+export type PutApiDocumentIdSaveAsDraftResponseSuccess =
+  PutApiDocumentIdSaveAsDraftResponse[200];
+/** @tags Document */
+export const putApiDocumentIdSaveAsDraft = /* #__PURE__ */ (() => {
+  const method = "put";
+  const url = "/api/document/:id/save-as-draft";
+  function request(
+    option: PutApiDocumentIdSaveAsDraftOption
+  ): Promise<PutApiDocumentIdSaveAsDraftResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<PutApiDocumentIdSaveAsDraftResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for getApiDocumentId */
+export interface GetApiDocumentIdOption {
+  path: {
+    id: string;
+  };
+}
+
+/** @description response type for getApiDocumentId */
+export interface GetApiDocumentIdResponse {
+  /** @description */
+  200: any;
+}
+
+export type GetApiDocumentIdResponseSuccess = GetApiDocumentIdResponse[200];
+/** @tags Document */
+export const getApiDocumentId = /* #__PURE__ */ (() => {
+  const method = "get";
+  const url = "/api/document/:id";
+  function request(
+    option: GetApiDocumentIdOption
+  ): Promise<GetApiDocumentIdResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<GetApiDocumentIdResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for putApiDocumentId */
+export interface PutApiDocumentIdOption {
+  path: {
+    id: string;
+  };
+}
+
+/** @description request parameter type for putApiDocumentId */
+export interface PutApiDocumentIdOption {
+  body: UpdateDocumentDto;
+}
+
+/** @description response type for putApiDocumentId */
+export interface PutApiDocumentIdResponse {
+  /** @description */
+  200: DocumentEntity;
+}
+
+export type PutApiDocumentIdResponseSuccess = PutApiDocumentIdResponse[200];
+/** @tags Document */
+export const putApiDocumentId = /* #__PURE__ */ (() => {
+  const method = "put";
+  const url = "/api/document/:id";
+  function request(
+    option: PutApiDocumentIdOption
+  ): Promise<PutApiDocumentIdResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<PutApiDocumentIdResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for deleteApiDocumentId */
+export interface DeleteApiDocumentIdOption {
+  path: {
+    id: string;
+  };
+}
+
+/** @description response type for deleteApiDocumentId */
+export interface DeleteApiDocumentIdResponse {
+  /** @description */
+  200: any;
+}
+
+export type DeleteApiDocumentIdResponseSuccess =
+  DeleteApiDocumentIdResponse[200];
+/** @tags Document */
+export const deleteApiDocumentId = /* #__PURE__ */ (() => {
+  const method = "delete";
+  const url = "/api/document/:id";
+  function request(
+    option: DeleteApiDocumentIdOption
+  ): Promise<DeleteApiDocumentIdResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<DeleteApiDocumentIdResponseSuccess>;
   }
 
   /** http method */

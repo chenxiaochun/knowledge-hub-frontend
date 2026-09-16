@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import {
+  AuditOutlined,
   BookOutlined,
   FileSearchOutlined,
   FileTextOutlined,
@@ -25,6 +26,9 @@ export default function BasicLayout() {
   const location = useLocation();
   const user = getUserInfo();
   const isAdmin = Boolean(user?.roles?.includes(RoleCode.ADMIN));
+  const canReview = Boolean(
+    user?.roles?.includes(RoleCode.ADMIN) || user?.roles?.includes(RoleCode.REVIEWER),
+  );
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -34,17 +38,19 @@ export default function BasicLayout() {
       { key: '/', icon: <HomeOutlined />, label: '首页' },
       { key: '/search', icon: <FileSearchOutlined />, label: '文档检索' },
       { key: '/documents', icon: <FileTextOutlined />, label: '文档管理' },
+      ...(canReview ? [{ key: '/reviews', icon: <AuditOutlined />, label: '文档审核' }] : []),
       { key: '/users', icon: <TeamOutlined />, label: '用户管理' },
       ...(isAdmin
         ? [{ key: '/rbac', icon: <SafetyCertificateOutlined />, label: '角色权限' }]
         : []),
     ],
-    [isAdmin],
+    [canReview, isAdmin],
   );
 
   const selectedKeys = useMemo(() => {
     if (location.pathname.startsWith('/search')) return ['/search'];
     if (location.pathname.startsWith('/documents')) return ['/documents'];
+    if (location.pathname.startsWith('/reviews')) return ['/reviews'];
     if (location.pathname.startsWith('/users')) return ['/users'];
     if (location.pathname.startsWith('/rbac')) return ['/rbac'];
     return ['/'];

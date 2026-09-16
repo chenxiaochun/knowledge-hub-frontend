@@ -218,8 +218,8 @@ export default function UsersPage() {
       width: 140,
       fixed: 'right',
       render: (_, record) => (
-        <Space>
-          <Button type="link" size="small" onClick={() => openEdit(record)}>
+        <Space size={8} wrap>
+          <Button size="small" onClick={() => openEdit(record)}>
             编辑
           </Button>
           <Popconfirm
@@ -229,7 +229,7 @@ export default function UsersPage() {
             okButtonProps={{ danger: true }}
             onConfirm={() => void handleDelete(record.id)}
           >
-            <Button type="link" size="small" danger>
+            <Button size="small" danger>
               删除
             </Button>
           </Popconfirm>

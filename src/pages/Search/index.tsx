@@ -14,6 +14,9 @@ import {
 } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+
+import MarkdownPreview from '@/components/MarkdownPreview';
+import { getDocumentStatusMeta } from '@/constants/document';
 import {
   getApiDocumentId,
   getApiGraphSearch,
@@ -21,7 +24,6 @@ import {
   getApiSearchSemantic,
   type DocumentEntity,
 } from '@/service/api';
-import { getDocumentStatusMeta } from '@/constants/document';
 
 type SearchMode = 'keyword' | 'semantic' | 'graph';
 
@@ -562,19 +564,16 @@ export default function SearchPage() {
                 字数 {detail.wordCount?.toLocaleString?.() ?? detail.wordCount}
               </Typography.Text>
             </Space>
-            <Typography.Paragraph
+            <MarkdownPreview
+              content={detail.content}
               style={{
-                whiteSpace: 'pre-wrap',
-                marginBottom: 0,
                 padding: 16,
                 background: '#fafafa',
                 borderRadius: 8,
                 maxHeight: 'calc(100vh - 240px)',
                 overflow: 'auto',
               }}
-            >
-              {detail.content || '（暂无正文）'}
-            </Typography.Paragraph>
+            />
           </Space>
         ) : null}
       </Drawer>

@@ -1,74 +1,33 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { InboxOutlined } from '@ant-design/icons';
-import {
-  Button,
-  Drawer,
-  Form,
-  Input,
-  Modal,
-  Popconfirm,
-  Space,
-  Table,
-  Tag,
-  Typography,
-  Upload,
-  message,
-} from 'antd';
+import { Button, Form, Input, Space, Table, Tag, message } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
-import type { UploadFile } from 'antd/es/upload/interface';
 
 import dayjs from 'dayjs';
 
 import type { RequestOption } from '@/utils/request';
 
-import {
-  DOCUMENT_UPLOAD_ACCEPT,
-  DOCUMENT_UPLOAD_HINT,
-  DOCUMENT_UPLOAD_MAX_MB,
-  DocumentStatus,
-  getDocumentStatusMeta,
-  isSupportedDocumentExt,
-} from '@/constants/document';
+import { canEditContent, getDocumentStatusMeta } from '@/constants/document';
 import { RoleCode } from '@/constants/roles';
 import {
   deleteApiDocumentId,
   getApiDocument,
   getApiDocumentId,
   postApiDocumentUploadParse,
-  putApiDocumentIdPublish,
+  putApiDocumentId,
+  putApiDocumentIdArchive,
+  putApiDocumentIdSaveAsDraft,
+  putApiDocumentIdSubmitReview,
   type DocumentEntity,
 } from '@/service/api';
 import { getUserInfo } from '@/utils/auth';
 
-type DocumentPageResult = {
-  list: DocumentEntity[];
-  total: number;
-  page: number;
-  pageSize: number;
-};
+import type { DocumentDetail, EditFormValues, ListQuery, UploadFormValues } from './types';
 
-type DocumentDetail = DocumentEntity & {
-  content: string;
-  contentLength: number;
-};
-
-type ListQuery = {
-  page: number;
-  pageSize: number;
-  keyword: string;
-};
-
-type UploadFormValues = {
-  file?: UploadFile[];
-  tags?: string;
-  remark?: string;
-};
-
-function normFile(e: { fileList: UploadFile[] } | UploadFile[]) {
-  if (Array.isArray(e)) return e;
-  return e?.fileList ?? [];
-}
+import DetailDrawer from './DetailDrawer';
+import DocumentActions from './DocumentActions';
+import EditModal from './EditModal';
+import UploadModal from './UploadModal';
 
 export default function DocumentsPage() {
   const user = getUserInfo();
@@ -76,8 +35,11 @@ export default function DocumentsPage() {
 
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [publishingId, setPublishingId] = useState<string | null>(null);
+  const [submittingId, setSubmittingId] = useState<string | null>(null);
+  const [archivingId, setArchivingId] = useState<string | null>(null);
+  const [draftingId, setDraftingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
   const [data, setData] = useState<DocumentEntity[]>([]);
   const [total, setTotal] = useState(0);
   const [query, setQuery] = useState<ListQuery>({ page: 1, pageSize: 10, keyword: '' });
@@ -86,6 +48,8 @@ export default function DocumentsPage() {
 
   const [uploadOpen, setUploadOpen] = useState(false);
   const [uploadForm] = Form.useForm<UploadFormValues>();
+  const [editOpen, setEditOpen] = useState(false);
+  const [editForm] = Form.useForm<EditFormValues>();
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -95,22 +59,21 @@ export default function DocumentsPage() {
     const seq = ++requestSeq.current;
     setLoading(true);
     try {
-      const res = (await getApiDocument({
+      const res = await getApiDocument({
         query: {
           page: next.page,
           pageSize: next.pageSize,
           keyword: next.keyword || undefined,
         },
-      })) as DocumentPageResult;
+      });
       if (seq !== requestSeq.current) return;
-      setData(res.list ?? []);
-      setTotal(res.total ?? 0);
+      const pageRes = res as { list?: DocumentEntity[]; total?: number };
+      setData(pageRes.list ?? []);
+      setTotal(pageRes.total ?? 0);
     } catch {
       // 错误已由拦截器提示
     } finally {
-      if (seq === requestSeq.current) {
-        setLoading(false);
-      }
+      if (seq === requestSeq.current) setLoading(false);
     }
   }, []);
 
@@ -122,9 +85,23 @@ export default function DocumentsPage() {
     setQuery((prev) => ({ ...prev, ...patch }));
   };
 
-  const openUpload = () => {
-    uploadForm.resetFields();
-    setUploadOpen(true);
+  const refreshDetail = async (id: string) => {
+    const res = (await getApiDocumentId({ path: { id } })) as DocumentDetail;
+    setDetail(res);
+    return res;
+  };
+
+  const openDetail = async (id: string) => {
+    setDetailOpen(true);
+    setDetail(null);
+    setDetailLoading(true);
+    try {
+      await refreshDetail(id);
+    } catch {
+      setDetailOpen(false);
+    } finally {
+      setDetailLoading(false);
+    }
   };
 
   const handleUpload = async () => {
@@ -134,7 +111,6 @@ export default function DocumentsPage() {
     } catch {
       return;
     }
-
     const file = values.file?.[0]?.originFileObj;
     if (!file) return;
 
@@ -146,7 +122,6 @@ export default function DocumentsPage() {
       if (tags) formData.tags = tags;
       if (remark) formData.remark = remark;
 
-      // swagger 未声明 multipart file；生成函数会把 option 透传给 request，故走 formData
       await postApiDocumentUploadParse({
         body: { tags, remark },
         formData,
@@ -164,34 +139,92 @@ export default function DocumentsPage() {
     }
   };
 
-  const openDetail = async (id: string) => {
-    setDetailOpen(true);
-    setDetail(null);
-    setDetailLoading(true);
+  const openEdit = async (id: string) => {
     try {
-      const res = (await getApiDocumentId({ path: { id } })) as DocumentDetail;
-      setDetail(res);
+      const res = detail?.id === id ? detail : await refreshDetail(id);
+      if (!canEditContent(res.status)) {
+        message.warning('当前状态不可编辑');
+        return;
+      }
+      editForm.setFieldsValue({
+        title: res.title,
+        tags: res.tags ?? undefined,
+        content: res.content ?? '',
+      });
+      setEditOpen(true);
     } catch {
-      setDetailOpen(false);
-    } finally {
-      setDetailLoading(false);
+      // 错误已由拦截器提示
     }
   };
 
-  const handlePublish = async (id: string, republish = false) => {
-    setPublishingId(id);
+  const handleEditSave = async () => {
+    if (!detail) return;
+    let values: EditFormValues;
     try {
-      await putApiDocumentIdPublish({ path: { id } });
-      message.success(republish ? '重新发布成功' : '发布成功');
+      values = await editForm.validateFields();
+    } catch {
+      return;
+    }
+    setEditing(true);
+    try {
+      await putApiDocumentId({
+        path: { id: detail.id },
+        body: {
+          title: values.title.trim(),
+          content: values.content,
+          tags: values.tags?.trim() || undefined,
+        },
+      });
+      message.success('文档已保存');
+      setEditOpen(false);
       await fetchList(query);
-      if (detail?.id === id) {
-        const res = (await getApiDocumentId({ path: { id } })) as DocumentDetail;
-        setDetail(res);
-      }
+      await refreshDetail(detail.id);
     } catch {
       // 错误已由拦截器提示
     } finally {
-      setPublishingId(null);
+      setEditing(false);
+    }
+  };
+
+  const handleSubmitReview = async (id: string) => {
+    setSubmittingId(id);
+    try {
+      await putApiDocumentIdSubmitReview({ path: { id } });
+      message.success('已提交审核');
+      await fetchList(query);
+      if (detail?.id === id) await refreshDetail(id);
+    } catch {
+      // 错误已由拦截器提示
+    } finally {
+      setSubmittingId(null);
+    }
+  };
+
+  const handleArchive = async (id: string) => {
+    setArchivingId(id);
+    try {
+      await putApiDocumentIdArchive({ path: { id } });
+      message.success('文档已归档');
+      await fetchList(query);
+      if (detail?.id === id) await refreshDetail(id);
+    } catch {
+      // 错误已由拦截器提示
+    } finally {
+      setArchivingId(null);
+    }
+  };
+
+  const handleSaveAsDraft = async (id: string) => {
+    setDraftingId(id);
+    try {
+      await putApiDocumentIdSaveAsDraft({ path: { id } });
+      message.success('已转为草稿');
+      await fetchList(query);
+      if (detail?.id === id) await refreshDetail(id);
+    } catch {
+      // 错误已由拦截器提示
+    } finally {
+      setDraftingId(null);
     }
   };
 
@@ -216,72 +249,17 @@ export default function DocumentsPage() {
     }
   };
 
-  const canPublish = (status: number) =>
-    status === DocumentStatus.Draft ||
-    status === DocumentStatus.Published ||
-    status === DocumentStatus.Archived;
-
-  const isPublished = (status: number) => status === DocumentStatus.Published;
-
-  const renderDeleteAction = (id: string, opts?: { drawer?: boolean }) => {
-    if (!isAdmin) return null;
-    return (
-      <Popconfirm
-        title="确认删除该文档？"
-        description="删除后将从列表移除；已发布文档会同步清理检索索引"
-        okText="删除"
-        cancelText="取消"
-        okButtonProps={{ danger: true }}
-        onConfirm={() => void handleDelete(id)}
-      >
-        <Button
-          type={opts?.drawer ? 'default' : 'link'}
-          danger
-          size={opts?.drawer ? 'middle' : 'small'}
-          loading={deletingId === id}
-        >
-          删除
-        </Button>
-      </Popconfirm>
-    );
-  };
-
-  const renderPublishAction = (id: string, status: number, opts?: { drawer?: boolean }) => {
-    if (!isAdmin || !canPublish(status)) return null;
-
-    const republish = isPublished(status);
-    const loading = publishingId === id;
-
-    if (republish) {
-      return (
-        <Popconfirm
-          title="确认重新发布？"
-          description="将刷新发布时间并重新建立检索索引"
-          okText="重新发布"
-          cancelText="取消"
-          onConfirm={() => void handlePublish(id, true)}
-        >
-          <Button
-            type={opts?.drawer ? 'primary' : 'link'}
-            size={opts?.drawer ? 'middle' : 'small'}
-            loading={loading}
-          >
-            重新发布
-          </Button>
-        </Popconfirm>
-      );
-    }
-
-    return (
-      <Button
-        type={opts?.drawer ? 'primary' : 'link'}
-        size={opts?.drawer ? 'middle' : 'small'}
-        loading={loading}
-        onClick={() => void handlePublish(id, false)}
-      >
-        发布
-      </Button>
-    );
+  const actionProps = {
+    isAdmin,
+    submittingId,
+    archivingId,
+    draftingId,
+    deletingId,
+    onEdit: (id: string) => void openEdit(id),
+    onSubmitReview: (id: string) => void handleSubmitReview(id),
+    onArchive: (id: string) => void handleArchive(id),
+    onSaveAsDraft: (id: string) => void handleSaveAsDraft(id),
+    onDelete: (id: string) => void handleDelete(id),
   };
 
   const columns: ColumnsType<DocumentEntity> = [
@@ -310,7 +288,7 @@ export default function DocumentsPage() {
     {
       title: '标签',
       dataIndex: 'tags',
-      width: 160,
+      width: 140,
       ellipsis: true,
       render: (tags: string | null | undefined) => tags || '—',
     },
@@ -326,22 +304,16 @@ export default function DocumentsPage() {
     {
       title: '创建时间',
       dataIndex: 'createdAt',
-      width: 180,
+      width: 170,
       render: (value: string) => (value ? dayjs(value).format('YYYY-MM-DD HH:mm') : '—'),
     },
     {
       title: '操作',
       key: 'action',
-      width: 220,
+      width: 280,
       fixed: 'right',
       render: (_, record) => (
-        <Space>
-          <Button type="link" size="small" onClick={() => void openDetail(record.id)}>
-            详情
-          </Button>
-          {renderPublishAction(record.id, record.status)}
-          {renderDeleteAction(record.id)}
-        </Space>
+        <DocumentActions record={record} onDetail={(id) => void openDetail(id)} {...actionProps} />
       ),
     },
   ];
@@ -352,9 +324,7 @@ export default function DocumentsPage() {
     total,
     showSizeChanger: true,
     showTotal: (t) => `共 ${t} 条`,
-    onChange: (nextPage, nextSize) => {
-      updateQuery({ page: nextPage, pageSize: nextSize });
-    },
+    onChange: (nextPage, nextSize) => updateQuery({ page: nextPage, pageSize: nextSize }),
   };
 
   return (
@@ -371,7 +341,13 @@ export default function DocumentsPage() {
           }}
           style={{ width: 260 }}
         />
-        <Button type="primary" onClick={openUpload}>
+        <Button
+          type="primary"
+          onClick={() => {
+            uploadForm.resetFields();
+            setUploadOpen(true);
+          }}
+        >
           上传文档
         </Button>
       </Space>
@@ -382,126 +358,32 @@ export default function DocumentsPage() {
         columns={columns}
         dataSource={data}
         pagination={pagination}
-        scroll={{ x: 960 }}
+        scroll={{ x: 1080 }}
       />
 
-      <Modal
-        title="上传文档"
+      <UploadModal
         open={uploadOpen}
+        confirmLoading={uploading}
+        form={uploadForm}
         onCancel={() => setUploadOpen(false)}
         onOk={() => void handleUpload()}
-        confirmLoading={uploading}
-        destroyOnHidden
-        okText="上传并解析"
-        cancelText="取消"
-      >
-        <Form form={uploadForm} layout="vertical" style={{ marginTop: 8 }}>
-          <Form.Item
-            name="file"
-            label="文件"
-            valuePropName="fileList"
-            getValueFromEvent={normFile}
-            rules={[
-              {
-                required: true,
-                validator: async (_, fileList?: UploadFile[]) => {
-                  if (!fileList?.length || !fileList[0]?.originFileObj) {
-                    return Promise.reject(new Error('请先选择文件'));
-                  }
-                },
-              },
-            ]}
-          >
-            <Upload.Dragger
-              accept={DOCUMENT_UPLOAD_ACCEPT}
-              maxCount={1}
-              beforeUpload={(file) => {
-                const maxBytes = DOCUMENT_UPLOAD_MAX_MB * 1024 * 1024;
-                if (file.size > maxBytes) {
-                  message.error(`文件不能超过 ${DOCUMENT_UPLOAD_MAX_MB}MB`);
-                  return Upload.LIST_IGNORE;
-                }
-                const ext = file.name.split('.').pop()?.toLowerCase();
-                if (!isSupportedDocumentExt(ext)) {
-                  message.error(`仅支持 ${DOCUMENT_UPLOAD_HINT} 文件`);
-                  return Upload.LIST_IGNORE;
-                }
-                return false;
-              }}
-            >
-              <p className="ant-upload-drag-icon">
-                <InboxOutlined />
-              </p>
-              <p className="ant-upload-text">点击或拖拽文件到此处</p>
-              <p className="ant-upload-hint">
-                支持 {DOCUMENT_UPLOAD_HINT}，最大 {DOCUMENT_UPLOAD_MAX_MB}MB
-              </p>
-            </Upload.Dragger>
-          </Form.Item>
+      />
 
-          <Form.Item name="tags" label="标签">
-            <Input placeholder="可选，多个标签可用逗号分隔" />
-          </Form.Item>
+      <EditModal
+        open={editOpen}
+        confirmLoading={editing}
+        form={editForm}
+        onCancel={() => setEditOpen(false)}
+        onOk={() => void handleEditSave()}
+      />
 
-          <Form.Item name="remark" label="备注">
-            <Input.TextArea rows={2} placeholder="可选" />
-          </Form.Item>
-        </Form>
-      </Modal>
-
-      <Drawer
-        title={detail?.title || '文档详情'}
-        width={720}
+      <DetailDrawer
         open={detailOpen}
+        loading={detailLoading}
+        detail={detail}
         onClose={() => setDetailOpen(false)}
-        destroyOnHidden
-        extra={
-          detail ? (
-            <Space>
-              {renderPublishAction(detail.id, detail.status, { drawer: true })}
-              {renderDeleteAction(detail.id, { drawer: true })}
-            </Space>
-          ) : null
-        }
-      >
-        {detailLoading ? (
-          <Typography.Text type="secondary">加载中…</Typography.Text>
-        ) : detail ? (
-          <Space direction="vertical" size={16} style={{ width: '100%' }}>
-            <Space wrap>
-              <Tag color={getDocumentStatusMeta(detail.status).color}>
-                {getDocumentStatusMeta(detail.status).label}
-              </Tag>
-              {detail.fileExt ? <Tag>{`.${detail.fileExt}`}</Tag> : null}
-              <Typography.Text type="secondary">
-                字数 {detail.wordCount?.toLocaleString?.() ?? detail.wordCount}
-              </Typography.Text>
-              {detail.tags ? (
-                <Typography.Text type="secondary">标签：{detail.tags}</Typography.Text>
-              ) : null}
-            </Space>
-            <Typography.Paragraph type="secondary" style={{ marginBottom: 0 }}>
-              创建于 {detail.createdAt ? dayjs(detail.createdAt).format('YYYY-MM-DD HH:mm') : '—'}
-              {detail.publishTime
-                ? ` · 发布于 ${dayjs(detail.publishTime).format('YYYY-MM-DD HH:mm')}`
-                : ''}
-            </Typography.Paragraph>
-            <Typography.Paragraph
-              style={{
-                whiteSpace: 'pre-wrap',
-                marginBottom: 0,
-                padding: 16,
-                background: '#fafafa',
-                borderRadius: 8,
-                maxHeight: 'calc(100vh - 240px)',
-                overflow: 'auto',
-              }}
-            >
-              {detail.content || '（暂无正文）'}
-            </Typography.Paragraph>
-          </Space>
-        ) : null}
-      </Drawer>
+        extra={detail ? <DocumentActions record={detail} drawer {...actionProps} /> : null}
+      />
     </div>
   );
 }
