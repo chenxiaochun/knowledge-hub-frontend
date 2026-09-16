@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Button,
-  Drawer,
   Empty,
   Input,
   InputNumber,
@@ -15,15 +14,15 @@ import {
 import { SearchOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 
-import MarkdownPreview from '@/components/MarkdownPreview';
+import DocumentDetailDrawer from '@/components/DocumentDetailDrawer';
 import { getDocumentStatusMeta } from '@/constants/document';
 import {
   getApiDocumentId,
   getApiGraphSearch,
   getApiSearch,
   getApiSearchSemantic,
-  type DocumentEntity,
 } from '@/service/api';
+import type { DocumentDetail } from '@/types/document';
 
 type SearchMode = 'keyword' | 'semantic' | 'graph';
 
@@ -69,11 +68,6 @@ type GraphHit = {
     type?: string;
     [key: string]: unknown;
   };
-};
-
-type DocumentDetail = DocumentEntity & {
-  content: string;
-  contentLength: number;
 };
 
 type KeywordQuery = {
@@ -544,39 +538,12 @@ export default function SearchPage() {
         />
       )}
 
-      <Drawer
-        title={detail?.title || '文档详情'}
-        width={720}
+      <DocumentDetailDrawer
         open={detailOpen}
+        loading={detailLoading}
+        detail={detail}
         onClose={() => setDetailOpen(false)}
-        destroyOnHidden
-      >
-        {detailLoading ? (
-          <Typography.Text type="secondary">加载中…</Typography.Text>
-        ) : detail ? (
-          <Space direction="vertical" size={16} style={{ width: '100%' }}>
-            <Space wrap>
-              <Tag color={getDocumentStatusMeta(detail.status).color}>
-                {getDocumentStatusMeta(detail.status).label}
-              </Tag>
-              {detail.fileExt ? <Tag>{`.${detail.fileExt}`}</Tag> : null}
-              <Typography.Text type="secondary">
-                字数 {detail.wordCount?.toLocaleString?.() ?? detail.wordCount}
-              </Typography.Text>
-            </Space>
-            <MarkdownPreview
-              content={detail.content}
-              style={{
-                padding: 16,
-                background: '#fafafa',
-                borderRadius: 8,
-                maxHeight: 'calc(100vh - 240px)',
-                overflow: 'auto',
-              }}
-            />
-          </Space>
-        ) : null}
-      </Drawer>
+      />
     </div>
   );
 }

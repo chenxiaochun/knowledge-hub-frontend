@@ -55,18 +55,22 @@ export default function DocumentActions({
       ) : null}
       {canSubmitReview(record.status) ? (
         <Popconfirm
-          title="确认提交审核？"
+          title={
+            record.status === DocumentStatus.Archived ? '确认重新发布？' : '确认提交审核？'
+          }
           description={
             record.status === DocumentStatus.Published
               ? '已发布文档提交后将先下架，待审核通过后再发布'
-              : '提交后进入待审核状态'
+              : record.status === DocumentStatus.Archived
+                ? '将进入待审核，通过后重新发布'
+                : '提交后进入待审核状态'
           }
-          okText="提交"
+          okText={record.status === DocumentStatus.Archived ? '重新发布' : '提交'}
           cancelText="取消"
           onConfirm={() => onSubmitReview(record.id)}
         >
           <Button size="small" type="primary" loading={submittingId === record.id}>
-            提交审核
+            {record.status === DocumentStatus.Archived ? '重新发布' : '提交审核'}
           </Button>
         </Popconfirm>
       ) : null}

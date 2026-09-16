@@ -33,9 +33,13 @@ export function getDocumentStatusMeta(status: number): DocumentStatusOption {
   );
 }
 
-/** 草稿 / 已发布 可提交审核 */
+/** 草稿 / 已发布 / 已归档 可提交审核（归档可重新发布） */
 export function canSubmitReview(status: number): boolean {
-  return status === DocumentStatus.Draft || status === DocumentStatus.Published;
+  return (
+    status === DocumentStatus.Draft ||
+    status === DocumentStatus.Published ||
+    status === DocumentStatus.Archived
+  );
 }
 
 /** 仅已发布可归档 */

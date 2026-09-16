@@ -6,8 +6,7 @@ import dayjs from 'dayjs';
 
 import MarkdownPreview from '@/components/MarkdownPreview';
 import { getDocumentStatusMeta } from '@/constants/document';
-
-import type { DocumentDetail } from './types';
+import type { DocumentDetail } from '@/types/document';
 
 function getSourceFileName(fileUrl: string, fallback?: string) {
   try {
@@ -28,7 +27,7 @@ type Props = {
   onClose: () => void;
 };
 
-export default function DetailDrawer({ open, loading, detail, extra, onClose }: Props) {
+export default function DocumentDetailDrawer({ open, loading, detail, extra, onClose }: Props) {
   return (
     <Drawer
       title={detail?.title || '文档详情'}
@@ -105,7 +104,7 @@ export default function DetailDrawer({ open, loading, detail, extra, onClose }: 
                 ? [
                     {
                       label: '源文件',
-                      span: 2,
+                      span: 2 as const,
                       children: (
                         <Typography.Link
                           href={detail.fileUrl}

@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 
 import type { RequestOption } from '@/utils/request';
 
+import DocumentDetailDrawer from '@/components/DocumentDetailDrawer';
 import { canEditContent, getDocumentStatusMeta } from '@/constants/document';
 import { RoleCode } from '@/constants/roles';
 import {
@@ -20,13 +21,12 @@ import {
   putApiDocumentIdSubmitReview,
   type DocumentEntity,
 } from '@/service/api';
+import type { DocumentDetail } from '@/types/document';
 import { getUserInfo } from '@/utils/auth';
 
-import type { DocumentDetail, EditFormValues, ListQuery, UploadFormValues } from './types';
-
-import DetailDrawer from './DetailDrawer';
 import DocumentActions from './DocumentActions';
 import EditModal from './EditModal';
+import type { EditFormValues, ListQuery, UploadFormValues } from './types';
 import UploadModal from './UploadModal';
 
 export default function DocumentsPage() {
@@ -377,7 +377,7 @@ export default function DocumentsPage() {
         onOk={() => void handleEditSave()}
       />
 
-      <DetailDrawer
+      <DocumentDetailDrawer
         open={detailOpen}
         loading={detailLoading}
         detail={detail}
