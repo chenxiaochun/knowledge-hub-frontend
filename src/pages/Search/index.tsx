@@ -344,18 +344,7 @@ export default function SearchPage() {
           dataSource={semanticItems}
           locale={{ emptyText: <Empty description="未找到语义相近的文档片段" /> }}
           renderItem={(item) => (
-            <List.Item
-              key={item.id}
-              actions={[
-                <Button
-                  key="open"
-                  type="link"
-                  onClick={() => void openDetail(item.document_id)}
-                >
-                  查看文档
-                </Button>,
-              ]}
-            >
+            <List.Item key={item.id}>
               <List.Item.Meta
                 title={
                   <Button
@@ -401,18 +390,7 @@ export default function SearchPage() {
             const documentId = isDocumentNode(item) ? String(item.props.id) : null;
 
             return (
-              <List.Item
-                key={graphHitKey(item, index)}
-                actions={
-                  documentId
-                    ? [
-                        <Button key="open" type="link" onClick={() => void openDetail(documentId)}>
-                          查看文档
-                        </Button>,
-                      ]
-                    : undefined
-                }
-              >
+              <List.Item key={graphHitKey(item, index)}>
                 <List.Item.Meta
                   title={
                     documentId ? (
@@ -478,14 +456,7 @@ export default function SearchPage() {
             const statusMeta = getDocumentStatusMeta(item.status);
 
             return (
-              <List.Item
-                key={item.id}
-                actions={[
-                  <Button key="open" type="link" onClick={() => void openDetail(item.id)}>
-                    查看详情
-                  </Button>,
-                ]}
-              >
+              <List.Item key={item.id}>
                 <List.Item.Meta
                   title={
                     <Button
