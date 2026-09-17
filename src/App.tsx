@@ -6,6 +6,7 @@ import DocumentsPage from '@/pages/Documents';
 import HomePage from '@/pages/Home';
 import LoginPage from '@/pages/Login';
 import RbacPage from '@/pages/Rbac';
+import RegisterPage from '@/pages/Register';
 import ReviewsPage from '@/pages/Reviews';
 import SearchPage from '@/pages/Search';
 import UsersPage from '@/pages/Users';
@@ -15,6 +16,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route element={<AuthGuard />}>
           <Route element={<BasicLayout />}>
             <Route index element={<HomePage />} />
