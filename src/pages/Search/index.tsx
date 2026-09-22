@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+
+import { SearchOutlined } from '@ant-design/icons';
 import {
   Button,
   Empty,
@@ -11,85 +13,23 @@ import {
   Typography,
   message,
 } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 
 import DocumentDetailDrawer from '@/components/DocumentDetailDrawer';
 import { getDocumentStatusMeta } from '@/constants/document';
 import {
   getApiDocumentId,
-  getApiGraphSearch,
+  getApiGraphSearchSubgraph,
   getApiSearch,
   getApiSearchSemantic,
+  type GraphSubgraphResultDto,
+  type SearchDocumentHitDto,
+  type SemanticSearchHitDto,
 } from '@/service/api';
 import type { DocumentDetail } from '@/types/document';
 
-type SearchMode = 'keyword' | 'semantic' | 'graph';
-
-type KeywordHit = {
-  id: string;
-  score: number;
-  title: string;
-  summary?: string;
-  authorId?: string | null;
-  status: number;
-  publishTime?: string | null;
-  indexedAt?: string | null;
-  highlight?: {
-    title?: string[];
-    content?: string[];
-  };
-};
-
-type KeywordResult = {
-  items: KeywordHit[];
-  total: number;
-  page: number;
-  pageSize: number;
-};
-
-/** 语义检索返回的是向量块命中 */
-type SemanticHit = {
-  id: string;
-  score: number | null;
-  document_id: string;
-  document_title: string;
-  content: string;
-  chunk_index: number;
-};
-
-/** 图谱检索命中：Neo4j 节点 labels + properties */
-type GraphHit = {
-  labels: string[];
-  props: {
-    id?: string;
-    title?: string;
-    name?: string;
-    type?: string;
-    [key: string]: unknown;
-  };
-};
-
-type KeywordQuery = {
-  mode: 'keyword';
-  keyword: string;
-  page: number;
-  pageSize: number;
-};
-
-type SemanticQuery = {
-  mode: 'semantic';
-  keyword: string;
-  topK: number;
-};
-
-type GraphQuery = {
-  mode: 'graph';
-  keyword: string;
-  limit: number;
-};
-
-type ActiveQuery = KeywordQuery | SemanticQuery | GraphQuery;
+import GraphResultPanel from './GraphResultPanel';
+import type { ActiveQuery, SearchMode } from './types';
 
 function HighlightHtml({ html }: { html: string }) {
   return (
@@ -101,20 +41,6 @@ function HighlightHtml({ html }: { html: string }) {
   );
 }
 
-function graphHitKey(item: GraphHit, index: number) {
-  return String(item.props.id ?? item.props.name ?? index);
-}
-
-function graphHitTitle(item: GraphHit) {
-  if (typeof item.props.title === 'string' && item.props.title) return item.props.title;
-  if (typeof item.props.name === 'string' && item.props.name) return item.props.name;
-  return '未命名节点';
-}
-
-function isDocumentNode(item: GraphHit) {
-  return item.labels.includes('KnowledgeDocument') && Boolean(item.props.id);
-}
-
 export default function SearchPage() {
   const [mode, setMode] = useState<SearchMode>('keyword');
   const [keywordInput, setKeywordInput] = useState('');
@@ -122,9 +48,9 @@ export default function SearchPage() {
   const [graphLimit, setGraphLimit] = useState(20);
   const [query, setQuery] = useState<ActiveQuery | null>(null);
   const [loading, setLoading] = useState(false);
-  const [keywordItems, setKeywordItems] = useState<KeywordHit[]>([]);
-  const [semanticItems, setSemanticItems] = useState<SemanticHit[]>([]);
-  const [graphItems, setGraphItems] = useState<GraphHit[]>([]);
+  const [keywordItems, setKeywordItems] = useState<SearchDocumentHitDto[]>([]);
+  const [semanticItems, setSemanticItems] = useState<SemanticSearchHitDto[]>([]);
+  const [graphSubgraph, setGraphSubgraph] = useState<GraphSubgraphResultDto | null>(null);
   const [total, setTotal] = useState(0);
   const requestSeq = useRef(0);
 
@@ -136,7 +62,7 @@ export default function SearchPage() {
     if (!next.keyword.trim()) {
       setKeywordItems([]);
       setSemanticItems([]);
-      setGraphItems([]);
+      setGraphSubgraph(null);
       setTotal(0);
       return;
     }
@@ -145,44 +71,47 @@ export default function SearchPage() {
     setLoading(true);
     try {
       if (next.mode === 'keyword') {
-        const res = (await getApiSearch({
+        const res = await getApiSearch({
           query: {
             keyword: next.keyword.trim(),
             page: next.page,
             pageSize: next.pageSize,
           },
-        })) as KeywordResult;
+        });
         if (seq !== requestSeq.current) return;
         setKeywordItems(res.items ?? []);
         setSemanticItems([]);
-        setGraphItems([]);
+        setGraphSubgraph(null);
         setTotal(res.total ?? 0);
       } else if (next.mode === 'semantic') {
-        const res = (await getApiSearchSemantic({
+        const res = await getApiSearchSemantic({
           query: {
             query: next.keyword.trim(),
             topK: next.topK,
           },
-        })) as SemanticHit[];
+        });
         if (seq !== requestSeq.current) return;
         const items = Array.isArray(res) ? res : [];
         setSemanticItems(items);
         setKeywordItems([]);
-        setGraphItems([]);
+        setGraphSubgraph(null);
         setTotal(items.length);
       } else {
-        const res = (await getApiGraphSearch({
+        const res = await getApiGraphSearchSubgraph({
           query: {
             keyword: next.keyword.trim(),
-            limit: String(next.limit),
+            limit: next.limit,
           },
-        })) as GraphHit[];
+        });
         if (seq !== requestSeq.current) return;
-        const items = Array.isArray(res) ? res : [];
-        setGraphItems(items);
+        const subgraph: GraphSubgraphResultDto = {
+          nodes: Array.isArray(res?.nodes) ? res.nodes : [],
+          edges: Array.isArray(res?.edges) ? res.edges : [],
+        };
+        setGraphSubgraph(subgraph);
         setKeywordItems([]);
         setSemanticItems([]);
-        setTotal(items.length);
+        setTotal(subgraph.nodes.length);
       }
     } catch {
       // 错误已由拦截器提示
@@ -229,11 +158,10 @@ export default function SearchPage() {
 
   const switchMode = (nextMode: SearchMode) => {
     setMode(nextMode);
-    // 切换模式后清空结果，避免混读；保留输入词方便再次搜索
     setQuery(null);
     setKeywordItems([]);
     setSemanticItems([]);
-    setGraphItems([]);
+    setGraphSubgraph(null);
     setTotal(0);
   };
 
@@ -270,10 +198,6 @@ export default function SearchPage() {
 
   return (
     <div>
-      <Typography.Title level={4} style={{ marginTop: 0 }}>
-        文档检索
-      </Typography.Title>
-
       <Space direction="vertical" size={16} style={{ width: '100%', marginBottom: 24 }}>
         <Segmented
           value={mode}
@@ -341,22 +265,22 @@ export default function SearchPage() {
           dataSource={semanticItems}
           locale={{ emptyText: <Empty description="未找到语义相近的文档片段" /> }}
           renderItem={(item) => (
-            <List.Item key={item.id}>
+            <List.Item key={item.chunkId}>
               <List.Item.Meta
                 title={
                   <Button
                     type="link"
                     style={{ paddingInline: 0, height: 'auto', fontSize: 16 }}
-                    onClick={() => void openDetail(item.document_id)}
+                    onClick={() => void openDetail(item.documentId)}
                   >
-                    {item.document_title || '未命名文档'}
+                    {item.documentTitle || '未命名文档'}
                   </Button>
                 }
                 description={
                   <Space wrap size="small">
-                    <Tag color="purple">语义片段 #{item.chunk_index + 1}</Tag>
+                    {item.heading ? <Tag color="processing">{item.heading}</Tag> : null}
                     <Typography.Text type="secondary">
-                      相似度 {item.score == null ? '—' : item.score.toFixed(3)}
+                      相似度 {item.score.toFixed(3)}
                     </Typography.Text>
                   </Space>
                 }
@@ -372,59 +296,10 @@ export default function SearchPage() {
           )}
         />
       ) : activeMode === 'graph' ? (
-        <List
+        <GraphResultPanel
           loading={loading}
-          itemLayout="vertical"
-          dataSource={graphItems}
-          locale={{ emptyText: <Empty description="未找到匹配的图谱节点" /> }}
-          header={
-            total > 0 ? (
-              <Typography.Text type="secondary">共 {total} 个节点</Typography.Text>
-            ) : null
-          }
-          renderItem={(item, index) => {
-            const title = graphHitTitle(item);
-            const documentId = isDocumentNode(item) ? String(item.props.id) : null;
-
-            return (
-              <List.Item key={graphHitKey(item, index)}>
-                <List.Item.Meta
-                  title={
-                    documentId ? (
-                      <Button
-                        type="link"
-                        style={{ paddingInline: 0, height: 'auto', fontSize: 16 }}
-                        onClick={() => void openDetail(documentId)}
-                      >
-                        {title}
-                      </Button>
-                    ) : (
-                      <Typography.Text strong style={{ fontSize: 16 }}>
-                        {title}
-                      </Typography.Text>
-                    )
-                  }
-                  description={
-                    <Space wrap size="small">
-                      {item.labels.map((label) => (
-                        <Tag key={label} color={label === 'KnowledgeDocument' ? 'blue' : 'cyan'}>
-                          {label}
-                        </Tag>
-                      ))}
-                      {typeof item.props.type === 'string' && item.props.type ? (
-                        <Tag>{item.props.type}</Tag>
-                      ) : null}
-                    </Space>
-                  }
-                />
-                {typeof item.props.id === 'string' && item.props.id ? (
-                  <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                    ID：{item.props.id}
-                  </Typography.Text>
-                ) : null}
-              </List.Item>
-            );
-          }}
+          data={graphSubgraph}
+          onDocumentClick={(id) => void openDetail(id)}
         />
       ) : (
         <List
@@ -473,7 +348,7 @@ export default function SearchPage() {
                         </Typography.Text>
                       ) : null}
                       <Typography.Text type="secondary">
-                        相关度 {item.score.toFixed(3)}
+                        相关度 {(item.score ?? 0).toFixed(3)}
                       </Typography.Text>
                     </Space>
                   }

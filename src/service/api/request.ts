@@ -13,10 +13,19 @@ import type {
   RegisterDto,
   LoginDto,
   RefreshTokenDto,
+  SendResetCodeDto,
+  ResetPasswordDto,
   UploadParseDto,
   DocumentReviewEntity,
   DocumentEntity,
   UpdateDocumentDto,
+  SearchDocumentsResultDto,
+  SemanticSearchHitDto,
+  GraphNodeHitDto,
+  GraphSubgraphResultDto,
+  CreateTeamDto,
+  TeamEntity,
+  UpdateTeamDto,
 } from "./definition";
 
 /** @description response type for getApi */
@@ -587,6 +596,107 @@ export const postApiAuthRefresh = /* #__PURE__ */ (() => {
   return request;
 })();
 
+/** @description request parameter type for getApiAuthVerifyEmail */
+export interface GetApiAuthVerifyEmailOption {
+  query: {
+    token: string;
+  };
+}
+
+/** @description response type for getApiAuthVerifyEmail */
+export interface GetApiAuthVerifyEmailResponse {
+  /** @description */
+  200: any;
+}
+
+export type GetApiAuthVerifyEmailResponseSuccess =
+  GetApiAuthVerifyEmailResponse[200];
+/** @tags Auth */
+export const getApiAuthVerifyEmail = /* #__PURE__ */ (() => {
+  const method = "get";
+  const url = "/api/auth/verify-email";
+  function request(
+    option: GetApiAuthVerifyEmailOption
+  ): Promise<GetApiAuthVerifyEmailResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<GetApiAuthVerifyEmailResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for postApiAuthPasswordResetSendCode */
+export interface PostApiAuthPasswordResetSendCodeOption {
+  body: SendResetCodeDto;
+}
+
+/** @description response type for postApiAuthPasswordResetSendCode */
+export interface PostApiAuthPasswordResetSendCodeResponse {
+  /** @description */
+  201: any;
+}
+
+export type PostApiAuthPasswordResetSendCodeResponseSuccess =
+  PostApiAuthPasswordResetSendCodeResponse[201];
+/** @tags Auth */
+export const postApiAuthPasswordResetSendCode = /* #__PURE__ */ (() => {
+  const method = "post";
+  const url = "/api/auth/password/reset/send-code";
+  function request(
+    option: PostApiAuthPasswordResetSendCodeOption
+  ): Promise<PostApiAuthPasswordResetSendCodeResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<PostApiAuthPasswordResetSendCodeResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for postApiAuthPasswordReset */
+export interface PostApiAuthPasswordResetOption {
+  body: ResetPasswordDto;
+}
+
+/** @description response type for postApiAuthPasswordReset */
+export interface PostApiAuthPasswordResetResponse {
+  /** @description */
+  201: any;
+}
+
+export type PostApiAuthPasswordResetResponseSuccess =
+  PostApiAuthPasswordResetResponse[201];
+/** @tags Auth */
+export const postApiAuthPasswordReset = /* #__PURE__ */ (() => {
+  const method = "post";
+  const url = "/api/auth/password/reset";
+  function request(
+    option: PostApiAuthPasswordResetOption
+  ): Promise<PostApiAuthPasswordResetResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<PostApiAuthPasswordResetResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
 /** @description response type for postApiAuthLogout */
 export interface PostApiAuthLogoutResponse {
   /** @description */
@@ -1028,7 +1138,7 @@ export interface GetApiSearchOption {
 /** @description response type for getApiSearch */
 export interface GetApiSearchResponse {
   /** @description */
-  200: any;
+  200: SearchDocumentsResultDto;
 }
 
 export type GetApiSearchResponseSuccess = GetApiSearchResponse[200];
@@ -1063,7 +1173,7 @@ export interface GetApiSearchSemanticOption {
 /** @description response type for getApiSearchSemantic */
 export interface GetApiSearchSemanticResponse {
   /** @description */
-  200: any;
+  200: Array<SemanticSearchHitDto>;
 }
 
 export type GetApiSearchSemanticResponseSuccess =
@@ -1092,14 +1202,14 @@ export const getApiSearchSemantic = /* #__PURE__ */ (() => {
 export interface GetApiGraphSearchOption {
   query: {
     keyword: string;
-    limit?: string;
+    limit?: number;
   };
 }
 
 /** @description response type for getApiGraphSearch */
 export interface GetApiGraphSearchResponse {
   /** @description */
-  200: any;
+  200: Array<GraphNodeHitDto>;
 }
 
 export type GetApiGraphSearchResponseSuccess = GetApiGraphSearchResponse[200];
@@ -1114,6 +1224,252 @@ export const getApiGraphSearch = /* #__PURE__ */ (() => {
       method: request.method,
       ...option,
     }) as unknown as Promise<GetApiGraphSearchResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for getApiGraphSearchSubgraph */
+export interface GetApiGraphSearchSubgraphOption {
+  query: {
+    keyword: string;
+    limit?: number;
+  };
+}
+
+/** @description response type for getApiGraphSearchSubgraph */
+export interface GetApiGraphSearchSubgraphResponse {
+  /** @description */
+  200: GraphSubgraphResultDto;
+}
+
+export type GetApiGraphSearchSubgraphResponseSuccess =
+  GetApiGraphSearchSubgraphResponse[200];
+/** @tags Graph */
+export const getApiGraphSearchSubgraph = /* #__PURE__ */ (() => {
+  const method = "get";
+  const url = "/api/graph/search/subgraph";
+  function request(
+    option: GetApiGraphSearchSubgraphOption
+  ): Promise<GetApiGraphSearchSubgraphResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<GetApiGraphSearchSubgraphResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for postApiTeams */
+export interface PostApiTeamsOption {
+  body: CreateTeamDto;
+}
+
+/** @description response type for postApiTeams */
+export interface PostApiTeamsResponse {
+  /** @description */
+  201: TeamEntity;
+}
+
+export type PostApiTeamsResponseSuccess = PostApiTeamsResponse[201];
+/** @tags Team */
+export const postApiTeams = /* #__PURE__ */ (() => {
+  const method = "post";
+  const url = "/api/teams";
+  function request(
+    option: PostApiTeamsOption
+  ): Promise<PostApiTeamsResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<PostApiTeamsResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for getApiTeamsId */
+export interface GetApiTeamsIdOption {
+  path: {
+    id: string;
+  };
+}
+
+/** @description response type for getApiTeamsId */
+export interface GetApiTeamsIdResponse {
+  /** @description */
+  200: TeamEntity;
+}
+
+export type GetApiTeamsIdResponseSuccess = GetApiTeamsIdResponse[200];
+/** @tags Team */
+export const getApiTeamsId = /* #__PURE__ */ (() => {
+  const method = "get";
+  const url = "/api/teams/:id";
+  function request(
+    option: GetApiTeamsIdOption
+  ): Promise<GetApiTeamsIdResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<GetApiTeamsIdResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for putApiTeamsId */
+export interface PutApiTeamsIdOption {
+  path: {
+    id: string;
+  };
+}
+
+/** @description request parameter type for putApiTeamsId */
+export interface PutApiTeamsIdOption {
+  body: UpdateTeamDto;
+}
+
+/** @description response type for putApiTeamsId */
+export interface PutApiTeamsIdResponse {
+  /** @description */
+  200: TeamEntity;
+}
+
+export type PutApiTeamsIdResponseSuccess = PutApiTeamsIdResponse[200];
+/** @tags Team */
+export const putApiTeamsId = /* #__PURE__ */ (() => {
+  const method = "put";
+  const url = "/api/teams/:id";
+  function request(
+    option: PutApiTeamsIdOption
+  ): Promise<PutApiTeamsIdResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<PutApiTeamsIdResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for deleteApiTeamsId */
+export interface DeleteApiTeamsIdOption {
+  path: {
+    id: string;
+  };
+}
+
+/** @description response type for deleteApiTeamsId */
+export interface DeleteApiTeamsIdResponse {
+  /** @description */
+  200: any;
+}
+
+export type DeleteApiTeamsIdResponseSuccess = DeleteApiTeamsIdResponse[200];
+/** @tags Team */
+export const deleteApiTeamsId = /* #__PURE__ */ (() => {
+  const method = "delete";
+  const url = "/api/teams/:id";
+  function request(
+    option: DeleteApiTeamsIdOption
+  ): Promise<DeleteApiTeamsIdResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<DeleteApiTeamsIdResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for getApiTeamsPage */
+export interface GetApiTeamsPageOption {
+  query?: {
+    keyword?: string;
+    status?: number;
+    page?: number;
+    pageSize?: number;
+  };
+}
+
+/** @description response type for getApiTeamsPage */
+export interface GetApiTeamsPageResponse {
+  /** @description */
+  200: any;
+}
+
+export type GetApiTeamsPageResponseSuccess = GetApiTeamsPageResponse[200];
+/** @tags Team */
+export const getApiTeamsPage = /* #__PURE__ */ (() => {
+  const method = "get";
+  const url = "/api/teams/page";
+  function request(
+    option?: GetApiTeamsPageOption
+  ): Promise<GetApiTeamsPageResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<GetApiTeamsPageResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for getApiTeamsTree */
+export interface GetApiTeamsTreeOption {
+  query?: {
+    rootOnly?: string;
+  };
+}
+
+/** @description response type for getApiTeamsTree */
+export interface GetApiTeamsTreeResponse {
+  /** @description */
+  200: Array<TeamEntity>;
+}
+
+export type GetApiTeamsTreeResponseSuccess = GetApiTeamsTreeResponse[200];
+/** @tags Team */
+export const getApiTeamsTree = /* #__PURE__ */ (() => {
+  const method = "get";
+  const url = "/api/teams/tree";
+  function request(
+    option?: GetApiTeamsTreeOption
+  ): Promise<GetApiTeamsTreeResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<GetApiTeamsTreeResponseSuccess>;
   }
 
   /** http method */

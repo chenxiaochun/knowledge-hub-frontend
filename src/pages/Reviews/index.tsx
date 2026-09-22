@@ -177,10 +177,7 @@ export default function ReviewsPage() {
 
   return (
     <div>
-      <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }}>
-        <Typography.Title level={4} style={{ margin: 0 }}>
-          文档审核
-        </Typography.Title>
+      <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'flex-end' }}>
         <Button onClick={() => void fetchList()} loading={loading}>
           刷新
         </Button>
