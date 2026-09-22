@@ -78,7 +78,20 @@ export function buildGraphChartOption(data: GraphSubgraphResultDto): EChartsOpti
         links,
         label: { show: true, position: 'right', fontSize: 11 },
         force: { repulsion: 280, edgeLength: [80, 160], gravity: 0.08 },
-        emphasis: { focus: 'adjacency', lineStyle: { width: 4 } },
+        blur: {
+          itemStyle: { opacity: 0.55 },
+          lineStyle: { opacity: 0.35 },
+          label: { opacity: 0.55 },
+        },
+        emphasis: {
+          focus: 'adjacency',
+          scale: 1.06,
+          itemStyle: {
+            shadowBlur: 6,
+            shadowColor: 'rgba(22, 119, 255, 0.2)',
+          },
+          lineStyle: { width: 2.5, opacity: 0.9 },
+        },
       },
     ],
   };
