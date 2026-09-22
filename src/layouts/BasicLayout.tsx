@@ -40,7 +40,7 @@ export default function BasicLayout() {
   const menuItems = useMemo<MenuProps['items']>(
     () => [
       { key: '/', icon: <HomeOutlined />, label: '工作台' },
-      { key: '/search', icon: <FileSearchOutlined />, label: '文档检索' },
+      { key: '/search', icon: <FileSearchOutlined />, label: '智能检索' },
       { key: '/documents', icon: <FileTextOutlined />, label: '文档管理' },
       ...(canReview ? [{ key: '/reviews', icon: <AuditOutlined />, label: '文档审核' }] : []),
       { key: '/system', icon: <SettingOutlined />, label: '系统管理' },
@@ -51,7 +51,7 @@ export default function BasicLayout() {
   const footerLinks = useMemo(
     () => [
       { label: '工作台', path: '/' },
-      { label: '文档检索', path: '/search' },
+      { label: '智能检索', path: '/search' },
       { label: '文档管理', path: '/documents' },
       ...(canReview ? [{ label: '文档审核', path: '/reviews' }] : []),
       { label: '系统管理', path: '/system/users' },

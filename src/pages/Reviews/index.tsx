@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { ReloadOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Modal, Popconfirm, Space, Table, Tag, Typography, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -178,7 +179,7 @@ export default function ReviewsPage() {
   return (
     <div>
       <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'flex-end' }}>
-        <Button onClick={() => void fetchList()} loading={loading}>
+        <Button icon={<ReloadOutlined spin={loading} />} onClick={() => void fetchList()}>
           刷新
         </Button>
       </Space>
