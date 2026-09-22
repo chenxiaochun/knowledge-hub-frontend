@@ -1,7 +1,8 @@
 import { Button, Empty, List, Space, Tag, Typography } from 'antd';
 
-import GraphChart from '@/components/GraphChart';
 import type { GraphSubgraphNodeDto, GraphSubgraphResultDto } from '@/service/api';
+
+import GraphChart from '@/components/GraphChart';
 
 type Props = {
   loading: boolean;

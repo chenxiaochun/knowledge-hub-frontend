@@ -72,6 +72,7 @@ export function buildGraphChartOption(data: GraphSubgraphResultDto): EChartsOpti
         type: 'graph',
         layout: 'force',
         roam: 'move',
+        scaleLimit: { min: 0.4, max: 4 },
         draggable: true,
         categories,
         data: nodes,
