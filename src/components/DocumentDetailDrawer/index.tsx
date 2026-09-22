@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
 
-import { Descriptions, Drawer, Tag, Typography } from 'antd';
+import { Descriptions, Drawer, Space, Tag, Typography } from 'antd';
 
 import dayjs from 'dayjs';
 
+import FileTypeIcon from '@/components/FileTypeIcon';
 import MarkdownPreview from '@/components/MarkdownPreview';
 import { getDocumentStatusMeta } from '@/constants/document';
 import type { DocumentDetail } from '@/types/document';
@@ -78,7 +79,14 @@ export default function DocumentDetailDrawer({ open, loading, detail, extra, onC
               },
               {
                 label: '格式',
-                children: detail.fileExt ? `.${detail.fileExt}` : '—',
+                children: detail.fileExt ? (
+                  <Space size={6}>
+                    <FileTypeIcon ext={detail.fileExt} size={24} />
+                    <span>.{detail.fileExt}</span>
+                  </Space>
+                ) : (
+                  '—'
+                ),
               },
               {
                 label: '字数',

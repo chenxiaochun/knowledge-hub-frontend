@@ -8,6 +8,7 @@ import dayjs from 'dayjs';
 import type { RequestOption } from '@/utils/request';
 
 import DocumentDetailDrawer from '@/components/DocumentDetailDrawer';
+import FileTypeIcon from '@/components/FileTypeIcon';
 import { canEditContent, getDocumentStatusMeta } from '@/constants/document';
 import { RoleCode } from '@/constants/roles';
 import {
@@ -268,9 +269,16 @@ export default function DocumentsPage() {
       dataIndex: 'title',
       ellipsis: true,
       render: (title: string, record) => (
-        <Button type="link" style={{ paddingInline: 0 }} onClick={() => void openDetail(record.id)}>
-          {title}
-        </Button>
+        <Space size={8}>
+          <FileTypeIcon ext={record.fileExt} size={24} />
+          <Button
+            type="link"
+            style={{ paddingInline: 0 }}
+            onClick={() => void openDetail(record.id)}
+          >
+            {title}
+          </Button>
+        </Space>
       ),
     },
     {
