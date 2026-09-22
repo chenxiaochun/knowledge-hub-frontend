@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { SearchOutlined } from '@ant-design/icons';
-import { Button, Empty, Input, Space, Typography, message } from 'antd';
+import { Button, Input, Space, Typography, message, Collapse } from 'antd';
+
+import type { DocumentDetail } from '@/types/document';
 
 import DocumentDetailDrawer from '@/components/DocumentDetailDrawer';
 import {
@@ -13,12 +15,14 @@ import {
   type SearchDocumentHitDto,
   type SemanticSearchHitDto,
 } from '@/service/api';
-import type { DocumentDetail } from '@/types/document';
+
+import type { SearchQuery } from './types';
 
 import GraphResultPanel from './GraphResultPanel';
 import KeywordResultList from './KeywordResultList';
 import SemanticResultList from './SemanticResultList';
-import type { SearchQuery } from './types';
+
+import styles from './index.module.scss';
 
 const DEFAULT_PAGE_SIZE = 10;
 const DEFAULT_TOP_K = 5;
@@ -33,6 +37,8 @@ export default function SearchPage() {
   const [semanticItems, setSemanticItems] = useState<SemanticSearchHitDto[]>([]);
   const [graphSubgraph, setGraphSubgraph] = useState<GraphSubgraphResultDto | null>(null);
   const requestSeq = useRef(0);
+
+  const [layoutActive, setLayoutActive] = useState(false);
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -110,6 +116,21 @@ export default function SearchPage() {
     void fetchSearch(query);
   }, [fetchSearch, query]);
 
+  const hasAnyResults =
+    keywordTotal > 0 ||
+    semanticItems.length > 0 ||
+    (graphSubgraph?.nodes?.length ?? 0) > 0;
+
+  useEffect(() => {
+    if (!query?.keyword) {
+      setLayoutActive(false);
+      return;
+    }
+    if (!loading && hasAnyResults) {
+      setLayoutActive(true);
+    }
+  }, [query?.keyword, loading, hasAnyResults]);
+
   const runSearch = (raw: string, page = 1, pageSize = DEFAULT_PAGE_SIZE) => {
     const keyword = raw.trim();
     if (!keyword) {
@@ -141,76 +162,88 @@ export default function SearchPage() {
   };
 
   const hasSearched = Boolean(query?.keyword);
+  const showEmptyHint = hasSearched && !loading && !hasAnyResults;
 
   return (
-    <div>
-      <Space style={{ marginBottom: 24, width: '100%' }} wrap>
-        <Space.Compact style={{ width: 560, maxWidth: '100%' }}>
-          <Input
-            allowClear
-            size="large"
-            prefix={<SearchOutlined />}
-            placeholder="输入关键词，同时检索全文、语义与知识图谱"
-            value={keywordInput}
-            onChange={(e) => setKeywordInput(e.target.value)}
-            onPressEnter={() => runSearch(keywordInput)}
-          />
-          <Button
-            type="primary"
-            size="large"
-            loading={loading}
-            onClick={() => runSearch(keywordInput)}
-          >
-            搜索
-          </Button>
-        </Space.Compact>
-      </Space>
-
-      {!hasSearched ? (
-        <Empty description="输入关键词后开始检索" />
-      ) : (
-        <Space direction="vertical" size={32} style={{ width: '100%' }}>
-          <section>
-            <Typography.Title level={5} style={{ marginTop: 0 }}>
-              全文检索
+    <div className={`${styles.page} ${layoutActive ? styles.pageActive : ''}`}>
+      <div className={styles.searchArea}>
+        <div className={styles.searchStack}>
+          <div className={`${styles.searchBrand} ${layoutActive ? styles.searchBrandHidden : ''}`}>
+            <Typography.Title level={2} className={styles.searchBrandTitle}>
+              智能检索
             </Typography.Title>
-            <KeywordResultList
-              loading={loading}
-              items={keywordItems}
-              total={keywordTotal}
-              page={query?.page ?? 1}
-              pageSize={query?.pageSize ?? DEFAULT_PAGE_SIZE}
-              onPageChange={(page, pageSize) => {
-                if (!query) return;
-                setQuery({ ...query, page, pageSize });
-              }}
-              onOpenDetail={(id) => void openDetail(id)}
-            />
-          </section>
+            <Typography.Paragraph className={styles.searchBrandDesc}>
+              一次搜索，同时检索全文、语义与知识图谱
+            </Typography.Paragraph>
+          </div>
 
-          <section>
-            <Typography.Title level={5} style={{ marginTop: 0 }}>
-              语义检索
-            </Typography.Title>
-            <SemanticResultList
-              loading={loading}
-              items={semanticItems}
-              onOpenDetail={(id) => void openDetail(id)}
-            />
-          </section>
+          <div className={styles.searchBar}>
+            <Space.Compact style={{ width: '100%' }}>
+              <Input
+                allowClear
+                size="large"
+                prefix={<SearchOutlined />}
+                placeholder="输入关键词，同时检索全文、语义与知识图谱"
+                value={keywordInput}
+                onChange={(e) => setKeywordInput(e.target.value)}
+                onPressEnter={() => runSearch(keywordInput)}
+              />
+              <Button
+                type="primary"
+                size="large"
+                className={styles.searchBtn}
+                loading={loading}
+                onClick={() => runSearch(keywordInput)}
+              >
+                搜索
+              </Button>
+            </Space.Compact>
+          </div>
 
-          <section>
-            <Typography.Title level={5} style={{ marginTop: 0 }}>
-              图谱检索
-            </Typography.Title>
-            <GraphResultPanel
-              loading={loading}
-              data={graphSubgraph}
-              onDocumentClick={(id) => void openDetail(id)}
-            />
-          </section>
-        </Space>
-      )}
+          {showEmptyHint ? (
+            <Typography.Text type="secondary" className={styles.emptyHint}>
+              未找到相关结果，请换个关键词试试
+            </Typography.Text>
+          ) : null}
+        </div>
+      </div>
+
+      {layoutActive ? (
+        <div className={styles.resultsArea}>
+          <Collapse defaultActiveKey={['1', '2', '3']}>
+            <Collapse.Panel key="1" header="全文检索">
+              <KeywordResultList
+                loading={loading}
+                items={keywordItems}
+                total={keywordTotal}
+                page={query?.page ?? 1}
+                pageSize={query?.pageSize ?? DEFAULT_PAGE_SIZE}
+                onPageChange={(page, pageSize) => {
+                  if (!query) return;
+                  setQuery({ ...query, page, pageSize });
+                }}
+                onOpenDetail={(id) => void openDetail(id)}
+              />
+            </Collapse.Panel>
+
+            <Collapse.Panel key="2" header="语义检索">
+              <SemanticResultList
+                loading={loading}
+                items={semanticItems}
+                onOpenDetail={(id) => void openDetail(id)}
+              />
+            </Collapse.Panel>
+
+            <Collapse.Panel key="3" header="图谱检索">
+              <GraphResultPanel
+                loading={loading}
+                data={graphSubgraph}
+                onDocumentClick={(id) => void openDetail(id)}
+              />
+            </Collapse.Panel>
+          </Collapse>
+        </div>
+      ) : null}
 
       <DocumentDetailDrawer
         open={detailOpen}

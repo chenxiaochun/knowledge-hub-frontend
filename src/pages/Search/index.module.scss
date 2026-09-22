@@ -1,0 +1,107 @@
+$ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
+$duration: 1.5s;
+
+.page {
+  min-height: calc(100vh - 220px);
+}
+
+.searchArea {
+  display: flex;
+  justify-content: center;
+  padding-top: 18vh;
+  padding-bottom: 24px;
+  transition: padding-top $duration $ease-soft, padding-bottom $duration $ease-soft;
+}
+
+.pageActive .searchArea {
+  justify-content: flex-start;
+  padding-top: 0;
+  padding-bottom: 16px;
+}
+
+.searchStack {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+}
+
+.searchBrand {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 28px);
+  left: 0;
+  text-align: center;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 1.1s $ease-soft, transform 1.2s $ease-soft;
+  pointer-events: none;
+}
+
+.searchBrandHidden {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.searchBrandTitle {
+  margin: 0 !important;
+  font-size: 28px !important;
+  font-weight: 600 !important;
+  color: rgba(0, 0, 0, 0.88) !important;
+  letter-spacing: 0.02em;
+}
+
+.searchBrandDesc {
+  margin: 8px 0 0 !important;
+  color: rgba(0, 0, 0, 0.45) !important;
+  font-size: 14px;
+}
+
+.searchBar {
+  width: 100%;
+}
+
+.searchBtn {
+  min-width: 72px;
+}
+
+.emptyHint {
+  display: block;
+  margin-top: 16px;
+}
+
+.resultsArea {
+  overflow: hidden;
+  animation: resultsReveal $duration $ease-soft both;
+}
+
+@keyframes resultsReveal {
+  0% {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(16px);
+  }
+
+  35% {
+    opacity: 0.2;
+  }
+
+  100% {
+    opacity: 1;
+    max-height: 8000px;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    min-height: calc(100vh - 180px);
+  }
+
+  .searchArea {
+    padding-top: 14vh;
+  }
+
+  .searchBrandTitle {
+    font-size: 22px !important;
+  }
+}

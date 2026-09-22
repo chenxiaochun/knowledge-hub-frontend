@@ -38,8 +38,6 @@ export default function GraphChart({ data, loading, height = 420, onDocumentClic
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          border: '1px solid #f0f0f0',
-          borderRadius: 8,
           background: '#fff',
         }}
       >
@@ -56,8 +54,6 @@ export default function GraphChart({ data, loading, height = 420, onDocumentClic
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          border: '1px solid #f0f0f0',
-          borderRadius: 8,
           background: '#fafafa',
         }}
       >
@@ -75,8 +71,6 @@ export default function GraphChart({ data, loading, height = 420, onDocumentClic
       style={{
         width: '100%',
         height,
-        border: '1px solid #f0f0f0',
-        borderRadius: 8,
         background: '#fff',
       }}
     />
