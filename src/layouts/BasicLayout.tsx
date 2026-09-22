@@ -18,6 +18,8 @@ import { RoleCode } from '@/constants/roles';
 import { postApiAuthLogout } from '@/service/api';
 import { clearAuth, getUserInfo } from '@/utils/auth';
 
+import AppFooter from './AppFooter';
+
 const { Header, Content } = Layout;
 
 export default function BasicLayout() {
@@ -46,11 +48,26 @@ export default function BasicLayout() {
     [canReview],
   );
 
+  const footerLinks = useMemo(
+    () => [
+      { label: '工作台', path: '/' },
+      { label: '文档检索', path: '/search' },
+      { label: '文档管理', path: '/documents' },
+      ...(canReview ? [{ label: '文档审核', path: '/reviews' }] : []),
+      { label: '系统管理', path: '/system/users' },
+    ],
+    [canReview],
+  );
+
   const selectedKeys = useMemo(() => {
     if (location.pathname.startsWith('/search')) return ['/search'];
     if (location.pathname.startsWith('/documents')) return ['/documents'];
     if (location.pathname.startsWith('/reviews')) return ['/reviews'];
-    if (location.pathname.startsWith('/system') || location.pathname.startsWith('/users') || location.pathname.startsWith('/rbac')) {
+    if (
+      location.pathname.startsWith('/system') ||
+      location.pathname.startsWith('/users') ||
+      location.pathname.startsWith('/rbac')
+    ) {
       return ['/system'];
     }
     return ['/'];
@@ -81,7 +98,7 @@ export default function BasicLayout() {
   ];
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header
         style={{
           position: 'sticky',
@@ -139,7 +156,7 @@ export default function BasicLayout() {
         </Dropdown>
       </Header>
 
-      <Content style={{ margin: 24 }}>
+      <Content style={{ margin: 24, flex: 1 }}>
         <div
           style={{
             padding: 24,
@@ -151,6 +168,8 @@ export default function BasicLayout() {
           <Outlet />
         </div>
       </Content>
+
+      <AppFooter links={footerLinks} />
     </Layout>
   );
 }
