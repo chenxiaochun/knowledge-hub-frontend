@@ -273,9 +273,6 @@ export default function SearchPage() {
       <Typography.Title level={4} style={{ marginTop: 0 }}>
         文档检索
       </Typography.Title>
-      <Typography.Paragraph type="secondary">
-        支持全文检索、语义向量检索与知识图谱检索；图谱命中为实体或文档节点。
-      </Typography.Paragraph>
 
       <Space direction="vertical" size={16} style={{ width: '100%', marginBottom: 24 }}>
         <Segmented

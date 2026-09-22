@@ -8,8 +8,7 @@ import {
   FileTextOutlined,
   HomeOutlined,
   LogoutOutlined,
-  SafetyCertificateOutlined,
-  TeamOutlined,
+  SettingOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import { Dropdown, Layout, Menu, Space, theme, Typography } from 'antd';
@@ -19,13 +18,12 @@ import { RoleCode } from '@/constants/roles';
 import { postApiAuthLogout } from '@/service/api';
 import { clearAuth, getUserInfo } from '@/utils/auth';
 
-const { Header, Sider, Content } = Layout;
+const { Header, Content } = Layout;
 
 export default function BasicLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const user = getUserInfo();
-  const isAdmin = Boolean(user?.roles?.includes(RoleCode.ADMIN));
   const canReview = Boolean(
     user?.roles?.includes(RoleCode.ADMIN) || user?.roles?.includes(RoleCode.REVIEWER),
   );
@@ -33,26 +31,28 @@ export default function BasicLayout() {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  const menuItems = useMemo(
+  const headerBg = '#003eb3';
+  const headerText = 'rgba(255, 255, 255, 0.95)';
+  const headerMuted = 'rgba(255, 255, 255, 0.78)';
+
+  const menuItems = useMemo<MenuProps['items']>(
     () => [
-      { key: '/', icon: <HomeOutlined />, label: '首页' },
+      { key: '/', icon: <HomeOutlined />, label: '工作台' },
       { key: '/search', icon: <FileSearchOutlined />, label: '文档检索' },
       { key: '/documents', icon: <FileTextOutlined />, label: '文档管理' },
       ...(canReview ? [{ key: '/reviews', icon: <AuditOutlined />, label: '文档审核' }] : []),
-      { key: '/users', icon: <TeamOutlined />, label: '用户管理' },
-      ...(isAdmin
-        ? [{ key: '/rbac', icon: <SafetyCertificateOutlined />, label: '角色权限' }]
-        : []),
+      { key: '/system', icon: <SettingOutlined />, label: '系统管理' },
     ],
-    [canReview, isAdmin],
+    [canReview],
   );
 
   const selectedKeys = useMemo(() => {
     if (location.pathname.startsWith('/search')) return ['/search'];
     if (location.pathname.startsWith('/documents')) return ['/documents'];
     if (location.pathname.startsWith('/reviews')) return ['/reviews'];
-    if (location.pathname.startsWith('/users')) return ['/users'];
-    if (location.pathname.startsWith('/rbac')) return ['/rbac'];
+    if (location.pathname.startsWith('/system') || location.pathname.startsWith('/users') || location.pathname.startsWith('/rbac')) {
+      return ['/system'];
+    }
     return ['/'];
   }, [location.pathname]);
 
@@ -82,62 +82,75 @@ export default function BasicLayout() {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider breakpoint="lg" collapsedWidth={64}>
-        <div
-          style={{
-            height: 64,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 8,
-            color: '#fff',
-            fontWeight: 600,
-            fontSize: 16,
-          }}
+      <Header
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 100,
+          paddingInline: 24,
+          background: headerBg,
+          boxShadow: '0 1px 4px rgba(0, 21, 41, 0.28)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 24,
+        }}
+      >
+        <Space
+          size={8}
+          style={{ flexShrink: 0, cursor: 'pointer' }}
+          onClick={() => navigate('/')}
         >
-          <BookOutlined style={{ fontSize: 20 }} />
-          <span className="layout-brand-text">Knowledge Hub</span>
-        </div>
+          <BookOutlined style={{ fontSize: 20, color: '#fff' }} />
+          <Typography.Text
+            strong
+            style={{ fontSize: 16, whiteSpace: 'nowrap', color: headerText }}
+          >
+            智能知识库
+          </Typography.Text>
+        </Space>
+
         <Menu
           theme="dark"
-          mode="inline"
+          mode="horizontal"
+          className="layout-header-menu"
           selectedKeys={selectedKeys}
           items={menuItems}
-          onClick={({ key }) => navigate(key)}
-        />
-      </Sider>
-
-      <Layout>
-        <Header
+          onClick={({ key }) => {
+            if (key === '/system') {
+              navigate('/system/users');
+              return;
+            }
+            if (key.startsWith('/')) navigate(key);
+          }}
           style={{
-            paddingInline: 24,
+            flex: 1,
+            minWidth: 0,
+            borderBottom: 'none',
+            background: 'transparent',
+            color: headerMuted,
+          }}
+        />
+
+        <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
+          <Space style={{ flexShrink: 0, cursor: 'pointer', color: headerText }}>
+            <UserOutlined />
+            <Typography.Text style={{ color: headerText }}>{displayName}</Typography.Text>
+          </Space>
+        </Dropdown>
+      </Header>
+
+      <Content style={{ margin: 24 }}>
+        <div
+          style={{
+            padding: 24,
+            minHeight: 360,
             background: colorBgContainer,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            borderRadius: borderRadiusLG,
           }}
         >
-          <span style={{ fontSize: 16, fontWeight: 500 }}>知识库管理后台</span>
-          <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-            <Space style={{ cursor: 'pointer' }}>
-              <UserOutlined />
-              <Typography.Text>{displayName}</Typography.Text>
-            </Space>
-          </Dropdown>
-        </Header>
-        <Content style={{ margin: 24 }}>
-          <div
-            style={{
-              padding: 24,
-              minHeight: 360,
-              background: colorBgContainer,
-              borderRadius: borderRadiusLG,
-            }}
-          >
-            <Outlet />
-          </div>
-        </Content>
-      </Layout>
+          <Outlet />
+        </div>
+      </Content>
     </Layout>
   );
 }
