@@ -180,6 +180,7 @@ export default function SearchPage() {
           <div className={styles.searchBar}>
             <Space.Compact style={{ width: '100%' }}>
               <Input
+                autoFocus
                 allowClear
                 size="large"
                 prefix={<SearchOutlined />}
