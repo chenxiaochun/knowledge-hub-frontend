@@ -3,7 +3,6 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import {
   AuditOutlined,
-  BookOutlined,
   FileSearchOutlined,
   FileTextOutlined,
   HomeOutlined,
@@ -14,6 +13,7 @@ import {
 import { Dropdown, Layout, Menu, Space, theme, Typography } from 'antd';
 import type { MenuProps } from 'antd';
 
+import Logo from '@/components/Logo';
 import { RoleCode } from '@/constants/roles';
 import { postApiAuthLogout } from '@/service/api';
 import { clearAuth, getUserInfo } from '@/utils/auth';
@@ -114,10 +114,11 @@ export default function BasicLayout() {
       >
         <Space
           size={8}
+          align="center"
           style={{ flexShrink: 0, cursor: 'pointer' }}
           onClick={() => navigate('/')}
         >
-          <BookOutlined style={{ fontSize: 20, color: '#fff' }} />
+          <Logo size={28} />
           <Typography.Text
             strong
             style={{ fontSize: 16, whiteSpace: 'nowrap', color: headerText }}

@@ -1,5 +1,6 @@
-import { BookOutlined } from '@ant-design/icons';
 import { Col, Row, Space, Typography } from 'antd';
+
+import Logo from '@/components/Logo';
 import { useNavigate } from 'react-router-dom';
 
 import styles from './AppFooter.module.scss';
@@ -23,8 +24,8 @@ export default function AppFooter({ links }: Props) {
       <div className={styles.inner}>
         <Row gutter={[48, 32]}>
           <Col xs={24} md={10} lg={9}>
-            <Space size={10} align="start" className={styles.brand}>
-              <BookOutlined className={styles.brandIcon} />
+            <Space size={10} align="center" className={styles.brand}>
+              <Logo size={32} className={styles.brandIcon} />
               <div>
                 <Typography.Title level={4} className={styles.brandTitle}>
                   智能知识库
