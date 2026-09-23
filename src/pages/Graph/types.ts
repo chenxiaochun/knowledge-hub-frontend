@@ -1,3 +1,5 @@
+import type { Dayjs } from 'dayjs';
+
 export type GraphOverviewNodeKind = 'document' | 'entity' | 'tag';
 
 export type GraphOverviewEdgeKind = 'mentions' | 'related' | 'tagged';
@@ -59,4 +61,10 @@ export type GraphOverviewQuery = {
   from: string;
   to: string;
   docLimit: number;
+};
+
+export type GraphFilterFormValues = {
+  keyword: string;
+  entityType?: string;
+  dateRange: [Dayjs | null, Dayjs | null] | null;
 };

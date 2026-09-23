@@ -1,10 +1,7 @@
-import type { Dayjs } from 'dayjs';
-
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { ReloadOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, DatePicker, Input, Select, Space } from 'antd';
+import { Form } from 'antd';
 
 import type { DocumentDetail } from '@/types/document';
 
@@ -12,52 +9,17 @@ import DocumentDetailDrawer from '@/components/DocumentDetailDrawer';
 import GraphChart from '@/components/GraphChart';
 import { getApiDocumentId, getApiGraphOverview } from '@/service/api';
 
-import type { GraphOverviewQuery, GraphOverviewResultDto } from './types';
-
+import { DEFAULT_DOC_LIMIT, EMPTY_OVERVIEW } from './constants';
+import GraphFilterForm from './GraphFilterForm';
 import GraphStatsPanel from './GraphStatsPanel';
+import { toOverviewQuery } from './graphQuery';
 import styles from './index.module.scss';
 import { buildOverviewChartOption } from './overviewChartOption';
-
-const DEFAULT_DOC_LIMIT = 80;
-
-const EMPTY_OVERVIEW: GraphOverviewResultDto = {
-  nodes: [],
-  edges: [],
-  stats: {
-    nodeCount: 0,
-    edgeCount: 0,
-    documentCount: 0,
-    entityCount: 0,
-    tagCount: 0,
-    mentionCount: 0,
-    relatedCount: 0,
-    entityTypes: [],
-  },
-  topEntities: [],
-  recentNodes: [],
-  entityTypes: [],
-};
-
-function toOverviewQuery(
-  keywordInput: string,
-  entityType: string,
-  dateRange: [Dayjs | null, Dayjs | null] | null,
-  docLimit: number,
-): GraphOverviewQuery {
-  return {
-    keyword: keywordInput.trim() || ' ',
-    entityType: entityType || '',
-    from: dateRange?.[0]?.startOf('day').toISOString() ?? '',
-    to: dateRange?.[1]?.endOf('day').toISOString() ?? '',
-    docLimit,
-  };
-}
+import type { GraphFilterFormValues, GraphOverviewQuery, GraphOverviewResultDto } from './types';
 
 export default function GraphPage() {
   const navigate = useNavigate();
-  const [keywordInput, setKeywordInput] = useState('');
-  const [entityType, setEntityType] = useState('');
-  const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
+  const [form] = Form.useForm<GraphFilterFormValues>();
   const [query, setQuery] = useState<GraphOverviewQuery>(() =>
     toOverviewQuery('', '', null, DEFAULT_DOC_LIMIT),
   );
@@ -113,14 +75,18 @@ export default function GraphPage() {
     [overview.entityTypes],
   );
 
-  const applyFilters = () => {
-    setQuery(toOverviewQuery(keywordInput, entityType, dateRange, DEFAULT_DOC_LIMIT));
+  const applyFilters = (values: GraphFilterFormValues) => {
+    setQuery(
+      toOverviewQuery(
+        values.keyword,
+        values.entityType ?? '',
+        values.dateRange,
+        DEFAULT_DOC_LIMIT,
+      ),
+    );
   };
 
   const resetFilters = () => {
-    setKeywordInput('');
-    setEntityType('');
-    setDateRange(null);
     setQuery(toOverviewQuery('', '', null, DEFAULT_DOC_LIMIT));
   };
 
@@ -140,38 +106,13 @@ export default function GraphPage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.toolbar}>
-        <Input
-          allowClear
-          className={styles.keywordField}
-          placeholder="搜索节点、文档或标签"
-          prefix={<SearchOutlined />}
-          value={keywordInput}
-          onChange={(e) => setKeywordInput(e.target.value)}
-          onPressEnter={applyFilters}
-        />
-        <Select
-          allowClear
-          className={styles.entityTypeField}
-          placeholder="实体类型"
-          value={entityType || undefined}
-          options={entityTypeOptions}
-          onChange={(value) => setEntityType(value ?? '')}
-        />
-        <DatePicker.RangePicker
-          className={styles.dateRangeField}
-          value={dateRange}
-          onChange={(values) => setDateRange(values)}
-        />
-        <Space className={styles.toolbarActions}>
-          <Button type="primary" icon={<SearchOutlined />} loading={loading} onClick={applyFilters}>
-            搜索
-          </Button>
-          <Button icon={<ReloadOutlined />} onClick={resetFilters}>
-            重置
-          </Button>
-        </Space>
-      </div>
+      <GraphFilterForm
+        form={form}
+        loading={loading}
+        entityTypeOptions={entityTypeOptions}
+        onFinish={applyFilters}
+        onReset={resetFilters}
+      />
 
       <div className={styles.content}>
         <div className={styles.graphArea}>

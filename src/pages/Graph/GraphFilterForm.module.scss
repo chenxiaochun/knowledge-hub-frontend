@@ -1,0 +1,43 @@
+.toolbar {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+
+  :global(.ant-form-item) {
+    margin-inline-end: 0;
+    margin-bottom: 0;
+  }
+}
+
+.keywordField {
+  flex: 2 1 auto;
+  min-width: 400px;
+}
+
+.entityTypeField {
+  flex: 0 0 128px;
+  width: 128px;
+
+  :global(.ant-select),
+  :global(.ant-select-selector) {
+    width: 100%;
+  }
+}
+
+.dateRangeField {
+  flex: 0 0 240px;
+  width: 240px;
+
+  :global(.ant-picker) {
+    width: 100%;
+  }
+}
+
+.toolbarActions {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
