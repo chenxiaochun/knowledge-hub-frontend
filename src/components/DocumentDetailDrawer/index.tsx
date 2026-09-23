@@ -32,7 +32,7 @@ export default function DocumentDetailDrawer({ open, loading, detail, extra, onC
   return (
     <Drawer
       title={detail?.title || '文档详情'}
-      width={720}
+      size={720}
       open={open}
       onClose={onClose}
       destroyOnHidden

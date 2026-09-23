@@ -211,38 +211,51 @@ export default function SearchPage() {
 
       {layoutActive ? (
         <div className={styles.resultsArea}>
-          <Collapse defaultActiveKey={['1', '2', '3']}>
-            <Collapse.Panel key="1" header="全文检索">
-              <KeywordResultList
-                loading={loading}
-                items={keywordItems}
-                total={keywordTotal}
-                page={query?.page ?? 1}
-                pageSize={query?.pageSize ?? DEFAULT_PAGE_SIZE}
-                onPageChange={(page, pageSize) => {
-                  if (!query) return;
-                  setQuery({ ...query, page, pageSize });
-                }}
-                onOpenDetail={(id) => void openDetail(id)}
-              />
-            </Collapse.Panel>
-
-            <Collapse.Panel key="2" header="语义检索">
-              <SemanticResultList
-                loading={loading}
-                items={semanticItems}
-                onOpenDetail={(id) => void openDetail(id)}
-              />
-            </Collapse.Panel>
-
-            <Collapse.Panel key="3" header="图谱检索">
-              <GraphResultPanel
-                loading={loading}
-                data={graphSubgraph}
-                onDocumentClick={(id) => void openDetail(id)}
-              />
-            </Collapse.Panel>
-          </Collapse>
+          <Collapse
+            defaultActiveKey={['1', '2', '3']}
+            items={[
+              {
+                key: '1',
+                label: '全文检索',
+                children: (
+                  <KeywordResultList
+                    loading={loading}
+                    items={keywordItems}
+                    total={keywordTotal}
+                    page={query?.page ?? 1}
+                    pageSize={query?.pageSize ?? DEFAULT_PAGE_SIZE}
+                    onPageChange={(page, pageSize) => {
+                      if (!query) return;
+                      setQuery({ ...query, page, pageSize });
+                    }}
+                    onOpenDetail={(id) => void openDetail(id)}
+                  />
+                ),
+              },
+              {
+                key: '2',
+                label: '语义检索',
+                children: (
+                  <SemanticResultList
+                    loading={loading}
+                    items={semanticItems}
+                    onOpenDetail={(id) => void openDetail(id)}
+                  />
+                ),
+              },
+              {
+                key: '3',
+                label: '图谱检索',
+                children: (
+                  <GraphResultPanel
+                    loading={loading}
+                    data={graphSubgraph}
+                    onDocumentClick={(id) => void openDetail(id)}
+                  />
+                ),
+              },
+            ]}
+          />
         </div>
       ) : null}
 

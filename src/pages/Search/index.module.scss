@@ -2,19 +2,25 @@ $ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
 $duration: 1.5s;
 
 .page {
+  display: flex;
+  flex-direction: column;
   min-height: calc(100vh - 220px);
+}
+
+.page:not(.pageActive) {
+  justify-content: center;
 }
 
 .searchArea {
   display: flex;
   justify-content: center;
-  padding-top: 18vh;
-  padding-bottom: 24px;
-  transition: padding-top $duration $ease-soft, padding-bottom $duration $ease-soft;
+  width: 100%;
+  padding: 24px 0;
+  transition: padding $duration $ease-soft;
 }
 
 .pageActive .searchArea {
-  justify-content: flex-start;
+  flex-shrink: 0;
   padding-top: 0;
   padding-bottom: 16px;
 }
@@ -70,6 +76,7 @@ $duration: 1.5s;
 }
 
 .resultsArea {
+  flex: 1;
   overflow: hidden;
   animation: resultsReveal $duration $ease-soft both;
 }
@@ -95,10 +102,6 @@ $duration: 1.5s;
 @media (max-width: 768px) {
   .page {
     min-height: calc(100vh - 180px);
-  }
-
-  .searchArea {
-    padding-top: 14vh;
   }
 
   .searchBrandTitle {

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, Button, Card, Checkbox, Empty, List, Space, Tag, Typography, message } from 'antd';
+import { Alert, Button, Card, Checkbox, Empty, List, Listy, Space, Tag, Typography, message } from 'antd';
 import {
   getApiRbacPermissions,
   getApiRbacRoles,
@@ -169,38 +169,41 @@ export default function RbacPage() {
       >
         <Card title="角色" size="small" loading={rolesLoading}>
           {sortedRoles.length ? (
-            <List
-              dataSource={sortedRoles}
-              renderItem={(role) => {
-                const active = role.roleCode === selectedRoleCode;
-                return (
-                  <List.Item
-                    style={{
-                      cursor: 'pointer',
-                      background: active ? '#e6f4ff' : undefined,
-                      borderRadius: 6,
-                      paddingInline: 12,
-                    }}
-                    onClick={() => {
-                      if (dirty && role.roleCode !== selectedRoleCode) {
-                        message.warning('请先保存或重置当前角色的修改');
-                        return;
-                      }
-                      setSelectedRoleCode(role.roleCode);
-                    }}
-                  >
-                    <Space direction="vertical" size={0}>
-                      <Typography.Text strong>
-                        {role.roleName || getRoleLabel(role.roleCode)}
-                      </Typography.Text>
-                      <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                        {role.roleCode}
-                      </Typography.Text>
-                    </Space>
-                  </List.Item>
-                );
-              }}
-            />
+            <div className="ant-list ant-list-split">
+              <Listy
+                items={sortedRoles}
+                rowKey="roleCode"
+                itemRender={(role) => {
+                  const active = role.roleCode === selectedRoleCode;
+                  return (
+                    <List.Item
+                      style={{
+                        cursor: 'pointer',
+                        background: active ? '#e6f4ff' : undefined,
+                        borderRadius: 6,
+                        paddingInline: 12,
+                      }}
+                      onClick={() => {
+                        if (dirty && role.roleCode !== selectedRoleCode) {
+                          message.warning('请先保存或重置当前角色的修改');
+                          return;
+                        }
+                        setSelectedRoleCode(role.roleCode);
+                      }}
+                    >
+                      <Space orientation="vertical" size={0}>
+                        <Typography.Text strong>
+                          {role.roleName || getRoleLabel(role.roleCode)}
+                        </Typography.Text>
+                        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                          {role.roleCode}
+                        </Typography.Text>
+                      </Space>
+                    </List.Item>
+                  );
+                }}
+              />
+            </div>
           ) : (
             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无角色" />
           )}
@@ -236,7 +239,7 @@ export default function RbacPage() {
               value={checkedCodes}
               onChange={(values) => setCheckedCodes(values as string[])}
             >
-              <Space direction="vertical" size={12} style={{ width: '100%' }}>
+              <Space orientation="vertical" size={12} style={{ width: '100%' }}>
                 {permissionOptions.map((item) => (
                   <label
                     key={item.value}
@@ -251,7 +254,7 @@ export default function RbacPage() {
                     }}
                   >
                     <Checkbox value={item.value} style={{ marginTop: 2 }} />
-                    <Space direction="vertical" size={0}>
+                    <Space orientation="vertical" size={0}>
                       <Space wrap>
                         <Typography.Text strong>{item.label}</Typography.Text>
                         <Typography.Text type="secondary" code>
