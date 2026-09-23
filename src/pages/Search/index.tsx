@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { SearchOutlined } from '@ant-design/icons';
+import { FileSearchOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button, Input, Space, Typography, message, Collapse } from 'antd';
 
 import type { DocumentDetail } from '@/types/document';
@@ -143,9 +143,12 @@ export default function SearchPage() {
       <div className={styles.searchArea}>
         <div className={styles.searchStack}>
           <div className={`${styles.searchBrand} ${layoutActive ? styles.searchBrandHidden : ''}`}>
-            <Typography.Title level={2} className={styles.searchBrandTitle}>
-              文档检索
-            </Typography.Title>
+            <div className={styles.searchBrandIcon} aria-label="文档检索">
+              <div className={styles.searchBrandIconGlow} aria-hidden />
+              <div className={styles.searchBrandIconGlass}>
+                <FileSearchOutlined />
+              </div>
+            </div>
             <Typography.Paragraph className={styles.searchBrandDesc}>
               一次搜索，同时检索全文与语义相关内容
             </Typography.Paragraph>
