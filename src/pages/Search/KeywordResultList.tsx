@@ -119,7 +119,7 @@ export default function KeywordResultList({
         )}
       </Spin>
       {pagination ? (
-        <Pagination {...pagination} style={{ marginTop: 16, textAlign: 'right' }} />
+        <Pagination {...pagination} align="end" style={{ marginTop: 16 }} />
       ) : null}
     </>
   );
