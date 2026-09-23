@@ -1,0 +1,166 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+}
+
+.hero {
+  padding: 28px 32px;
+  border: 1px solid #e8edf3;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #edf3fb 0%, #f7faff 42%, #ffffff 100%);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.heroTitle {
+  margin: 0 0 8px !important;
+  color: rgba(0, 0, 0, 0.88) !important;
+  font-size: 22px !important;
+  font-weight: 600 !important;
+  line-height: 1.35 !important;
+}
+
+.heroDesc {
+  max-width: 560px;
+  margin: 0 !important;
+  color: rgba(0, 0, 0, 0.45) !important;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sectionTitle {
+  margin: 0 !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+}
+
+.shortcutRow {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
+  overflow-x: auto;
+  padding: 2px 2px 8px;
+}
+
+.shortcutCard {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 148px;
+  padding: 22px 16px;
+  border: 1px solid #f0f0f0;
+  border-radius: 10px;
+  background: #fff;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    z-index: 1;
+    border-color: #91caff;
+    box-shadow: 0 4px 14px rgba(22, 119, 255, 0.12);
+  }
+}
+
+.shortcutIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  font-size: 22px;
+
+  :global(.anticon) {
+    color: inherit;
+  }
+}
+
+.iconBlue {
+  color: #1677ff;
+  background: rgba(22, 119, 255, 0.12);
+}
+
+.iconGreen {
+  color: #52c41a;
+  background: rgba(82, 196, 26, 0.12);
+}
+
+.iconPurple {
+  color: #722ed1;
+  background: rgba(114, 46, 209, 0.12);
+}
+
+.iconOrange {
+  color: #fa8c16;
+  background: rgba(250, 140, 22, 0.12);
+}
+
+.iconCyan {
+  color: #13c2c2;
+  background: rgba(19, 194, 194, 0.12);
+}
+
+.shortcutName {
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.shortcutDesc {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.featureCard {
+  padding: 20px 22px;
+  border: 1px solid #f0f0f0;
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.featureTitle {
+  margin: 0 0 8px;
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.featureDesc {
+  margin: 0;
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+  .hero {
+    padding: 20px 22px;
+  }
+
+  .featureGrid {
+    grid-template-columns: 1fr;
+  }
+}
