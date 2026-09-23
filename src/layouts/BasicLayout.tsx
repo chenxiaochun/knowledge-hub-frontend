@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import {
+  ApartmentOutlined,
   AuditOutlined,
   FileSearchOutlined,
   FileTextOutlined,
@@ -40,7 +41,8 @@ export default function BasicLayout() {
   const menuItems = useMemo<MenuProps['items']>(
     () => [
       { key: '/', icon: <HomeOutlined />, label: '工作台' },
-      { key: '/search', icon: <FileSearchOutlined />, label: '智能检索' },
+      { key: '/search', icon: <FileSearchOutlined />, label: '文档检索' },
+      { key: '/graph', icon: <ApartmentOutlined />, label: '知识图谱' },
       { key: '/documents', icon: <FileTextOutlined />, label: '文档管理' },
       ...(canReview ? [{ key: '/reviews', icon: <AuditOutlined />, label: '文档审核' }] : []),
       { key: '/system', icon: <SettingOutlined />, label: '系统管理' },
@@ -51,7 +53,8 @@ export default function BasicLayout() {
   const footerLinks = useMemo(
     () => [
       { label: '工作台', path: '/' },
-      { label: '智能检索', path: '/search' },
+      { label: '文档检索', path: '/search' },
+      { label: '知识图谱', path: '/graph' },
       { label: '文档管理', path: '/documents' },
       ...(canReview ? [{ label: '文档审核', path: '/reviews' }] : []),
       { label: '系统管理', path: '/system/users' },
@@ -61,6 +64,7 @@ export default function BasicLayout() {
 
   const selectedKeys = useMemo(() => {
     if (location.pathname.startsWith('/search')) return ['/search'];
+    if (location.pathname.startsWith('/graph')) return ['/graph'];
     if (location.pathname.startsWith('/documents')) return ['/documents'];
     if (location.pathname.startsWith('/reviews')) return ['/reviews'];
     if (
@@ -157,11 +161,22 @@ export default function BasicLayout() {
         </Dropdown>
       </Header>
 
-      <Content style={{ margin: 24, flex: 1 }}>
+      <Content
+        style={{
+          margin: 24,
+          flex: 1,
+          minHeight: 0,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         <div
           style={{
             padding: 24,
+            flex: 1,
             minHeight: 360,
+            display: 'flex',
+            flexDirection: 'column',
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
           }}

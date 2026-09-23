@@ -1,0 +1,184 @@
+.panel {
+  width: 300px;
+  flex-shrink: 0;
+  border-left: 1px solid #f0f0f0;
+  background: #fff;
+  overflow-y: auto;
+}
+
+.section {
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.sectionHint {
+  color: rgba(0, 0, 0, 0.35);
+  font-size: 14px;
+}
+
+.blockTitle {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.moreBtn {
+  padding: 0;
+  height: auto;
+}
+
+.metricGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.metricCard {
+  padding: 10px 12px;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.metricLabel {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.metricRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.metricValue {
+  color: rgba(0, 0, 0, 0.88);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.metricIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.metricIconBlue {
+  color: #1677ff;
+  background: rgba(22, 119, 255, 0.12);
+}
+
+.metricIconGreen {
+  color: #52c41a;
+  background: rgba(82, 196, 26, 0.12);
+}
+
+.metricIconPurple {
+  color: #722ed1;
+  background: rgba(114, 46, 209, 0.12);
+}
+
+.metricIconOrange {
+  color: #fa8c16;
+  background: rgba(250, 140, 22, 0.12);
+}
+
+.rankList,
+.recentList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rankItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f5f5f5;
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
+
+.rankBadge {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #1677ff;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 22px;
+  text-align: center;
+}
+
+.rankName {
+  flex: 1;
+  min-width: 0;
+}
+
+.rankMeta {
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+.recentItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 0;
+  border: none;
+  border-bottom: 1px solid #f5f5f5;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  &:hover .recentName {
+    color: #1677ff;
+  }
+}
+
+.recentName {
+  flex: 1;
+  min-width: 0;
+}
+
+.recentTime {
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+@media (max-width: 1100px) {
+  .panel {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid #f0f0f0;
+  }
+}

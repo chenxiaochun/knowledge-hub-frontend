@@ -8,17 +8,14 @@ import type { DocumentDetail } from '@/types/document';
 import DocumentDetailDrawer from '@/components/DocumentDetailDrawer';
 import {
   getApiDocumentId,
-  getApiGraphSearchSubgraph,
   getApiSearch,
   getApiSearchSemantic,
-  type GraphSubgraphResultDto,
   type SearchDocumentHitDto,
   type SemanticSearchHitDto,
 } from '@/service/api';
 
 import type { SearchQuery } from './types';
 
-import GraphResultPanel from './GraphResultPanel';
 import KeywordResultList from './KeywordResultList';
 import SemanticResultList from './SemanticResultList';
 
@@ -26,7 +23,6 @@ import styles from './index.module.scss';
 
 const DEFAULT_PAGE_SIZE = 10;
 const DEFAULT_TOP_K = 5;
-const DEFAULT_GRAPH_LIMIT = 20;
 
 export default function SearchPage() {
   const [keywordInput, setKeywordInput] = useState('');
@@ -35,7 +31,6 @@ export default function SearchPage() {
   const [keywordItems, setKeywordItems] = useState<SearchDocumentHitDto[]>([]);
   const [keywordTotal, setKeywordTotal] = useState(0);
   const [semanticItems, setSemanticItems] = useState<SemanticSearchHitDto[]>([]);
-  const [graphSubgraph, setGraphSubgraph] = useState<GraphSubgraphResultDto | null>(null);
   const requestSeq = useRef(0);
 
   const [layoutActive, setLayoutActive] = useState(false);
@@ -50,14 +45,13 @@ export default function SearchPage() {
       setKeywordItems([]);
       setKeywordTotal(0);
       setSemanticItems([]);
-      setGraphSubgraph(null);
       return;
     }
 
     const seq = ++requestSeq.current;
     setLoading(true);
     try {
-      const [keywordRes, semanticRes, graphRes] = await Promise.allSettled([
+      const [keywordRes, semanticRes] = await Promise.allSettled([
         getApiSearch({
           query: {
             keyword,
@@ -69,12 +63,6 @@ export default function SearchPage() {
           query: {
             query: keyword,
             topK: next.topK,
-          },
-        }),
-        getApiGraphSearchSubgraph({
-          query: {
-            keyword,
-            limit: next.graphLimit,
           },
         }),
       ]);
@@ -94,16 +82,6 @@ export default function SearchPage() {
       } else {
         setSemanticItems([]);
       }
-
-      if (graphRes.status === 'fulfilled') {
-        const res = graphRes.value;
-        setGraphSubgraph({
-          nodes: Array.isArray(res?.nodes) ? res.nodes : [],
-          edges: Array.isArray(res?.edges) ? res.edges : [],
-        });
-      } else {
-        setGraphSubgraph(null);
-      }
     } finally {
       if (seq === requestSeq.current) {
         setLoading(false);
@@ -116,10 +94,7 @@ export default function SearchPage() {
     void fetchSearch(query);
   }, [fetchSearch, query]);
 
-  const hasAnyResults =
-    keywordTotal > 0 ||
-    semanticItems.length > 0 ||
-    (graphSubgraph?.nodes?.length ?? 0) > 0;
+  const hasAnyResults = keywordTotal > 0 || semanticItems.length > 0;
 
   useEffect(() => {
     if (!query?.keyword) {
@@ -143,7 +118,6 @@ export default function SearchPage() {
       page,
       pageSize,
       topK: DEFAULT_TOP_K,
-      graphLimit: DEFAULT_GRAPH_LIMIT,
     });
   };
 
@@ -170,10 +144,10 @@ export default function SearchPage() {
         <div className={styles.searchStack}>
           <div className={`${styles.searchBrand} ${layoutActive ? styles.searchBrandHidden : ''}`}>
             <Typography.Title level={2} className={styles.searchBrandTitle}>
-              智能检索
+              文档检索
             </Typography.Title>
             <Typography.Paragraph className={styles.searchBrandDesc}>
-              一次搜索，同时检索全文、语义与知识图谱
+              一次搜索，同时检索全文与语义相关内容
             </Typography.Paragraph>
           </div>
 
@@ -184,7 +158,7 @@ export default function SearchPage() {
                 allowClear
                 size="large"
                 prefix={<SearchOutlined />}
-                placeholder="输入关键词，同时检索全文、语义与知识图谱"
+                placeholder="输入关键词，检索全文与语义相关内容"
                 value={keywordInput}
                 onChange={(e) => setKeywordInput(e.target.value)}
                 onPressEnter={() => runSearch(keywordInput)}
@@ -212,7 +186,7 @@ export default function SearchPage() {
       {layoutActive ? (
         <div className={styles.resultsArea}>
           <Collapse
-            defaultActiveKey={['1', '2', '3']}
+            defaultActiveKey={['1', '2']}
             items={[
               {
                 key: '1',
@@ -240,17 +214,6 @@ export default function SearchPage() {
                     loading={loading}
                     items={semanticItems}
                     onOpenDetail={(id) => void openDetail(id)}
-                  />
-                ),
-              },
-              {
-                key: '3',
-                label: '图谱检索',
-                children: (
-                  <GraphResultPanel
-                    loading={loading}
-                    data={graphSubgraph}
-                    onDocumentClick={(id) => void openDetail(id)}
                   />
                 ),
               },

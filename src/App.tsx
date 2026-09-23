@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import AuthGuard from '@/components/AuthGuard';
 import BasicLayout from '@/layouts/BasicLayout';
 import DocumentsPage from '@/pages/Documents';
+import GraphPage from '@/pages/Graph';
 import HomePage from '@/pages/Home';
 import LoginPage from '@/pages/Login';
 import RbacPage from '@/pages/Rbac';
@@ -22,6 +23,7 @@ export default function App() {
           <Route element={<BasicLayout />}>
             <Route index element={<HomePage />} />
             <Route path="search" element={<SearchPage />} />
+            <Route path="graph" element={<GraphPage />} />
             <Route path="documents" element={<DocumentsPage />} />
             <Route path="reviews" element={<ReviewsPage />} />
             <Route path="system" element={<SystemPage />}>

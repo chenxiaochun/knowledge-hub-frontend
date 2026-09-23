@@ -153,46 +153,6 @@ export interface UpdateDocumentDto {
   tags?: string;
 }
 
-export interface SearchHighlightDto {
-  title?: Array<string>;
-  content?: Array<string>;
-}
-
-export interface SearchDocumentHitDto {
-  id: string;
-  score: number | null;
-  title: string;
-  summary?: string;
-  authorId?: string | null;
-  status: number;
-  publishTime?: string | null;
-  indexedAt?: string | null;
-  tags?: string | null;
-  highlight?: SearchHighlightDto;
-}
-
-export interface SearchDocumentsResultDto {
-  items: Array<SearchDocumentHitDto>;
-  total: number;
-  page: number;
-  pageSize: number;
-}
-
-export interface SemanticSearchHitDto {
-  chunkId: string;
-  documentId: string;
-  documentTitle: string;
-  content: string;
-  heading: string | null;
-  /**
-   * @description
-   *   当前阶段得分
-   */
-  score: number;
-  bm25Score?: number;
-  vectorScore?: number;
-}
-
 export interface GraphNodeHitDto {
   labels: Array<string>;
   /**
@@ -253,6 +213,46 @@ export interface GraphSubgraphEdgeDto {
 export interface GraphSubgraphResultDto {
   nodes: Array<GraphSubgraphNodeDto>;
   edges: Array<GraphSubgraphEdgeDto>;
+}
+
+export interface SearchHighlightDto {
+  title?: Array<string>;
+  content?: Array<string>;
+}
+
+export interface SearchDocumentHitDto {
+  id: string;
+  score: number | null;
+  title: string;
+  summary?: string;
+  authorId?: string | null;
+  status: number;
+  publishTime?: string | null;
+  indexedAt?: string | null;
+  tags?: string | null;
+  highlight?: SearchHighlightDto;
+}
+
+export interface SearchDocumentsResultDto {
+  items: Array<SearchDocumentHitDto>;
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface SemanticSearchHitDto {
+  chunkId: string;
+  documentId: string;
+  documentTitle: string;
+  content: string;
+  heading: string | null;
+  /**
+   * @description
+   *   当前阶段得分
+   */
+  score: number;
+  bm25Score?: number;
+  vectorScore?: number;
 }
 
 export interface CreateTeamDto {

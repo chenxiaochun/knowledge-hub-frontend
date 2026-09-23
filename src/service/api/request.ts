@@ -19,10 +19,14 @@ import type {
   DocumentReviewEntity,
   DocumentEntity,
   UpdateDocumentDto,
-  SearchDocumentsResultDto,
-  SemanticSearchHitDto,
   GraphNodeHitDto,
   GraphSubgraphResultDto,
+  GraphSubgraphNodeDto,
+  GraphSubgraphEdgeDto,
+  SearchDocumentsResultDto,
+  SearchDocumentHitDto,
+  SearchHighlightDto,
+  SemanticSearchHitDto,
   CreateTeamDto,
   TeamEntity,
   UpdateTeamDto,
@@ -1126,6 +1130,120 @@ export const deleteApiDocumentId = /* #__PURE__ */ (() => {
   return request;
 })();
 
+/** @description request parameter type for getApiGraphSearch */
+export interface GetApiGraphSearchOption {
+  query: {
+    keyword: string;
+    limit?: number;
+  };
+}
+
+/** @description response type for getApiGraphSearch */
+export interface GetApiGraphSearchResponse {
+  /** @description */
+  200: Array<GraphNodeHitDto>;
+}
+
+export type GetApiGraphSearchResponseSuccess = GetApiGraphSearchResponse[200];
+/** @tags Graph */
+export const getApiGraphSearch = /* #__PURE__ */ (() => {
+  const method = "get";
+  const url = "/api/graph/search";
+  function request(
+    option: GetApiGraphSearchOption
+  ): Promise<GetApiGraphSearchResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<GetApiGraphSearchResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for getApiGraphSearchSubgraph */
+export interface GetApiGraphSearchSubgraphOption {
+  query: {
+    keyword: string;
+    limit?: number;
+  };
+}
+
+/** @description response type for getApiGraphSearchSubgraph */
+export interface GetApiGraphSearchSubgraphResponse {
+  /** @description */
+  200: GraphSubgraphResultDto;
+}
+
+export type GetApiGraphSearchSubgraphResponseSuccess =
+  GetApiGraphSearchSubgraphResponse[200];
+/** @tags Graph */
+export const getApiGraphSearchSubgraph = /* #__PURE__ */ (() => {
+  const method = "get";
+  const url = "/api/graph/search/subgraph";
+  function request(
+    option: GetApiGraphSearchSubgraphOption
+  ): Promise<GetApiGraphSearchSubgraphResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<GetApiGraphSearchSubgraphResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for getApiGraphOverview */
+export interface GetApiGraphOverviewOption {
+  query: {
+    keyword: string;
+    entityType: string;
+    from: string;
+    to: string;
+    docLimit?: number;
+  };
+}
+
+/** @description response type for getApiGraphOverview */
+export interface GetApiGraphOverviewResponse {
+  /** @description */
+  200: any;
+}
+
+export type GetApiGraphOverviewResponseSuccess =
+  GetApiGraphOverviewResponse[200];
+/**
+ * @description
+ *   全景：文档 / 实体 / 标签 + 统计，供前端力导向图
+ * @tags Graph
+ */
+export const getApiGraphOverview = /* #__PURE__ */ (() => {
+  const method = "get";
+  const url = "/api/graph/overview";
+  function request(
+    option: GetApiGraphOverviewOption
+  ): Promise<GetApiGraphOverviewResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<GetApiGraphOverviewResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
 /** @description request parameter type for getApiSearch */
 export interface GetApiSearchOption {
   query: {
@@ -1189,77 +1307,6 @@ export const getApiSearchSemantic = /* #__PURE__ */ (() => {
       method: request.method,
       ...option,
     }) as unknown as Promise<GetApiSearchSemanticResponseSuccess>;
-  }
-
-  /** http method */
-  request.method = method;
-  /** request url */
-  request.url = url;
-  return request;
-})();
-
-/** @description request parameter type for getApiGraphSearch */
-export interface GetApiGraphSearchOption {
-  query: {
-    keyword: string;
-    limit?: number;
-  };
-}
-
-/** @description response type for getApiGraphSearch */
-export interface GetApiGraphSearchResponse {
-  /** @description */
-  200: Array<GraphNodeHitDto>;
-}
-
-export type GetApiGraphSearchResponseSuccess = GetApiGraphSearchResponse[200];
-/** @tags Graph */
-export const getApiGraphSearch = /* #__PURE__ */ (() => {
-  const method = "get";
-  const url = "/api/graph/search";
-  function request(
-    option: GetApiGraphSearchOption
-  ): Promise<GetApiGraphSearchResponseSuccess> {
-    return requester(request.url, {
-      method: request.method,
-      ...option,
-    }) as unknown as Promise<GetApiGraphSearchResponseSuccess>;
-  }
-
-  /** http method */
-  request.method = method;
-  /** request url */
-  request.url = url;
-  return request;
-})();
-
-/** @description request parameter type for getApiGraphSearchSubgraph */
-export interface GetApiGraphSearchSubgraphOption {
-  query: {
-    keyword: string;
-    limit?: number;
-  };
-}
-
-/** @description response type for getApiGraphSearchSubgraph */
-export interface GetApiGraphSearchSubgraphResponse {
-  /** @description */
-  200: GraphSubgraphResultDto;
-}
-
-export type GetApiGraphSearchSubgraphResponseSuccess =
-  GetApiGraphSearchSubgraphResponse[200];
-/** @tags Graph */
-export const getApiGraphSearchSubgraph = /* #__PURE__ */ (() => {
-  const method = "get";
-  const url = "/api/graph/search/subgraph";
-  function request(
-    option: GetApiGraphSearchSubgraphOption
-  ): Promise<GetApiGraphSearchSubgraphResponseSuccess> {
-    return requester(request.url, {
-      method: request.method,
-      ...option,
-    }) as unknown as Promise<GetApiGraphSearchSubgraphResponseSuccess>;
   }
 
   /** http method */

@@ -4,6 +4,7 @@ import { CompressOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/i
 import { Button, Empty, Spin, Tooltip } from 'antd';
 import ReactECharts from 'echarts-for-react';
 import type EChartsReact from 'echarts-for-react';
+import type { EChartsOption } from 'echarts';
 
 import { buildGraphChartOption } from '@/pages/Search/graphChartOption';
 import type { GraphSubgraphResultDto } from '@/service/api';
@@ -12,8 +13,13 @@ const ZOOM_RATIO = 1.2;
 const MIN_ZOOM = 0.4;
 const MAX_ZOOM = 4;
 
+type GraphChartData = {
+  nodes: Array<{ id: string }>;
+};
+
 type Props = {
-  data: GraphSubgraphResultDto | null;
+  data: GraphChartData | GraphSubgraphResultDto | null;
+  chartOption?: EChartsOption;
   loading?: boolean;
   height?: number;
   onDocumentClick?: (documentId: string) => void;
@@ -24,7 +30,14 @@ type PanOffset = {
   y: number;
 };
 
-export default function GraphChart({ data, loading, height = 420, onDocumentClick }: Props) {
+export default function GraphChart({
+  data,
+  chartOption,
+  loading,
+  height,
+  onDocumentClick,
+}: Props) {
+  const fillParent = height == null;
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<EChartsReact>(null);
   const panRef = useRef<PanOffset>({ x: 0, y: 0 });
@@ -34,8 +47,9 @@ export default function GraphChart({ data, loading, height = 420, onDocumentClic
 
   const option = useMemo(() => {
     if (!data || data.nodes.length === 0) return {};
-    return buildGraphChartOption(data);
-  }, [data]);
+    if (chartOption) return chartOption;
+    return buildGraphChartOption(data as GraphSubgraphResultDto);
+  }, [chartOption, data]);
 
   const onEvents = useMemo(
     () => ({
@@ -122,8 +136,9 @@ export default function GraphChart({ data, loading, height = 420, onDocumentClic
     const chart = chartRef.current?.getEchartsInstance();
     if (!chart || !data?.nodes.length) return;
 
-    const onGraphRoam = (params: { dx?: number; dy?: number }) => {
-      if (isDispatchingRoamRef.current) return;
+    const onGraphRoam = (...args: unknown[]) => {
+      const params = args[0] as { dx?: number; dy?: number } | undefined;
+      if (isDispatchingRoamRef.current || !params) return;
       if (params.dx) panRef.current.x += params.dx;
       if (params.dy) panRef.current.y += params.dy;
       setViewDirty(true);
@@ -135,17 +150,38 @@ export default function GraphChart({ data, loading, height = 420, onDocumentClic
     };
   }, [data]);
 
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || !fillParent) return;
+
+    const resizeChart = () => {
+      chartRef.current?.getEchartsInstance()?.resize();
+    };
+
+    const observer = new ResizeObserver(resizeChart);
+    observer.observe(container);
+    resizeChart();
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [fillParent, loading, data]);
+
+  const containerStyle = {
+    position: 'relative' as const,
+    width: '100%',
+    height: fillParent ? '100%' : height,
+    flex: fillParent ? 1 : undefined,
+    minHeight: fillParent ? 0 : undefined,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: loading || !data?.nodes.length ? (loading ? '#fff' : '#fafafa') : undefined,
+  };
+
   if (loading) {
     return (
-      <div
-        style={{
-          height,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: '#fff',
-        }}
-      >
+      <div ref={containerRef} style={containerStyle}>
         <Spin tip="加载图谱…" />
       </div>
     );
@@ -153,22 +189,23 @@ export default function GraphChart({ data, loading, height = 420, onDocumentClic
 
   if (!data || data.nodes.length === 0) {
     return (
-      <div
-        style={{
-          height,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: '#fafafa',
-        }}
-      >
+      <div ref={containerRef} style={containerStyle}>
         <Empty description="暂无图谱数据" />
       </div>
     );
   }
 
   return (
-    <div ref={containerRef} style={{ position: 'relative', width: '100%', height }}>
+    <div
+      ref={containerRef}
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: fillParent ? '100%' : height,
+        flex: fillParent ? 1 : undefined,
+        minHeight: fillParent ? 0 : undefined,
+      }}
+    >
       <ReactECharts
         ref={chartRef}
         option={option}
