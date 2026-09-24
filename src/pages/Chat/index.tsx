@@ -83,10 +83,12 @@ export default function ChatPage() {
           走混合检索后再生成。无召回不会调模型。问答会写入左侧会话，「仅检索」不落库。
         </Typography.Paragraph>
 
-        <div className={styles.logWrap} ref={logRef} onScroll={onLogScroll}>
+        <div className={styles.logWrap}>
           <ChatMessageList
             messages={messages}
             loading={messagesLoading}
+            logRef={logRef}
+            onLogScroll={onLogScroll}
             onOpenDocument={(id) => void openDocument(id)}
           />
         </div>

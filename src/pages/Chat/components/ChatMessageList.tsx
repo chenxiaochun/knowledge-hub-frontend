@@ -1,5 +1,5 @@
 import { Empty, Spin } from 'antd';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type RefObject } from 'react';
 
 import { useDocumentFileExts } from '../hooks/useDocumentFileExts';
 import type { LocalMessage } from '../types';
@@ -13,10 +13,18 @@ import styles from './ChatMessageList.module.scss';
 type Props = {
   messages: LocalMessage[];
   loading: boolean;
+  logRef?: RefObject<HTMLDivElement | null>;
+  onLogScroll?: () => void;
   onOpenDocument?: (documentId: string) => void;
 };
 
-export default function ChatMessageList({ messages, loading, onOpenDocument }: Props) {
+export default function ChatMessageList({
+  messages,
+  loading,
+  logRef,
+  onLogScroll,
+  onOpenDocument,
+}: Props) {
   const [activeCite, setActiveCite] = useState<{ scope: string; index: number } | null>(null);
 
   const citeDocumentIds = useMemo(() => {
@@ -35,22 +43,26 @@ export default function ChatMessageList({ messages, loading, onOpenDocument }: P
 
   if (loading && messages.length === 0) {
     return (
-      <div className={styles.emptyWrap}>
-        <Spin />
+      <div className={styles.log} ref={logRef} onScroll={onLogScroll}>
+        <div className={styles.emptyWrap}>
+          <Spin />
+        </div>
       </div>
     );
   }
 
   if (messages.length === 0) {
     return (
-      <div className={styles.emptyWrap}>
-        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="输入问题开始一段对话" />
+      <div className={styles.log} ref={logRef} onScroll={onLogScroll}>
+        <div className={styles.emptyWrap}>
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="输入问题开始一段对话" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={styles.log}>
+    <div className={styles.log} ref={logRef} onScroll={onLogScroll}>
       {messages.map((msg) => {
         if (msg.role === 'user') {
           return (

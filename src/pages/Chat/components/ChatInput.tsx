@@ -32,7 +32,7 @@ export default function ChatInput({
           value={value}
           disabled={busy}
           allowClear
-          placeholder="例如：上线前如何做金丝雀验证？"
+          placeholder="向知识库提问，例如：文档发布需要哪些步骤？"
           onChange={(e) => onChange(e.target.value)}
           onPressEnter={onSend}
         />
