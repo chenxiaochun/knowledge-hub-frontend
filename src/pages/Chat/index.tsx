@@ -17,7 +17,6 @@ export default function ChatPage() {
   const {
     sessionId,
     sessions,
-    sessionsLoading,
     messages,
     messagesLoading,
     input,
@@ -70,7 +69,6 @@ export default function ChatPage() {
       <ChatSidebar
         sessions={sessions}
         activeId={sessionId}
-        loading={sessionsLoading}
         busy={busy}
         onNew={() => void onNewSession()}
         onSelect={switchSession}

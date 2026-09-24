@@ -1,6 +1,7 @@
 import { Empty, Spin } from 'antd';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
+import { useDocumentFileExts } from '../hooks/useDocumentFileExts';
 import type { LocalMessage } from '../types';
 import { citedSources, ragHitsToSources } from '../utils';
 
@@ -17,6 +18,20 @@ type Props = {
 
 export default function ChatMessageList({ messages, loading, onOpenDocument }: Props) {
   const [activeCite, setActiveCite] = useState<{ scope: string; index: number } | null>(null);
+
+  const citeDocumentIds = useMemo(() => {
+    const ids: string[] = [];
+    for (const msg of messages) {
+      if (msg.role !== 'assistant' || msg.pending) continue;
+      const sources = msg.ragHits?.length
+        ? ragHitsToSources(msg.ragHits)
+        : citedSources(msg.sources, msg.content);
+      for (const source of sources) ids.push(source.documentId);
+    }
+    return ids;
+  }, [messages]);
+
+  const fileExtMap = useDocumentFileExts(citeDocumentIds);
 
   if (loading && messages.length === 0) {
     return (
@@ -72,7 +87,7 @@ export default function ChatMessageList({ messages, loading, onOpenDocument }: P
                   items={sources}
                   scope={msg.id}
                   activeIndex={activeCite?.scope === msg.id ? activeCite.index : null}
-                  onSelect={(index) => setActiveCite({ scope: msg.id, index })}
+                  fileExtMap={fileExtMap}
                   onOpenDocument={onOpenDocument}
                 />
               </>

@@ -1,5 +1,5 @@
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Empty, Spin } from 'antd';
+import { Button } from 'antd';
 import type { MouseEvent } from 'react';
 
 import type { AiSessionEntity } from '@/service/api';
@@ -11,7 +11,6 @@ import styles from './ChatSidebar.module.scss';
 type Props = {
   sessions: AiSessionEntity[];
   activeId?: string;
-  loading: boolean;
   busy: boolean;
   onNew: () => void;
   onSelect: (id: string) => void;
@@ -21,7 +20,6 @@ type Props = {
 export default function ChatSidebar({
   sessions,
   activeId,
-  loading,
   busy,
   onNew,
   onSelect,
@@ -39,15 +37,9 @@ export default function ChatSidebar({
         新对话
       </Button>
 
-      <div className={styles.list}>
-        {loading ? (
-          <div className={styles.loading}>
-            <Spin size="small" />
-          </div>
-        ) : sessions.length === 0 ? (
-          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="还没有会话" />
-        ) : (
-          sessions.map((session) => (
+      {sessions.length > 0 ? (
+        <div className={styles.list}>
+          {sessions.map((session) => (
             <div
               key={session.id}
               className={`${styles.item}${activeId === session.id ? ` ${styles.active}` : ''}${busy ? ` ${styles.disabled}` : ''}`}
@@ -62,9 +54,9 @@ export default function ChatSidebar({
                 />
               </div>
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      ) : null}
     </aside>
   );
 }

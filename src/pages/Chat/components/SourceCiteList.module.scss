@@ -21,14 +21,9 @@
   border: 1px solid #e6f4ff;
   border-radius: 8px;
   background: #f7fbff;
-  cursor: pointer;
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
-
-  &:hover {
-    border-color: #91caff;
-  }
 }
 
 .active {
@@ -42,6 +37,8 @@
 }
 
 .docTitle {
+  display: block;
+  width: 100%;
   color: #1677ff;
   font-size: 13px;
   font-weight: 600;
@@ -49,6 +46,19 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+button.docTitle {
+  padding: 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    color: #4096ff;
+    text-decoration: underline;
+  }
 }
 
 .heading {
@@ -71,17 +81,3 @@
   overflow: hidden;
 }
 
-.openBtn {
-  margin-top: 6px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: #1677ff;
-  font-size: 12px;
-  cursor: pointer;
-
-  &:hover {
-    color: #4096ff;
-    text-decoration: underline;
-  }
-}

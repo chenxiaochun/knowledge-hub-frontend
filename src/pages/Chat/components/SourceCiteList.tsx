@@ -6,16 +6,11 @@ import { citeAnchorId } from './AnswerMarkdown';
 
 import styles from './SourceCiteList.module.scss';
 
-function extFromTitle(title: string) {
-  const dot = title.lastIndexOf('.');
-  return dot >= 0 ? title.slice(dot + 1) : undefined;
-}
-
 type Props = {
   items: ChatSourceDto[];
   scope: string;
   activeIndex?: number | null;
-  onSelect?: (index: number) => void;
+  fileExtMap?: Record<string, string | null>;
   onOpenDocument?: (documentId: string) => void;
 };
 
@@ -23,7 +18,7 @@ export default function SourceCiteList({
   items,
   scope,
   activeIndex,
-  onSelect,
+  fileExtMap,
   onOpenDocument,
 }: Props) {
   if (!items.length) return null;
@@ -39,13 +34,23 @@ export default function SourceCiteList({
               key={`${s.documentId}-${index}`}
               id={citeAnchorId(scope, index)}
               className={`${styles.card}${activeIndex === index ? ` ${styles.active}` : ''}`}
-              onClick={() => onSelect?.(index)}
             >
-              <FileTypeIcon ext={extFromTitle(s.documentTitle)} size={28} />
+              <FileTypeIcon ext={fileExtMap?.[s.documentId] ?? undefined} size={28} />
               <div className={styles.body}>
-                <div className={styles.docTitle} title={s.documentTitle}>
-                  [{index}] {s.documentTitle}
-                </div>
+                {onOpenDocument ? (
+                  <button
+                    type="button"
+                    className={styles.docTitle}
+                    title={s.documentTitle}
+                    onClick={() => onOpenDocument(s.documentId)}
+                  >
+                    [{index}] {s.documentTitle}
+                  </button>
+                ) : (
+                  <div className={styles.docTitle} title={s.documentTitle}>
+                    [{index}] {s.documentTitle}
+                  </div>
+                )}
                 {s.heading ? (
                   <div className={styles.heading} title={s.heading}>
                     {s.heading}
@@ -55,18 +60,6 @@ export default function SourceCiteList({
                   <div className={styles.excerpt} title={s.excerpt}>
                     {s.excerpt}
                   </div>
-                ) : null}
-                {onOpenDocument ? (
-                  <button
-                    type="button"
-                    className={styles.openBtn}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onOpenDocument(s.documentId);
-                    }}
-                  >
-                    查看原文
-                  </button>
                 ) : null}
               </div>
             </div>

@@ -4,9 +4,15 @@
   border-top: 1px solid #f0f0f0;
 }
 
-.actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 10px;
+.compact {
+  width: 100%;
+
+  :global(.ant-input) {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.topK {
+  width: 64px;
 }
