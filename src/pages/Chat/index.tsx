@@ -1,15 +1,16 @@
-import { Typography } from 'antd';
 import { useCallback, useEffect, useRef, useState } from 'react';
+
+import { Typography } from 'antd';
+
+import type { DocumentDetail } from '@/types/document';
 
 import DocumentDetailDrawer from '@/components/DocumentDetailDrawer';
 import { getApiDocumentId } from '@/service/api';
-import type { DocumentDetail } from '@/types/document';
 
 import ChatInput from './components/ChatInput';
 import ChatMessageList from './components/ChatMessageList';
 import ChatSidebar from './components/ChatSidebar';
 import { useChatPage } from './hooks/useChatPage';
-
 import styles from './index.module.scss';
 
 export default function ChatPage() {

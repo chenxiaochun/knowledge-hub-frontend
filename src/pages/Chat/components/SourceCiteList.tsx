@@ -35,8 +35,8 @@ export default function SourceCiteList({
               id={citeAnchorId(scope, index)}
               className={`${styles.card}${activeIndex === index ? ` ${styles.active}` : ''}`}
             >
-              <FileTypeIcon ext={fileExtMap?.[s.documentId] ?? undefined} size={28} />
-              <div className={styles.body}>
+              <div className={styles.cardHead}>
+                <FileTypeIcon ext={fileExtMap?.[s.documentId] ?? undefined} size={20} />
                 {onOpenDocument ? (
                   <button
                     type="button"
@@ -51,17 +51,17 @@ export default function SourceCiteList({
                     [{index}] {s.documentTitle}
                   </div>
                 )}
-                {s.heading ? (
-                  <div className={styles.heading} title={s.heading}>
-                    {s.heading}
-                  </div>
-                ) : null}
-                {s.excerpt ? (
-                  <div className={styles.excerpt} title={s.excerpt}>
-                    {s.excerpt}
-                  </div>
-                ) : null}
               </div>
+              {s.heading ? (
+                <div className={styles.heading} title={s.heading}>
+                  {s.heading}
+                </div>
+              ) : null}
+              {s.excerpt ? (
+                <div className={styles.excerpt} title={s.excerpt}>
+                  {s.excerpt}
+                </div>
+              ) : null}
             </div>
           );
         })}
