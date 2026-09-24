@@ -74,6 +74,40 @@
     border-color: #91caff;
     box-shadow: 0 4px 14px rgba(22, 119, 255, 0.12);
   }
+
+  &:hover .shortcutIcon {
+    transform: translateY(-2px);
+  }
+
+  &:hover .iconBlue {
+    background: rgba(22, 119, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(22, 119, 255, 0.18);
+  }
+
+  &:hover .iconGreen {
+    background: rgba(82, 196, 26, 0.2);
+    box-shadow: 0 4px 12px rgba(82, 196, 26, 0.18);
+  }
+
+  &:hover .iconPurple {
+    background: rgba(114, 46, 209, 0.2);
+    box-shadow: 0 4px 12px rgba(114, 46, 209, 0.18);
+  }
+
+  &:hover .iconPink {
+    background: rgba(235, 47, 150, 0.2);
+    box-shadow: 0 4px 12px rgba(235, 47, 150, 0.18);
+  }
+
+  &:hover .iconOrange {
+    background: rgba(250, 140, 22, 0.2);
+    box-shadow: 0 4px 12px rgba(250, 140, 22, 0.18);
+  }
+
+  &:hover .iconCyan {
+    background: rgba(19, 194, 194, 0.2);
+    box-shadow: 0 4px 12px rgba(19, 194, 194, 0.18);
+  }
 }
 
 .shortcutIcon {
@@ -84,6 +118,10 @@
   height: 48px;
   border-radius: 12px;
   font-size: 22px;
+  transition:
+    transform 0.22s ease,
+    background 0.22s ease,
+    box-shadow 0.22s ease;
 
   :global(.anticon) {
     color: inherit;
@@ -158,6 +196,16 @@
   color: rgba(0, 0, 0, 0.45);
   font-size: 13px;
   line-height: 1.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shortcutIcon {
+    transition: background 0.22s ease, box-shadow 0.22s ease;
+  }
+
+  .shortcutCard:hover .shortcutIcon {
+    transform: none;
+  }
 }
 
 @media (max-width: 900px) {
