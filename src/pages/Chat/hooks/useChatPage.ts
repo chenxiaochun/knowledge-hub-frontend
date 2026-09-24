@@ -1,5 +1,5 @@
 import { App } from 'antd';
-import { useCallback, useEffect, useRef, useState, type MouseEvent } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import {
@@ -31,7 +31,7 @@ export function useChatPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const sessionId = params.get('session') || undefined;
-  const { modal, message } = App.useApp();
+  const { message } = App.useApp();
 
   const [sessions, setSessions] = useState<AiSessionEntity[]>([]);
   const [sessionsLoading, setSessionsLoading] = useState(false);
@@ -122,31 +122,24 @@ export function useChatPage() {
   }, [busy, loadSessions, message, navigate]);
 
   const onRemoveSession = useCallback(
-    (id: string, e: MouseEvent) => {
-      e.stopPropagation();
+    async (id: string) => {
       if (busy) {
         message.warning('请等待当前回答结束再删除');
         return;
       }
-      modal.confirm({
-        title: '确定删除对话？',
-        content: '删除后，聊天记录将不可恢复。',
-        okText: '删除',
-        cancelText: '取消',
-        okType: 'danger',
-        centered: true,
-        onOk: async () => {
-          await deleteApiAiAiSessionsId({ path: { id } });
-          if (sessionId === id) {
-            loadedSessionRef.current = undefined;
-            setMessages([]);
-            navigate('/chat');
-          }
-          void loadSessions();
-        },
-      });
+      try {
+        await deleteApiAiAiSessionsId({ path: { id } });
+        if (sessionId === id) {
+          loadedSessionRef.current = undefined;
+          setMessages([]);
+          navigate('/chat');
+        }
+        void loadSessions();
+      } catch {
+        message.error('删除失败');
+      }
     },
-    [busy, loadSessions, message, modal, navigate, sessionId],
+    [busy, loadSessions, message, navigate, sessionId],
   );
 
   const send = useCallback(async () => {

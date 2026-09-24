@@ -1,6 +1,5 @@
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button } from 'antd';
-import type { MouseEvent } from 'react';
+import { Button, Popconfirm } from 'antd';
 
 import type { AiSessionEntity } from '@/service/api';
 
@@ -14,7 +13,7 @@ type Props = {
   busy: boolean;
   onNew: () => void;
   onSelect: (id: string) => void;
-  onRemove: (id: string, e: MouseEvent) => void;
+  onRemove: (id: string) => void;
 };
 
 export default function ChatSidebar({
@@ -48,10 +47,30 @@ export default function ChatSidebar({
               <div className={styles.title}>{session.title}</div>
               <div className={styles.meta}>
                 <span>{formatSessionTime(session.updatedAt)}</span>
-                <DeleteOutlined
-                  className={styles.delete}
-                  onClick={(e) => onRemove(session.id, e)}
-                />
+                <Popconfirm
+                  title="确定删除对话？"
+                  description="删除后，聊天记录将不可恢复。"
+                  okText="删除"
+                  cancelText="取消"
+                  okButtonProps={{ danger: true }}
+                  disabled={busy}
+                  onConfirm={() => onRemove(session.id)}
+                >
+                  <span
+                    className={styles.delete}
+                    role="button"
+                    tabIndex={0}
+                    aria-label="删除对话"
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.stopPropagation();
+                      }
+                    }}
+                  >
+                    <DeleteOutlined />
+                  </span>
+                </Popconfirm>
               </div>
             </div>
           ))}

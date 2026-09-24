@@ -72,7 +72,7 @@ export default function ChatPage() {
         busy={busy}
         onNew={() => void onNewSession()}
         onSelect={switchSession}
-        onRemove={onRemoveSession}
+        onRemove={(id) => void onRemoveSession(id)}
       />
 
       <div className={styles.main}>
