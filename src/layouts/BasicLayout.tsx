@@ -12,7 +12,7 @@ import {
   SettingOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { Dropdown, Layout, Menu, Space, theme, Typography } from 'antd';
+import { Dropdown, Layout, Space, theme, Typography } from 'antd';
 import type { MenuProps } from 'antd';
 
 import Logo from '@/components/Logo';
@@ -21,6 +21,7 @@ import { postApiAuthLogout } from '@/service/api';
 import { clearAuth, getUserInfo } from '@/utils/auth';
 
 import AppFooter from './AppFooter';
+import HeaderNavMenu from './HeaderNavMenu';
 
 const { Header, Content } = Layout;
 
@@ -135,9 +136,8 @@ export default function BasicLayout() {
           </Typography.Text>
         </Space>
 
-        <Menu
+        <HeaderNavMenu
           theme="dark"
-          mode="horizontal"
           className="layout-header-menu"
           selectedKeys={selectedKeys}
           items={menuItems}
@@ -151,8 +151,6 @@ export default function BasicLayout() {
           style={{
             flex: 1,
             minWidth: 0,
-            borderBottom: 'none',
-            background: 'transparent',
             color: headerMuted,
           }}
         />
