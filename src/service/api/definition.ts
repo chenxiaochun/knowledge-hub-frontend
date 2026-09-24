@@ -4,6 +4,7 @@
 content is generated automatically by `ts-gear`. */
 export type ComponentsSchemasDocumentReviewEntityReviewResult = 1 | 2;
 export type ComponentsSchemasDocumentEntityStatus = 0 | 1 | 2 | 3;
+export type ComponentsSchemasAiMessageEntityRole = "user" | "assistant";
 export interface UserVO {
   id: string;
   username: string;
@@ -289,4 +290,86 @@ export interface UpdateTeamDto {
   parentId?: string;
   sort?: number;
   status?: number;
+}
+
+export interface RagSearchDto {
+  query: string;
+  /** @default 5 */
+  topK?: number;
+}
+
+export interface RagChunkHitDto {
+  chunkId: string;
+  documentId: string;
+  documentTitle: string;
+  content: string;
+  heading: string | null;
+  score: number;
+  bm25Score?: number;
+  vectorScore?: number;
+}
+
+export interface ChatDto {
+  /**
+   * @description
+   *   已有会话；不传则新建
+   */
+  sessionId?: string;
+  content: string;
+  /** @default 5 */
+  topK?: number;
+}
+
+export interface ChatSourceDto {
+  index: number;
+  documentId: string;
+  documentTitle: string;
+  heading: string | null;
+  excerpt: string;
+  score: number;
+}
+
+export interface ChatResponseDto {
+  sessionId: string | null;
+  answer: string;
+  sources: Array<ChatSourceDto>;
+}
+
+export interface AiSessionEntity {
+  id: string;
+  userId: string;
+  title: string;
+  /** @format date-time */
+  createdAt: string;
+  /** @format date-time */
+  updatedAt: string;
+}
+
+export interface SessionPageDto {
+  items: Array<AiSessionEntity>;
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface CreateSessionDto {
+  title?: string;
+}
+
+export interface AiMessageEntity {
+  id: string;
+  sessionId: string;
+  role: ComponentsSchemasAiMessageEntityRole;
+  content: string;
+  /**
+   * @description
+   *   仅 assistant：引用溯源列表；user 行一般为 null
+   */
+  sources?: Array<ChatSourceDto> | null;
+  /** @format date-time */
+  createdAt: string;
+}
+
+export interface UpdateSessionDto {
+  title: string;
 }

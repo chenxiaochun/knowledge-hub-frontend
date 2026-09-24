@@ -1,0 +1,55 @@
+.log {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 4px 2px 12px;
+}
+
+.emptyWrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.bubble {
+  max-width: 92%;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.user {
+  align-self: flex-end;
+  padding: 10px 14px;
+  border-radius: 12px 12px 4px 12px;
+  background: #1677ff;
+  color: #fff;
+  white-space: pre-wrap;
+}
+
+.assistant {
+  align-self: flex-start;
+  width: 100%;
+  max-width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #f0f0f0;
+  border-radius: 12px 12px 12px 4px;
+  background: #fff;
+}
+
+.pending {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.searchOnlyHint {
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #fffbe6;
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 12px;
+}

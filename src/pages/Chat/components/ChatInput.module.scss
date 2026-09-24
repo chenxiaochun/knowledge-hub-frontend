@@ -1,0 +1,12 @@
+.bar {
+  flex-shrink: 0;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}

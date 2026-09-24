@@ -7,6 +7,7 @@ import {
   FileSearchOutlined,
   FileTextOutlined,
   HomeOutlined,
+  RobotOutlined,
   LogoutOutlined,
   SettingOutlined,
   UserOutlined,
@@ -42,6 +43,7 @@ export default function BasicLayout() {
     () => [
       { key: '/', icon: <HomeOutlined />, label: '工作台' },
       { key: '/search', icon: <FileSearchOutlined />, label: '文档检索' },
+      { key: '/chat', icon: <RobotOutlined />, label: 'AI 智能问答' },
       { key: '/graph', icon: <ApartmentOutlined />, label: '知识图谱' },
       { key: '/documents', icon: <FileTextOutlined />, label: '文档管理' },
       ...(canReview ? [{ key: '/reviews', icon: <AuditOutlined />, label: '文档审核' }] : []),
@@ -54,6 +56,7 @@ export default function BasicLayout() {
     () => [
       { label: '工作台', path: '/' },
       { label: '文档检索', path: '/search' },
+      { label: 'AI 智能问答', path: '/chat' },
       { label: '知识图谱', path: '/graph' },
       { label: '文档管理', path: '/documents' },
       ...(canReview ? [{ label: '文档审核', path: '/reviews' }] : []),
@@ -64,6 +67,7 @@ export default function BasicLayout() {
 
   const selectedKeys = useMemo(() => {
     if (location.pathname.startsWith('/search')) return ['/search'];
+    if (location.pathname.startsWith('/chat')) return ['/chat'];
     if (location.pathname.startsWith('/graph')) return ['/graph'];
     if (location.pathname.startsWith('/documents')) return ['/documents'];
     if (location.pathname.startsWith('/reviews')) return ['/reviews'];

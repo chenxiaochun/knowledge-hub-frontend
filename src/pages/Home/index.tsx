@@ -6,6 +6,7 @@ import {
   AuditOutlined,
   FileSearchOutlined,
   FileTextOutlined,
+  RobotOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
 import { Typography } from 'antd';
@@ -65,6 +66,14 @@ export default function HomePage() {
         description: '关键词 · 语义 · 图谱',
         icon: <FileSearchOutlined />,
         iconClass: styles.iconBlue,
+      },
+      {
+        key: 'chat',
+        path: '/chat',
+        title: 'AI 智能问答',
+        description: '基于知识库对话',
+        icon: <RobotOutlined />,
+        iconClass: styles.iconPink,
       },
       {
         key: 'graph',

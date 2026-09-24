@@ -30,6 +30,16 @@ import type {
   CreateTeamDto,
   TeamEntity,
   UpdateTeamDto,
+  RagSearchDto,
+  RagChunkHitDto,
+  ChatDto,
+  ChatResponseDto,
+  ChatSourceDto,
+  SessionPageDto,
+  AiSessionEntity,
+  CreateSessionDto,
+  AiMessageEntity,
+  UpdateSessionDto,
 } from "./definition";
 
 /** @description response type for getApi */
@@ -1517,6 +1527,248 @@ export const getApiTeamsTree = /* #__PURE__ */ (() => {
       method: request.method,
       ...option,
     }) as unknown as Promise<GetApiTeamsTreeResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for postApiAiRagSearch */
+export interface PostApiAiRagSearchOption {
+  body: RagSearchDto;
+}
+
+/** @description response type for postApiAiRagSearch */
+export interface PostApiAiRagSearchResponse {
+  /** @description */
+  201: Array<RagChunkHitDto>;
+}
+
+export type PostApiAiRagSearchResponseSuccess = PostApiAiRagSearchResponse[201];
+/** @tags Ai */
+export const postApiAiRagSearch = /* #__PURE__ */ (() => {
+  const method = "post";
+  const url = "/api/ai/rag/search";
+  function request(
+    option: PostApiAiRagSearchOption
+  ): Promise<PostApiAiRagSearchResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<PostApiAiRagSearchResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for postApiAiAiChat */
+export interface PostApiAiAiChatOption {
+  body: ChatDto;
+}
+
+/** @description response type for postApiAiAiChat */
+export interface PostApiAiAiChatResponse {
+  /** @description */
+  201: ChatResponseDto;
+}
+
+export type PostApiAiAiChatResponseSuccess = PostApiAiAiChatResponse[201];
+/** @tags Ai */
+export const postApiAiAiChat = /* #__PURE__ */ (() => {
+  const method = "post";
+  const url = "/api/ai/ai/chat";
+  function request(
+    option: PostApiAiAiChatOption
+  ): Promise<PostApiAiAiChatResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<PostApiAiAiChatResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for getApiAiAiSessions */
+export interface GetApiAiAiSessionsOption {
+  query?: {
+    page?: number;
+    pageSize?: number;
+  };
+}
+
+/** @description response type for getApiAiAiSessions */
+export interface GetApiAiAiSessionsResponse {
+  /** @description */
+  200: SessionPageDto;
+}
+
+export type GetApiAiAiSessionsResponseSuccess = GetApiAiAiSessionsResponse[200];
+/** @tags Ai */
+export const getApiAiAiSessions = /* #__PURE__ */ (() => {
+  const method = "get";
+  const url = "/api/ai/ai/sessions";
+  function request(
+    option?: GetApiAiAiSessionsOption
+  ): Promise<GetApiAiAiSessionsResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<GetApiAiAiSessionsResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for postApiAiAiSessions */
+export interface PostApiAiAiSessionsOption {
+  body: CreateSessionDto;
+}
+
+/** @description response type for postApiAiAiSessions */
+export interface PostApiAiAiSessionsResponse {
+  /** @description */
+  201: AiSessionEntity;
+}
+
+export type PostApiAiAiSessionsResponseSuccess =
+  PostApiAiAiSessionsResponse[201];
+/** @tags Ai */
+export const postApiAiAiSessions = /* #__PURE__ */ (() => {
+  const method = "post";
+  const url = "/api/ai/ai/sessions";
+  function request(
+    option: PostApiAiAiSessionsOption
+  ): Promise<PostApiAiAiSessionsResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<PostApiAiAiSessionsResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for getApiAiAiSessionsIdMessages */
+export interface GetApiAiAiSessionsIdMessagesOption {
+  path: {
+    id: string;
+  };
+}
+
+/** @description response type for getApiAiAiSessionsIdMessages */
+export interface GetApiAiAiSessionsIdMessagesResponse {
+  /** @description */
+  200: Array<AiMessageEntity>;
+}
+
+export type GetApiAiAiSessionsIdMessagesResponseSuccess =
+  GetApiAiAiSessionsIdMessagesResponse[200];
+/** @tags Ai */
+export const getApiAiAiSessionsIdMessages = /* #__PURE__ */ (() => {
+  const method = "get";
+  const url = "/api/ai/ai/sessions/:id/messages";
+  function request(
+    option: GetApiAiAiSessionsIdMessagesOption
+  ): Promise<GetApiAiAiSessionsIdMessagesResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<GetApiAiAiSessionsIdMessagesResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for deleteApiAiAiSessionsId */
+export interface DeleteApiAiAiSessionsIdOption {
+  path: {
+    id: string;
+  };
+}
+
+/** @description response type for deleteApiAiAiSessionsId */
+export interface DeleteApiAiAiSessionsIdResponse {
+  /** @description */
+  200: any;
+}
+
+export type DeleteApiAiAiSessionsIdResponseSuccess =
+  DeleteApiAiAiSessionsIdResponse[200];
+/** @tags Ai */
+export const deleteApiAiAiSessionsId = /* #__PURE__ */ (() => {
+  const method = "delete";
+  const url = "/api/ai/ai/sessions/:id";
+  function request(
+    option: DeleteApiAiAiSessionsIdOption
+  ): Promise<DeleteApiAiAiSessionsIdResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<DeleteApiAiAiSessionsIdResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for patchApiAiAiSessionsId */
+export interface PatchApiAiAiSessionsIdOption {
+  path: {
+    id: string;
+  };
+}
+
+/** @description request parameter type for patchApiAiAiSessionsId */
+export interface PatchApiAiAiSessionsIdOption {
+  body: UpdateSessionDto;
+}
+
+/** @description response type for patchApiAiAiSessionsId */
+export interface PatchApiAiAiSessionsIdResponse {
+  /** @description */
+  200: AiSessionEntity;
+}
+
+export type PatchApiAiAiSessionsIdResponseSuccess =
+  PatchApiAiAiSessionsIdResponse[200];
+/** @tags Ai */
+export const patchApiAiAiSessionsId = /* #__PURE__ */ (() => {
+  const method = "patch";
+  const url = "/api/ai/ai/sessions/:id";
+  function request(
+    option: PatchApiAiAiSessionsIdOption
+  ): Promise<PatchApiAiAiSessionsIdResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<PatchApiAiAiSessionsIdResponseSuccess>;
   }
 
   /** http method */

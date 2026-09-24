@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import AuthGuard from '@/components/AuthGuard';
 import BasicLayout from '@/layouts/BasicLayout';
+import ChatPage from '@/pages/Chat';
 import DocumentsPage from '@/pages/Documents';
 import GraphPage from '@/pages/Graph';
 import HomePage from '@/pages/Home';
@@ -23,6 +24,7 @@ export default function App() {
           <Route element={<BasicLayout />}>
             <Route index element={<HomePage />} />
             <Route path="search" element={<SearchPage />} />
+            <Route path="chat" element={<ChatPage />} />
             <Route path="graph" element={<GraphPage />} />
             <Route path="documents" element={<DocumentsPage />} />
             <Route path="reviews" element={<ReviewsPage />} />
