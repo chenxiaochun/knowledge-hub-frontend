@@ -7,10 +7,12 @@ type Props = {
   topK: number;
   searchOnly: boolean;
   busy: boolean;
+  streaming?: boolean;
   onChange: (value: string) => void;
   onTopKChange: (value: number) => void;
   onSearchOnlyChange: (value: boolean) => void;
   onSend: () => void;
+  onStop?: () => void;
 };
 
 export default function ChatInput({
@@ -18,10 +20,12 @@ export default function ChatInput({
   topK,
   searchOnly,
   busy,
+  streaming = false,
   onChange,
   onTopKChange,
   onSearchOnlyChange,
   onSend,
+  onStop,
 }: Props) {
   return (
     <div className={styles.bar}>
@@ -55,15 +59,21 @@ export default function ChatInput({
         >
           仅检索
         </Button>
-        <Button
-          type="primary"
-          size="large"
-          disabled={busy || !value.trim()}
-          loading={busy}
-          onClick={onSend}
-        >
-          发送
-        </Button>
+        {streaming ? (
+          <Button size="large" onClick={onStop}>
+            停止
+          </Button>
+        ) : (
+          <Button
+            type="primary"
+            size="large"
+            disabled={busy || !value.trim()}
+            loading={busy && !streaming}
+            onClick={onSend}
+          >
+            发送
+          </Button>
+        )}
       </Space.Compact>
     </div>
   );

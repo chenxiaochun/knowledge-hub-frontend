@@ -1,20 +1,24 @@
+import { useChat } from '@ai-sdk/react';
 import { App } from 'antd';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { DefaultChatTransport } from 'ai';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import {
-  deleteApiAiAiSessionsId,
-  getApiAiAiSessions,
-  getApiAiAiSessionsIdMessages,
-  postApiAiAiChat,
-  postApiAiAiSessions,
+  deleteApiAiSessionsId,
+  getApiAiSessions,
+  getApiAiSessionsIdMessages,
   postApiAiRagSearch,
+  postApiAiSessions,
   type AiSessionEntity,
 } from '@/service/api';
+import { getToken } from '@/utils/auth';
 
+import type { KhUIMessage } from '../components/ChatMessageParts';
 import type { LocalMessage, RagChunkHitDto } from '../types';
-import { toLocalMessages } from '../utils';
+import { historyToUIMessages } from '../utils';
 
+const CHAT_ID = 'kh-chat';
 const DEFAULT_TOP_K = 5;
 
 function formatSearchOnlyAnswer(hits: RagChunkHitDto[]) {
@@ -36,21 +40,66 @@ export function useChatPage() {
   const [sessions, setSessions] = useState<AiSessionEntity[]>([]);
   const [sessionsLoading, setSessionsLoading] = useState(false);
   const [messagesLoading, setMessagesLoading] = useState(false);
-  const [messages, setMessages] = useState<LocalMessage[]>([]);
+  const [searchOnlyMessages, setSearchOnlyMessages] = useState<LocalMessage[]>([]);
   const [input, setInput] = useState('');
   const [topK, setTopK] = useState(DEFAULT_TOP_K);
   const [searchOnlyMode, setSearchOnlyMode] = useState(false);
-  const [sending, setSending] = useState(false);
+  const [searchOnlySending, setSearchOnlySending] = useState(false);
 
   const loadedSessionRef = useRef<string | undefined>(undefined);
+  const sessionIdRef = useRef(sessionId);
+  const topKRef = useRef(topK);
   const logPinBottomRef = useRef(true);
 
-  const busy = sending;
+  sessionIdRef.current = sessionId;
+  topKRef.current = topK;
+
+  const transport = useMemo(
+    () =>
+      new DefaultChatTransport<KhUIMessage>({
+        api: '/api/ai/chat/stream',
+        headers: () => {
+          const token = getToken();
+          const headers: Record<string, string> = {};
+          if (token) headers.Authorization = `Bearer ${token}`;
+          return headers;
+        },
+      }),
+    [],
+  );
+
+  const {
+    messages,
+    sendMessage,
+    setMessages,
+    status,
+    stop,
+    error,
+  } = useChat<KhUIMessage>({
+    id: CHAT_ID,
+    transport,
+    onData: (part) => {
+      if (part.type !== 'data-session') return;
+      const nextId = (part.data as { sessionId?: string }).sessionId;
+      if (!nextId || nextId === sessionIdRef.current) return;
+      loadedSessionRef.current = nextId;
+      navigate(`/chat?session=${nextId}`, { replace: true });
+    },
+    onFinish: () => {
+      void loadSessions();
+    },
+    onError: (err) => {
+      message.error(err.message || '请求失败');
+    },
+  });
+
+  const streaming = status === 'submitted' || status === 'streaming';
+  const busy = streaming || searchOnlySending;
 
   const loadSessions = useCallback(async () => {
     setSessionsLoading(true);
     try {
-      const res = await getApiAiAiSessions({ query: { page: 1, pageSize: 50 } });
+      const res = await getApiAiSessions({ query: { page: 1, pageSize: 50 } });
       setSessions(res.items ?? []);
     } catch {
       /* 列表失败不挡问答 */
@@ -63,8 +112,8 @@ export function useChatPage() {
     async (id: string) => {
       setMessagesLoading(true);
       try {
-        const rows = await getApiAiAiSessionsIdMessages({ path: { id } });
-        setMessages(toLocalMessages(rows));
+        const rows = await getApiAiSessionsIdMessages({ path: { id } });
+        setMessages(historyToUIMessages(rows));
       } catch {
         loadedSessionRef.current = undefined;
         message.error('加载会话失败');
@@ -73,7 +122,7 @@ export function useChatPage() {
         setMessagesLoading(false);
       }
     },
-    [message, navigate],
+    [message, navigate, setMessages],
   );
 
   useEffect(() => {
@@ -81,7 +130,11 @@ export function useChatPage() {
   }, [loadSessions]);
 
   useEffect(() => {
-    if (sending) return;
+    setSearchOnlyMessages([]);
+  }, [sessionId]);
+
+  useEffect(() => {
+    if (streaming) return;
     if (!sessionId) {
       if (loadedSessionRef.current) {
         loadedSessionRef.current = undefined;
@@ -92,7 +145,7 @@ export function useChatPage() {
     if (loadedSessionRef.current === sessionId) return;
     loadedSessionRef.current = sessionId;
     void loadMessages(sessionId);
-  }, [sessionId, sending, loadMessages]);
+  }, [sessionId, streaming, loadMessages, setMessages]);
 
   const switchSession = useCallback(
     (id?: string) => {
@@ -111,15 +164,16 @@ export function useChatPage() {
       return;
     }
     try {
-      const created = await postApiAiAiSessions({ body: {} });
+      const created = await postApiAiSessions({ body: {} });
       loadedSessionRef.current = created.id;
       setMessages([]);
+      setSearchOnlyMessages([]);
       navigate(`/chat?session=${created.id}`);
       void loadSessions();
     } catch {
       message.error('创建会话失败');
     }
-  }, [busy, loadSessions, message, navigate]);
+  }, [busy, loadSessions, message, navigate, setMessages]);
 
   const onRemoveSession = useCallback(
     async (id: string) => {
@@ -128,10 +182,11 @@ export function useChatPage() {
         return;
       }
       try {
-        await deleteApiAiAiSessionsId({ path: { id } });
+        await deleteApiAiSessionsId({ path: { id } });
         if (sessionId === id) {
           loadedSessionRef.current = undefined;
           setMessages([]);
+          setSearchOnlyMessages([]);
           navigate('/chat');
         }
         void loadSessions();
@@ -139,7 +194,7 @@ export function useChatPage() {
         message.error('删除失败');
       }
     },
-    [busy, loadSessions, message, navigate, sessionId],
+    [busy, loadSessions, message, navigate, sessionId, setMessages],
   );
 
   const send = useCallback(async () => {
@@ -149,21 +204,20 @@ export function useChatPage() {
     setInput('');
     logPinBottomRef.current = true;
 
-    const userMsg: LocalMessage = {
-      id: `local-user-${Date.now()}`,
-      role: 'user',
-      content: text,
-    };
-    const pendingId = `local-assistant-${Date.now()}`;
-    setMessages((prev) => [
-      ...prev,
-      userMsg,
-      { id: pendingId, role: 'assistant', content: '', pending: true },
-    ]);
-    setSending(true);
-
-    try {
-      if (searchOnlyMode) {
+    if (searchOnlyMode) {
+      const userMsg: LocalMessage = {
+        id: `local-user-${Date.now()}`,
+        role: 'user',
+        content: text,
+      };
+      const pendingId = `local-assistant-${Date.now()}`;
+      setSearchOnlyMessages((prev) => [
+        ...prev,
+        userMsg,
+        { id: pendingId, role: 'assistant', content: '', pending: true },
+      ]);
+      setSearchOnlySending(true);
+      try {
         const hits = await postApiAiRagSearch({ body: { query: text, topK } });
         const assistant: LocalMessage = {
           id: pendingId,
@@ -171,55 +225,34 @@ export function useChatPage() {
           content: formatSearchOnlyAnswer(hits),
           ragHits: hits,
         };
-        setMessages((prev) => prev.map((m) => (m.id === pendingId ? assistant : m)));
-        return;
+        setSearchOnlyMessages((prev) => prev.map((m) => (m.id === pendingId ? assistant : m)));
+      } catch {
+        setSearchOnlyMessages((prev) => prev.filter((m) => m.id !== pendingId));
+      } finally {
+        setSearchOnlySending(false);
       }
-
-      const res = await postApiAiAiChat({
-        body: { content: text, topK, sessionId },
-      });
-      const nextSessionId = res.sessionId ?? sessionId;
-      if (nextSessionId && nextSessionId !== sessionId) {
-        loadedSessionRef.current = nextSessionId;
-        navigate(`/chat?session=${nextSessionId}`, { replace: true });
-      }
-      if (nextSessionId) {
-        const rows = await getApiAiAiSessionsIdMessages({
-          path: { id: nextSessionId },
-        });
-        setMessages(toLocalMessages(rows));
-      } else {
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === pendingId
-              ? {
-                  id: pendingId,
-                  role: 'assistant',
-                  content: res.answer,
-                  sources: res.sources ?? [],
-                }
-              : m,
-          ),
-        );
-      }
-      void loadSessions();
-    } catch {
-      setMessages((prev) => prev.filter((m) => m.id !== pendingId));
-    } finally {
-      setSending(false);
+      return;
     }
-  }, [busy, input, loadSessions, navigate, searchOnlyMode, sessionId, topK]);
+
+    await sendMessage(
+      { text },
+      { body: { sessionId: sessionIdRef.current, topK: topKRef.current } },
+    );
+  }, [busy, input, searchOnlyMode, sendMessage, topK]);
 
   return {
     sessionId,
     sessions,
     sessionsLoading,
     messages,
+    searchOnlyMessages,
     messagesLoading,
     input,
     topK,
     searchOnlyMode,
     busy,
+    streaming,
+    streamError: error,
     logPinBottomRef,
     setInput,
     setTopK,
@@ -228,5 +261,6 @@ export function useChatPage() {
     onNewSession,
     onRemoveSession,
     send,
+    stop,
   };
 }

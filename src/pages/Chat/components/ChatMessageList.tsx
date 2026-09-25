@@ -1,28 +1,32 @@
 import { Empty, Spin } from 'antd';
-import { useMemo, useState, type RefObject } from 'react';
+import { useMemo, useState } from 'react';
 
 import { useDocumentFileExts } from '../hooks/useDocumentFileExts';
+import type { KhUIMessage } from './ChatMessageParts';
 import type { LocalMessage } from '../types';
 import { citedSources, ragHitsToSources } from '../utils';
 
 import AnswerMarkdown from './AnswerMarkdown';
+import ChatMessageParts from './ChatMessageParts';
 import SourceCiteList from './SourceCiteList';
 
 import styles from './ChatMessageList.module.scss';
 
 type Props = {
-  messages: LocalMessage[];
+  messages: KhUIMessage[];
+  searchOnlyMessages?: LocalMessage[];
   loading: boolean;
-  logRef?: RefObject<HTMLDivElement | null>;
-  onLogScroll?: () => void;
+  streaming?: boolean;
+  error?: Error;
   onOpenDocument?: (documentId: string) => void;
 };
 
 export default function ChatMessageList({
   messages,
+  searchOnlyMessages = [],
   loading,
-  logRef,
-  onLogScroll,
+  streaming = false,
+  error,
   onOpenDocument,
 }: Props) {
   const [activeCite, setActiveCite] = useState<{ scope: string; index: number } | null>(null);
@@ -30,6 +34,14 @@ export default function ChatMessageList({
   const citeDocumentIds = useMemo(() => {
     const ids: string[] = [];
     for (const msg of messages) {
+      if (msg.role !== 'assistant') continue;
+      for (const part of msg.parts) {
+        if (part.type === 'data-sources' && Array.isArray(part.data)) {
+          for (const source of part.data) ids.push(source.documentId);
+        }
+      }
+    }
+    for (const msg of searchOnlyMessages) {
       if (msg.role !== 'assistant' || msg.pending) continue;
       const sources = msg.ragHits?.length
         ? ragHitsToSources(msg.ragHits)
@@ -37,13 +49,14 @@ export default function ChatMessageList({
       for (const source of sources) ids.push(source.documentId);
     }
     return ids;
-  }, [messages]);
+  }, [messages, searchOnlyMessages]);
 
   const fileExtMap = useDocumentFileExts(citeDocumentIds);
+  const hasMessages = messages.length > 0 || searchOnlyMessages.length > 0;
 
-  if (loading && messages.length === 0) {
+  if (loading && !hasMessages) {
     return (
-      <div className={styles.log} ref={logRef} onScroll={onLogScroll}>
+      <div className={styles.log}>
         <div className={styles.emptyWrap}>
           <Spin />
         </div>
@@ -51,9 +64,9 @@ export default function ChatMessageList({
     );
   }
 
-  if (messages.length === 0) {
+  if (!hasMessages) {
     return (
-      <div className={styles.log} ref={logRef} onScroll={onLogScroll}>
+      <div className={styles.log}>
         <div className={styles.emptyWrap}>
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="输入问题开始一段对话" />
         </div>
@@ -62,8 +75,28 @@ export default function ChatMessageList({
   }
 
   return (
-    <div className={styles.log} ref={logRef} onScroll={onLogScroll}>
-      {messages.map((msg) => {
+    <div className={styles.log}>
+      {messages.map((msg, i) => {
+        const liveAssistant =
+          streaming && msg.role === 'assistant' && i === messages.length - 1;
+        return (
+          <div
+            key={msg.id}
+            className={`${styles.bubble} ${msg.role === 'user' ? styles.user : styles.assistant}`}
+          >
+            <ChatMessageParts
+              messageId={msg.id}
+              parts={msg.parts}
+              role={msg.role}
+              showSources={!liveAssistant}
+              fileExtMap={fileExtMap}
+              onOpenDocument={onOpenDocument}
+            />
+          </div>
+        );
+      })}
+
+      {searchOnlyMessages.map((msg) => {
         if (msg.role === 'user') {
           return (
             <div key={msg.id} className={`${styles.bubble} ${styles.user}`}>
@@ -80,7 +113,7 @@ export default function ChatMessageList({
           <div key={msg.id} className={`${styles.bubble} ${styles.assistant}`}>
             {msg.pending ? (
               <div className={styles.pending}>
-                <Spin size="small" /> 正在生成回答…
+                <Spin size="small" /> 正在检索…
               </div>
             ) : (
               <>
@@ -107,6 +140,8 @@ export default function ChatMessageList({
           </div>
         );
       })}
+
+      {error ? <div className={styles.error}>{error.message}</div> : null}
     </div>
   );
 }

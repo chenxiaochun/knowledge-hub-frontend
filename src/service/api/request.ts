@@ -40,6 +40,7 @@ import type {
   CreateSessionDto,
   AiMessageEntity,
   UpdateSessionDto,
+  ChatStreamDto,
 } from "./definition";
 
 /** @description response type for getApi */
@@ -1568,29 +1569,29 @@ export const postApiAiRagSearch = /* #__PURE__ */ (() => {
   return request;
 })();
 
-/** @description request parameter type for postApiAiAiChat */
-export interface PostApiAiAiChatOption {
+/** @description request parameter type for postApiAiChat */
+export interface PostApiAiChatOption {
   body: ChatDto;
 }
 
-/** @description response type for postApiAiAiChat */
-export interface PostApiAiAiChatResponse {
+/** @description response type for postApiAiChat */
+export interface PostApiAiChatResponse {
   /** @description */
   201: ChatResponseDto;
 }
 
-export type PostApiAiAiChatResponseSuccess = PostApiAiAiChatResponse[201];
+export type PostApiAiChatResponseSuccess = PostApiAiChatResponse[201];
 /** @tags Ai */
-export const postApiAiAiChat = /* #__PURE__ */ (() => {
+export const postApiAiChat = /* #__PURE__ */ (() => {
   const method = "post";
-  const url = "/api/ai/ai/chat";
+  const url = "/api/ai/chat";
   function request(
-    option: PostApiAiAiChatOption
-  ): Promise<PostApiAiAiChatResponseSuccess> {
+    option: PostApiAiChatOption
+  ): Promise<PostApiAiChatResponseSuccess> {
     return requester(request.url, {
       method: request.method,
       ...option,
-    }) as unknown as Promise<PostApiAiAiChatResponseSuccess>;
+    }) as unknown as Promise<PostApiAiChatResponseSuccess>;
   }
 
   /** http method */
@@ -1600,32 +1601,32 @@ export const postApiAiAiChat = /* #__PURE__ */ (() => {
   return request;
 })();
 
-/** @description request parameter type for getApiAiAiSessions */
-export interface GetApiAiAiSessionsOption {
+/** @description request parameter type for getApiAiSessions */
+export interface GetApiAiSessionsOption {
   query?: {
     page?: number;
     pageSize?: number;
   };
 }
 
-/** @description response type for getApiAiAiSessions */
-export interface GetApiAiAiSessionsResponse {
+/** @description response type for getApiAiSessions */
+export interface GetApiAiSessionsResponse {
   /** @description */
   200: SessionPageDto;
 }
 
-export type GetApiAiAiSessionsResponseSuccess = GetApiAiAiSessionsResponse[200];
+export type GetApiAiSessionsResponseSuccess = GetApiAiSessionsResponse[200];
 /** @tags Ai */
-export const getApiAiAiSessions = /* #__PURE__ */ (() => {
+export const getApiAiSessions = /* #__PURE__ */ (() => {
   const method = "get";
-  const url = "/api/ai/ai/sessions";
+  const url = "/api/ai/sessions";
   function request(
-    option?: GetApiAiAiSessionsOption
-  ): Promise<GetApiAiAiSessionsResponseSuccess> {
+    option?: GetApiAiSessionsOption
+  ): Promise<GetApiAiSessionsResponseSuccess> {
     return requester(request.url, {
       method: request.method,
       ...option,
-    }) as unknown as Promise<GetApiAiAiSessionsResponseSuccess>;
+    }) as unknown as Promise<GetApiAiSessionsResponseSuccess>;
   }
 
   /** http method */
@@ -1635,30 +1636,29 @@ export const getApiAiAiSessions = /* #__PURE__ */ (() => {
   return request;
 })();
 
-/** @description request parameter type for postApiAiAiSessions */
-export interface PostApiAiAiSessionsOption {
+/** @description request parameter type for postApiAiSessions */
+export interface PostApiAiSessionsOption {
   body: CreateSessionDto;
 }
 
-/** @description response type for postApiAiAiSessions */
-export interface PostApiAiAiSessionsResponse {
+/** @description response type for postApiAiSessions */
+export interface PostApiAiSessionsResponse {
   /** @description */
   201: AiSessionEntity;
 }
 
-export type PostApiAiAiSessionsResponseSuccess =
-  PostApiAiAiSessionsResponse[201];
+export type PostApiAiSessionsResponseSuccess = PostApiAiSessionsResponse[201];
 /** @tags Ai */
-export const postApiAiAiSessions = /* #__PURE__ */ (() => {
+export const postApiAiSessions = /* #__PURE__ */ (() => {
   const method = "post";
-  const url = "/api/ai/ai/sessions";
+  const url = "/api/ai/sessions";
   function request(
-    option: PostApiAiAiSessionsOption
-  ): Promise<PostApiAiAiSessionsResponseSuccess> {
+    option: PostApiAiSessionsOption
+  ): Promise<PostApiAiSessionsResponseSuccess> {
     return requester(request.url, {
       method: request.method,
       ...option,
-    }) as unknown as Promise<PostApiAiAiSessionsResponseSuccess>;
+    }) as unknown as Promise<PostApiAiSessionsResponseSuccess>;
   }
 
   /** http method */
@@ -1668,32 +1668,32 @@ export const postApiAiAiSessions = /* #__PURE__ */ (() => {
   return request;
 })();
 
-/** @description request parameter type for getApiAiAiSessionsIdMessages */
-export interface GetApiAiAiSessionsIdMessagesOption {
+/** @description request parameter type for getApiAiSessionsIdMessages */
+export interface GetApiAiSessionsIdMessagesOption {
   path: {
     id: string;
   };
 }
 
-/** @description response type for getApiAiAiSessionsIdMessages */
-export interface GetApiAiAiSessionsIdMessagesResponse {
+/** @description response type for getApiAiSessionsIdMessages */
+export interface GetApiAiSessionsIdMessagesResponse {
   /** @description */
   200: Array<AiMessageEntity>;
 }
 
-export type GetApiAiAiSessionsIdMessagesResponseSuccess =
-  GetApiAiAiSessionsIdMessagesResponse[200];
+export type GetApiAiSessionsIdMessagesResponseSuccess =
+  GetApiAiSessionsIdMessagesResponse[200];
 /** @tags Ai */
-export const getApiAiAiSessionsIdMessages = /* #__PURE__ */ (() => {
+export const getApiAiSessionsIdMessages = /* #__PURE__ */ (() => {
   const method = "get";
-  const url = "/api/ai/ai/sessions/:id/messages";
+  const url = "/api/ai/sessions/:id/messages";
   function request(
-    option: GetApiAiAiSessionsIdMessagesOption
-  ): Promise<GetApiAiAiSessionsIdMessagesResponseSuccess> {
+    option: GetApiAiSessionsIdMessagesOption
+  ): Promise<GetApiAiSessionsIdMessagesResponseSuccess> {
     return requester(request.url, {
       method: request.method,
       ...option,
-    }) as unknown as Promise<GetApiAiAiSessionsIdMessagesResponseSuccess>;
+    }) as unknown as Promise<GetApiAiSessionsIdMessagesResponseSuccess>;
   }
 
   /** http method */
@@ -1703,32 +1703,32 @@ export const getApiAiAiSessionsIdMessages = /* #__PURE__ */ (() => {
   return request;
 })();
 
-/** @description request parameter type for deleteApiAiAiSessionsId */
-export interface DeleteApiAiAiSessionsIdOption {
+/** @description request parameter type for deleteApiAiSessionsId */
+export interface DeleteApiAiSessionsIdOption {
   path: {
     id: string;
   };
 }
 
-/** @description response type for deleteApiAiAiSessionsId */
-export interface DeleteApiAiAiSessionsIdResponse {
+/** @description response type for deleteApiAiSessionsId */
+export interface DeleteApiAiSessionsIdResponse {
   /** @description */
   200: any;
 }
 
-export type DeleteApiAiAiSessionsIdResponseSuccess =
-  DeleteApiAiAiSessionsIdResponse[200];
+export type DeleteApiAiSessionsIdResponseSuccess =
+  DeleteApiAiSessionsIdResponse[200];
 /** @tags Ai */
-export const deleteApiAiAiSessionsId = /* #__PURE__ */ (() => {
+export const deleteApiAiSessionsId = /* #__PURE__ */ (() => {
   const method = "delete";
-  const url = "/api/ai/ai/sessions/:id";
+  const url = "/api/ai/sessions/:id";
   function request(
-    option: DeleteApiAiAiSessionsIdOption
-  ): Promise<DeleteApiAiAiSessionsIdResponseSuccess> {
+    option: DeleteApiAiSessionsIdOption
+  ): Promise<DeleteApiAiSessionsIdResponseSuccess> {
     return requester(request.url, {
       method: request.method,
       ...option,
-    }) as unknown as Promise<DeleteApiAiAiSessionsIdResponseSuccess>;
+    }) as unknown as Promise<DeleteApiAiSessionsIdResponseSuccess>;
   }
 
   /** http method */
@@ -1738,37 +1738,70 @@ export const deleteApiAiAiSessionsId = /* #__PURE__ */ (() => {
   return request;
 })();
 
-/** @description request parameter type for patchApiAiAiSessionsId */
-export interface PatchApiAiAiSessionsIdOption {
+/** @description request parameter type for patchApiAiSessionsId */
+export interface PatchApiAiSessionsIdOption {
   path: {
     id: string;
   };
 }
 
-/** @description request parameter type for patchApiAiAiSessionsId */
-export interface PatchApiAiAiSessionsIdOption {
+/** @description request parameter type for patchApiAiSessionsId */
+export interface PatchApiAiSessionsIdOption {
   body: UpdateSessionDto;
 }
 
-/** @description response type for patchApiAiAiSessionsId */
-export interface PatchApiAiAiSessionsIdResponse {
+/** @description response type for patchApiAiSessionsId */
+export interface PatchApiAiSessionsIdResponse {
   /** @description */
   200: AiSessionEntity;
 }
 
-export type PatchApiAiAiSessionsIdResponseSuccess =
-  PatchApiAiAiSessionsIdResponse[200];
+export type PatchApiAiSessionsIdResponseSuccess =
+  PatchApiAiSessionsIdResponse[200];
 /** @tags Ai */
-export const patchApiAiAiSessionsId = /* #__PURE__ */ (() => {
+export const patchApiAiSessionsId = /* #__PURE__ */ (() => {
   const method = "patch";
-  const url = "/api/ai/ai/sessions/:id";
+  const url = "/api/ai/sessions/:id";
   function request(
-    option: PatchApiAiAiSessionsIdOption
-  ): Promise<PatchApiAiAiSessionsIdResponseSuccess> {
+    option: PatchApiAiSessionsIdOption
+  ): Promise<PatchApiAiSessionsIdResponseSuccess> {
     return requester(request.url, {
       method: request.method,
       ...option,
-    }) as unknown as Promise<PatchApiAiAiSessionsIdResponseSuccess>;
+    }) as unknown as Promise<PatchApiAiSessionsIdResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for postApiAiChatStream */
+export interface PostApiAiChatStreamOption {
+  body: ChatStreamDto;
+}
+
+/** @description response type for postApiAiChatStream */
+export interface PostApiAiChatStreamResponse {
+  /** @description */
+  201: any;
+}
+
+export type PostApiAiChatStreamResponseSuccess =
+  PostApiAiChatStreamResponse[201];
+/** @tags Ai */
+export const postApiAiChatStream = /* #__PURE__ */ (() => {
+  const method = "post";
+  const url = "/api/ai/chat/stream";
+  function request(
+    option: PostApiAiChatStreamOption
+  ): Promise<PostApiAiChatStreamResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<PostApiAiChatStreamResponseSuccess>;
   }
 
   /** http method */

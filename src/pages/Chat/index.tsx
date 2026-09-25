@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { Typography } from 'antd';
 
@@ -14,16 +14,18 @@ import { useChatPage } from './hooks/useChatPage';
 import styles from './index.module.scss';
 
 export default function ChatPage() {
-  const logRef = useRef<HTMLDivElement>(null);
   const {
     sessionId,
     sessions,
     messages,
+    searchOnlyMessages,
     messagesLoading,
     input,
     topK,
     searchOnlyMode,
     busy,
+    streaming,
+    streamError,
     logPinBottomRef,
     setInput,
     setTopK,
@@ -32,24 +34,30 @@ export default function ChatPage() {
     onNewSession,
     onRemoveSession,
     send,
+    stop,
   } = useChatPage();
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detail, setDetail] = useState<DocumentDetail | null>(null);
 
-  const onLogScroll = useCallback(() => {
-    const el = logRef.current;
-    if (!el) return;
-    logPinBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+  const syncPinBottom = useCallback(() => {
+    const dist =
+      document.documentElement.scrollHeight - window.scrollY - window.innerHeight;
+    logPinBottomRef.current = dist < 80;
   }, [logPinBottomRef]);
+
+  useEffect(() => {
+    window.addEventListener('scroll', syncPinBottom, { passive: true });
+    return () => window.removeEventListener('scroll', syncPinBottom);
+  }, [syncPinBottom]);
 
   useEffect(() => {
     if (!logPinBottomRef.current) return;
     requestAnimationFrame(() => {
-      logRef.current?.scrollTo({ top: logRef.current.scrollHeight });
+      window.scrollTo({ top: document.documentElement.scrollHeight });
     });
-  }, [messages, logPinBottomRef]);
+  }, [messages, searchOnlyMessages, streaming, logPinBottomRef]);
 
   const openDocument = async (documentId: string) => {
     setDetailOpen(true);
@@ -81,29 +89,32 @@ export default function ChatPage() {
           知识问答
         </Typography.Title>
         <Typography.Paragraph type="secondary" className={styles.desc}>
-          走混合检索后再生成。无召回不会调模型。问答会写入左侧会话，「仅检索」不落库。
+          流式回答会展示知识库检索、思考与联网搜索过程，并写入左侧会话。「仅检索」不落库。
         </Typography.Paragraph>
 
-        <div className={styles.logWrap}>
-          <ChatMessageList
-            messages={messages}
-            loading={messagesLoading}
-            logRef={logRef}
-            onLogScroll={onLogScroll}
-            onOpenDocument={(id) => void openDocument(id)}
+        <ChatMessageList
+          messages={messages}
+          searchOnlyMessages={searchOnlyMessages}
+          loading={messagesLoading}
+          streaming={streaming}
+          error={streamError}
+          onOpenDocument={(id) => void openDocument(id)}
+        />
+
+        <div className={styles.inputSticky}>
+          <ChatInput
+            value={input}
+            topK={topK}
+            searchOnly={searchOnlyMode}
+            busy={busy}
+            streaming={streaming}
+            onChange={setInput}
+            onTopKChange={setTopK}
+            onSearchOnlyChange={setSearchOnlyMode}
+            onSend={() => void send()}
+            onStop={() => void stop()}
           />
         </div>
-
-        <ChatInput
-          value={input}
-          topK={topK}
-          searchOnly={searchOnlyMode}
-          busy={busy}
-          onChange={setInput}
-          onTopKChange={setTopK}
-          onSearchOnlyChange={setSearchOnlyMode}
-          onSend={() => void send()}
-        />
       </div>
 
       <DocumentDetailDrawer

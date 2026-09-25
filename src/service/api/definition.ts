@@ -373,3 +373,12 @@ export interface AiMessageEntity {
 export interface UpdateSessionDto {
   title: string;
 }
+
+export interface ChatStreamDto {
+  messages: Array<string>;
+  sessionId?: string;
+  topK?: number;
+  id?: string;
+  trigger?: any;
+  messageId?: any;
+}

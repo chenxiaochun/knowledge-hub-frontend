@@ -14,7 +14,9 @@
     "tsg": "npx tsg -c src/tsg.config.cjs"
   },
   "dependencies": {
+    "@ai-sdk/react": "^4.0.116",
     "@ant-design/icons": "^6.3.4",
+    "ai": "^7.0.112",
     "antd": "^6.6.2",
     "axios": "^1.20.0",
     "dayjs": "^1.11.23",

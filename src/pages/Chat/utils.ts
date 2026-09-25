@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 
 import type { ChatSourceDto, RagChunkHitDto } from '@/service/api';
 
+import type { KhUIMessage } from './components/ChatMessageParts';
 import type { LocalMessage } from './types';
 
 export function formatSessionTime(value: string) {
@@ -48,4 +49,29 @@ export function toLocalMessages(
     content: row.content,
     sources: row.sources ?? null,
   }));
+}
+
+export function historyToUIMessages(
+  rows: Array<{
+    id: string;
+    role: 'user' | 'assistant';
+    content: string;
+    sources?: ChatSourceDto[] | null;
+  }>,
+): KhUIMessage[] {
+  return rows.map((row) => {
+    if (row.role === 'user') {
+      return {
+        id: row.id,
+        role: 'user',
+        parts: [{ type: 'text', text: row.content }],
+      };
+    }
+    const parts: KhUIMessage['parts'] = [];
+    if (row.sources?.length) {
+      parts.push({ type: 'data-sources', data: row.sources });
+    }
+    parts.push({ type: 'text', text: row.content });
+    return { id: row.id, role: 'assistant', parts };
+  });
 }
