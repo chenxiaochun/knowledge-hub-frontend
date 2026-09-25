@@ -8,6 +8,7 @@ import type { ChatSourceDto } from '@/service/api';
 
 import { citedSources as filterCitedSources } from '../utils';
 import AnswerMarkdown from './AnswerMarkdown';
+import CopyableBlock from './CopyableBlock';
 import styles from './ChatMessageParts.module.scss';
 import SourceCiteList from './SourceCiteList';
 import WebSearchCard from './WebSearchCard';
@@ -215,7 +216,9 @@ function ThinkBlock({ text, streaming }: { text: string; streaming?: boolean }) 
   return (
     <details className={styles.think} open>
       <summary>{streaming ? '思考中…' : '思考过程'}</summary>
-      <div className={styles.thinkBody}>{text}</div>
+      <CopyableBlock text={text}>
+        <div className={styles.thinkBody}>{text}</div>
+      </CopyableBlock>
     </details>
   );
 }

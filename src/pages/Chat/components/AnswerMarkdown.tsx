@@ -11,6 +11,9 @@ import remarkGfm from 'remark-gfm';
 
 import type { ChatSourceDto } from '@/service/api';
 
+import CopyableBlock from './CopyableBlock';
+import { MarkdownCode } from './MarkdownCodeBlock';
+
 import styles from './AnswerMarkdown.module.scss';
 
 type Props = {
@@ -49,7 +52,7 @@ export default function AnswerMarkdown({ text, sources, scope, onCite }: Props) 
   const wrap = (children: ReactNode) => injectCites(children, byIndex, handleCite);
 
   return (
-    <div className={styles.root}>
+    <CopyableBlock text={text} className={`${styles.root} ${styles.prose}`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
@@ -61,8 +64,13 @@ export default function AnswerMarkdown({ text, sources, scope, onCite }: Props) 
           h2: ({ children }) => <h3>{wrap(children)}</h3>,
           h3: ({ children }) => <h4>{wrap(children)}</h4>,
           h4: ({ children }) => <h4>{wrap(children)}</h4>,
+          table: ({ children }) => <div className={styles.tableWrap}><table>{children}</table></div>,
           td: ({ children }) => <td>{wrap(children)}</td>,
           th: ({ children }) => <th>{wrap(children)}</th>,
+          pre: ({ children }) => <>{children}</>,
+          code: ({ className, children }) => (
+            <MarkdownCode className={className}>{children}</MarkdownCode>
+          ),
           a: ({ href, children }) => (
             <a href={href} target="_blank" rel="noreferrer">
               {wrap(children)}
@@ -72,7 +80,7 @@ export default function AnswerMarkdown({ text, sources, scope, onCite }: Props) 
       >
         {text}
       </ReactMarkdown>
-    </div>
+    </CopyableBlock>
   );
 }
 
