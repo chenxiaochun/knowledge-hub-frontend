@@ -1,5 +1,5 @@
 import { Empty, Spin } from 'antd';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type RefObject } from 'react';
 
 import { useDocumentFileExts } from '../hooks/useDocumentFileExts';
 import type { KhUIMessage } from './ChatMessageParts';
@@ -18,6 +18,7 @@ type Props = {
   loading: boolean;
   streaming?: boolean;
   error?: Error;
+  logEndRef?: RefObject<HTMLDivElement | null>;
   onOpenDocument?: (documentId: string) => void;
 };
 
@@ -27,6 +28,7 @@ export default function ChatMessageList({
   loading,
   streaming = false,
   error,
+  logEndRef,
   onOpenDocument,
 }: Props) {
   const [activeCite, setActiveCite] = useState<{ scope: string; index: number } | null>(null);
@@ -142,6 +144,7 @@ export default function ChatMessageList({
       })}
 
       {error ? <div className={styles.error}>{error.message}</div> : null}
+      <div ref={logEndRef} className={styles.logEnd} aria-hidden />
     </div>
   );
 }

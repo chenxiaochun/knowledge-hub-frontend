@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Typography } from 'antd';
 
@@ -12,6 +12,14 @@ import ChatMessageList from './components/ChatMessageList';
 import ChatSidebar from './components/ChatSidebar';
 import { useChatPage } from './hooks/useChatPage';
 import styles from './index.module.scss';
+
+function alignChatViewport(logEndEl: HTMLElement | null, inputEl: HTMLElement | null) {
+  if (logEndEl) {
+    logEndEl.scrollIntoView({ block: 'end', behavior: 'instant' });
+    return;
+  }
+  inputEl?.scrollIntoView({ block: 'end', behavior: 'instant' });
+}
 
 export default function ChatPage() {
   const {
@@ -41,11 +49,48 @@ export default function ChatPage() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [detail, setDetail] = useState<DocumentDetail | null>(null);
 
+  const inputRef = useRef<HTMLDivElement>(null);
+  const logEndRef = useRef<HTMLDivElement>(null);
+  const pendingAlignRef = useRef(false);
+
+  const syncInputReserve = useCallback(() => {
+    const inputEl = inputRef.current;
+    if (!inputEl) return;
+    const reserve = inputEl.offsetHeight + 16;
+    inputEl.style.setProperty('--chat-input-reserve', `${reserve}px`);
+    logEndRef.current?.style.setProperty('--chat-input-reserve', `${reserve}px`);
+  }, []);
+
   const syncPinBottom = useCallback(() => {
-    const dist =
-      document.documentElement.scrollHeight - window.scrollY - window.innerHeight;
-    logPinBottomRef.current = dist < 80;
+    const inputEl = inputRef.current;
+    if (!inputEl) return;
+    const dist = inputEl.getBoundingClientRect().bottom - window.innerHeight;
+    logPinBottomRef.current = dist <= 80;
   }, [logPinBottomRef]);
+
+  useEffect(() => {
+    syncInputReserve();
+    const inputEl = inputRef.current;
+    if (!inputEl) return;
+    const observer = new ResizeObserver(syncInputReserve);
+    observer.observe(inputEl);
+    return () => observer.disconnect();
+  }, [syncInputReserve]);
+
+  useEffect(() => {
+    pendingAlignRef.current = true;
+  }, [sessionId]);
+
+  useEffect(() => {
+    if (!pendingAlignRef.current || messagesLoading) return;
+    pendingAlignRef.current = false;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        syncInputReserve();
+        alignChatViewport(logEndRef.current, inputRef.current);
+      });
+    });
+  }, [sessionId, messagesLoading, messages.length, searchOnlyMessages.length, syncInputReserve]);
 
   useEffect(() => {
     window.addEventListener('scroll', syncPinBottom, { passive: true });
@@ -55,9 +100,10 @@ export default function ChatPage() {
   useEffect(() => {
     if (!logPinBottomRef.current) return;
     requestAnimationFrame(() => {
-      window.scrollTo({ top: document.documentElement.scrollHeight });
+      syncInputReserve();
+      alignChatViewport(logEndRef.current, inputRef.current);
     });
-  }, [messages, searchOnlyMessages, streaming, logPinBottomRef]);
+  }, [messages, searchOnlyMessages, streaming, logPinBottomRef, syncInputReserve]);
 
   const openDocument = async (documentId: string) => {
     setDetailOpen(true);
@@ -98,10 +144,11 @@ export default function ChatPage() {
           loading={messagesLoading}
           streaming={streaming}
           error={streamError}
+          logEndRef={logEndRef}
           onOpenDocument={(id) => void openDocument(id)}
         />
 
-        <div className={styles.inputSticky}>
+        <div ref={inputRef} className={styles.inputSticky}>
           <ChatInput
             value={input}
             topK={topK}

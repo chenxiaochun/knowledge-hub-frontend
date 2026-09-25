@@ -1,14 +1,22 @@
+$layout-header-height: 64px;
+
 .sidebar {
   position: sticky;
-  top: 0;
+  top: $layout-header-height;
   display: flex;
   flex-direction: column;
   align-self: flex-start;
   gap: 12px;
   width: 240px;
   min-width: 240px;
-  max-height: 100vh;
+  max-height: calc(100vh - #{$layout-header-height});
   padding: 16px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.actions {
+  flex-shrink: 0;
 }
 
 .list {

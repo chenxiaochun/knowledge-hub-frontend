@@ -49,7 +49,7 @@ export function useChatPage() {
   const loadedSessionRef = useRef<string | undefined>(undefined);
   const sessionIdRef = useRef(sessionId);
   const topKRef = useRef(topK);
-  const logPinBottomRef = useRef(true);
+  const logPinBottomRef = useRef(false);
 
   sessionIdRef.current = sessionId;
   topKRef.current = topK;
@@ -131,6 +131,7 @@ export function useChatPage() {
 
   useEffect(() => {
     setSearchOnlyMessages([]);
+    logPinBottomRef.current = false;
   }, [sessionId]);
 
   useEffect(() => {

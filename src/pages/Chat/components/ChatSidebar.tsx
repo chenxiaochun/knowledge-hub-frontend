@@ -26,15 +26,17 @@ export default function ChatSidebar({
 }: Props) {
   return (
     <aside className={styles.sidebar}>
-      <Button
-        type="primary"
-        icon={<PlusOutlined />}
-        block
-        disabled={busy}
-        onClick={onNew}
-      >
-        新对话
-      </Button>
+      <div className={styles.actions}>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          block
+          disabled={busy}
+          onClick={onNew}
+        >
+          新对话
+        </Button>
+      </div>
 
       {sessions.length > 0 ? (
         <div className={styles.list}>

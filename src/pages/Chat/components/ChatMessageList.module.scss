@@ -15,6 +15,7 @@
 
 .bubble {
   max-width: 92%;
+  min-width: 0;
   line-height: 1.6;
   word-break: break-word;
 }
@@ -32,6 +33,8 @@
   align-self: flex-start;
   width: 100%;
   max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
   padding: 14px 16px;
   border: 1px solid #f0f0f0;
   border-radius: 12px 12px 12px 4px;
@@ -57,4 +60,9 @@
 .error {
   color: #ff4d4f;
   font-size: 13px;
+}
+
+.logEnd {
+  height: 0;
+  scroll-margin-bottom: var(--chat-input-reserve, 96px);
 }
