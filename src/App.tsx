@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import AuthGuard from '@/components/AuthGuard';
+import ScrollToTop from '@/components/ScrollToTop';
 import BasicLayout from '@/layouts/BasicLayout';
 import ChatPage from '@/pages/Chat';
 import DocumentsPage from '@/pages/Documents';
@@ -17,6 +18,7 @@ import UsersPage from '@/pages/Users';
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
