@@ -1,8 +1,10 @@
+import { Bubble } from '@ant-design/x';
 import { Empty, Spin } from 'antd';
 import { useMemo, useState, type RefObject } from 'react';
 
 import { useDocumentFileExts } from '../hooks/useDocumentFileExts';
 import type { KhUIMessage } from './ChatMessageParts';
+import { textFromParts } from './ChatMessageParts';
 import type { LocalMessage } from '../types';
 import { citedSources, ragHitsToSources } from '../utils';
 
@@ -11,6 +13,12 @@ import ChatMessageParts from './ChatMessageParts';
 import SourceCiteList from './SourceCiteList';
 
 import styles from './ChatMessageList.module.scss';
+
+const assistantBubbleStyles = {
+  root: { width: '100%', maxWidth: '100%' },
+  body: { width: '100%', maxWidth: '100%' },
+  content: { width: '100%', maxWidth: '100%' },
+} as const;
 
 type Props = {
   messages: KhUIMessage[];
@@ -81,29 +89,52 @@ export default function ChatMessageList({
       {messages.map((msg, i) => {
         const liveAssistant =
           streaming && msg.role === 'assistant' && i === messages.length - 1;
-        return (
-          <div
-            key={msg.id}
-            className={`${styles.bubble} ${msg.role === 'user' ? styles.user : styles.assistant}`}
-          >
-            <ChatMessageParts
-              messageId={msg.id}
-              parts={msg.parts}
-              role={msg.role}
-              showSources={!liveAssistant}
-              fileExtMap={fileExtMap}
-              onOpenDocument={onOpenDocument}
+
+        if (msg.role === 'user') {
+          return (
+            <Bubble
+              key={msg.id}
+              placement="end"
+              variant="filled"
+              rootClassName={styles.userBubble}
+              content={textFromParts(msg.parts)}
             />
-          </div>
+          );
+        }
+
+        return (
+          <Bubble
+            key={msg.id}
+            placement="start"
+            variant="outlined"
+            streaming={liveAssistant}
+            rootClassName={styles.assistantBubble}
+            styles={assistantBubbleStyles}
+            content={
+              <ChatMessageParts
+                messageId={msg.id}
+                parts={msg.parts}
+                role={msg.role}
+                showSources={!liveAssistant}
+                streaming={liveAssistant}
+                fileExtMap={fileExtMap}
+                onOpenDocument={onOpenDocument}
+              />
+            }
+          />
         );
       })}
 
       {searchOnlyMessages.map((msg) => {
         if (msg.role === 'user') {
           return (
-            <div key={msg.id} className={`${styles.bubble} ${styles.user}`}>
-              {msg.content}
-            </div>
+            <Bubble
+              key={msg.id}
+              placement="end"
+              variant="filled"
+              rootClassName={styles.userBubble}
+              content={msg.content}
+            />
           );
         }
 
@@ -112,34 +143,41 @@ export default function ChatMessageList({
           : citedSources(msg.sources, msg.content);
 
         return (
-          <div key={msg.id} className={`${styles.bubble} ${styles.assistant}`}>
-            {msg.pending ? (
-              <div className={styles.pending}>
-                <Spin size="small" /> 正在检索…
-              </div>
-            ) : (
-              <>
-                {msg.ragHits?.length ? (
-                  <div className={styles.searchOnlyHint}>
-                    仅检索模式：共召回 {msg.ragHits.length} 条资料块，未调用大模型。
-                  </div>
-                ) : null}
-                <AnswerMarkdown
-                  text={msg.content}
-                  sources={sources}
-                  scope={msg.id}
-                  onCite={(index) => setActiveCite({ scope: msg.id, index })}
-                />
-                <SourceCiteList
-                  items={sources}
-                  scope={msg.id}
-                  activeIndex={activeCite?.scope === msg.id ? activeCite.index : null}
-                  fileExtMap={fileExtMap}
-                  onOpenDocument={onOpenDocument}
-                />
-              </>
-            )}
-          </div>
+          <Bubble
+            key={msg.id}
+            placement="start"
+            variant="outlined"
+            rootClassName={styles.assistantBubble}
+            styles={assistantBubbleStyles}
+            content={
+              msg.pending ? (
+                <div className={styles.pending}>
+                  <Spin size="small" /> 正在检索…
+                </div>
+              ) : (
+                <>
+                  {msg.ragHits?.length ? (
+                    <div className={styles.searchOnlyHint}>
+                      仅检索模式：共召回 {msg.ragHits.length} 条资料块，未调用大模型。
+                    </div>
+                  ) : null}
+                  <AnswerMarkdown
+                    text={msg.content}
+                    sources={sources}
+                    scope={msg.id}
+                    onCite={(index) => setActiveCite({ scope: msg.id, index })}
+                  />
+                  <SourceCiteList
+                    items={sources}
+                    scope={msg.id}
+                    activeIndex={activeCite?.scope === msg.id ? activeCite.index : null}
+                    fileExtMap={fileExtMap}
+                    onOpenDocument={onOpenDocument}
+                  />
+                </>
+              )
+            }
+          />
         );
       })}
 

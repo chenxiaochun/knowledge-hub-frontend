@@ -3,16 +3,15 @@ import {
   cloneElement,
   isValidElement,
   useCallback,
+  useMemo,
   type ReactNode,
 } from 'react';
 
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import { CodeHighlighter } from '@ant-design/x';
+import XMarkdown, { type ComponentProps } from '@ant-design/x-markdown';
+import '@ant-design/x-markdown/themes/light.css';
 
 import type { ChatSourceDto } from '@/service/api';
-
-import CopyableBlock from './CopyableBlock';
-import { MarkdownCode } from './MarkdownCodeBlock';
 
 import styles from './AnswerMarkdown.module.scss';
 
@@ -21,6 +20,7 @@ type Props = {
   sources?: ChatSourceDto[];
   scope: string;
   onCite?: (index: number) => void;
+  streaming?: boolean;
 };
 
 export function citeAnchorId(scope: string, index: number) {
@@ -34,54 +34,6 @@ export function focusCite(scope: string, index: number) {
   el.classList.remove(styles.flash);
   void el.offsetWidth;
   el.classList.add(styles.flash);
-}
-
-export default function AnswerMarkdown({ text, sources, scope, onCite }: Props) {
-  const byIndex = new Map(
-    (sources ?? []).filter((s) => s.index != null).map((s) => [s.index, s]),
-  );
-
-  const handleCite = useCallback(
-    (index: number) => {
-      onCite?.(index);
-      focusCite(scope, index);
-    },
-    [onCite, scope],
-  );
-
-  const wrap = (children: ReactNode) => injectCites(children, byIndex, handleCite);
-
-  return (
-    <CopyableBlock text={text} className={`${styles.root} ${styles.prose}`}>
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        components={{
-          p: ({ children }) => <p>{wrap(children)}</p>,
-          li: ({ children }) => <li>{wrap(children)}</li>,
-          strong: ({ children }) => <strong>{wrap(children)}</strong>,
-          em: ({ children }) => <em>{wrap(children)}</em>,
-          h1: ({ children }) => <h3>{wrap(children)}</h3>,
-          h2: ({ children }) => <h3>{wrap(children)}</h3>,
-          h3: ({ children }) => <h4>{wrap(children)}</h4>,
-          h4: ({ children }) => <h4>{wrap(children)}</h4>,
-          table: ({ children }) => <div className={styles.tableWrap}><table>{children}</table></div>,
-          td: ({ children }) => <td>{wrap(children)}</td>,
-          th: ({ children }) => <th>{wrap(children)}</th>,
-          pre: ({ children }) => <>{children}</>,
-          code: ({ className, children }) => (
-            <MarkdownCode className={className}>{children}</MarkdownCode>
-          ),
-          a: ({ href, children }) => (
-            <a href={href} target="_blank" rel="noreferrer">
-              {wrap(children)}
-            </a>
-          ),
-        }}
-      >
-        {text}
-      </ReactMarkdown>
-    </CopyableBlock>
-  );
 }
 
 function injectCites(
@@ -133,5 +85,69 @@ function CiteChips({
         );
       })}
     </>
+  );
+}
+
+function useMdComponents(
+  byIndex: Map<number, ChatSourceDto>,
+  handleCite: (index: number) => void,
+) {
+  return useMemo(() => {
+    const wrap = (children: ReactNode) => injectCites(children, byIndex, handleCite);
+    const withCites = (Tag: 'p' | 'li' | 'strong' | 'em' | 'td' | 'th' | 'h1' | 'h2' | 'h3' | 'h4') =>
+      function CiteNode({ children }: ComponentProps) {
+        return <Tag>{wrap(children)}</Tag>;
+      };
+
+    return {
+      pre: ({ children }: ComponentProps) => <>{children}</>,
+      p: withCites('p'),
+      li: withCites('li'),
+      strong: withCites('strong'),
+      em: withCites('em'),
+      h1: withCites('h1'),
+      h2: withCites('h2'),
+      h3: withCites('h3'),
+      h4: withCites('h4'),
+      td: withCites('td'),
+      th: withCites('th'),
+      code: ({ block, lang, className, children }: ComponentProps) => {
+        if (!block) return <code>{wrap(children)}</code>;
+        if (typeof children !== 'string') return null;
+        const langFromClass = className?.match(/language-([\w-]+)/)?.[1];
+        const resolvedLang = lang || langFromClass || 'text';
+        return (
+          <CodeHighlighter lang={resolvedLang}>{children.replace(/\n$/, '')}</CodeHighlighter>
+        );
+      },
+    };
+  }, [byIndex, handleCite]);
+}
+
+export default function AnswerMarkdown({ text, sources, scope, onCite, streaming }: Props) {
+  const byIndex = useMemo(
+    () => new Map((sources ?? []).filter((s) => s.index != null).map((s) => [s.index!, s])),
+    [sources],
+  );
+
+  const handleCite = useCallback(
+    (index: number) => {
+      onCite?.(index);
+      focusCite(scope, index);
+    },
+    [onCite, scope],
+  );
+
+  const components = useMdComponents(byIndex, handleCite);
+
+  return (
+    <XMarkdown
+      content={text}
+      className="x-markdown-light"
+      openLinksInNewTab
+      disableDefaultStyles={['pre', 'code']}
+      streaming={{ hasNextChunk: streaming ?? false }}
+      components={components}
+    />
   );
 }

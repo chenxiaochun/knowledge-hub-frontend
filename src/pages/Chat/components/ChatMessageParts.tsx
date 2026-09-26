@@ -1,3 +1,4 @@
+import { Think } from '@ant-design/x';
 import { useState, type ReactNode } from 'react';
 
 import { FileSearchOutlined } from '@ant-design/icons';
@@ -8,7 +9,6 @@ import type { ChatSourceDto } from '@/service/api';
 
 import { citedSources as filterCitedSources } from '../utils';
 import AnswerMarkdown from './AnswerMarkdown';
-import CopyableBlock from './CopyableBlock';
 import styles from './ChatMessageParts.module.scss';
 import SourceCiteList from './SourceCiteList';
 import WebSearchCard from './WebSearchCard';
@@ -52,6 +52,7 @@ type Props = {
   parts: KhUIMessage['parts'];
   role: KhUIMessage['role'];
   showSources?: boolean;
+  streaming?: boolean;
   fileExtMap?: Record<string, string | null>;
   onOpenDocument?: (documentId: string) => void;
 };
@@ -61,6 +62,7 @@ export default function ChatMessageParts({
   parts,
   role,
   showSources = true,
+  streaming = false,
   fileExtMap,
   onOpenDocument,
 }: Props) {
@@ -94,6 +96,7 @@ export default function ChatMessageParts({
               text={part.text}
               sources={sources}
               scope={messageId}
+              streaming={streaming}
               onCite={setActiveCite}
             />
           </div>
@@ -214,11 +217,13 @@ function RetrieveCard({ query, items }: { query: string; items: RetrieveHit[] })
 
 function ThinkBlock({ text, streaming }: { text: string; streaming?: boolean }) {
   return (
-    <details className={styles.think} open>
-      <summary>{streaming ? '思考中…' : '思考过程'}</summary>
-      <CopyableBlock text={text}>
-        <div className={styles.thinkBody}>{text}</div>
-      </CopyableBlock>
-    </details>
+    <Think
+      className={styles.think}
+      title={streaming ? '思考中…' : '思考过程'}
+      loading={streaming}
+      defaultExpanded
+    >
+      <div className={styles.thinkBody}>{text}</div>
+    </Think>
   );
 }

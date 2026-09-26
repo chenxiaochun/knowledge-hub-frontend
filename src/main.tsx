@@ -4,6 +4,7 @@ if (import.meta.env.DEV) {
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { XProvider } from '@ant-design/x';
 import { ConfigProvider, App as AntdApp } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import dayjs from 'dayjs';
@@ -24,9 +25,11 @@ createRoot(document.getElementById('root')!).render(
         },
       }}
     >
-      <AntdApp>
-        <App />
-      </AntdApp>
+      <XProvider>
+        <AntdApp>
+          <App />
+        </AntdApp>
+      </XProvider>
     </ConfigProvider>
   </StrictMode>,
 );

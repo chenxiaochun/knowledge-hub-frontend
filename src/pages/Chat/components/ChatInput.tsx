@@ -1,4 +1,5 @@
-import { Button, Input, InputNumber, Space, Tooltip } from 'antd';
+import { Button, InputNumber, Space, Tooltip } from 'antd';
+import { Sender } from '@ant-design/x';
 
 import styles from './ChatInput.module.scss';
 
@@ -29,52 +30,41 @@ export default function ChatInput({
 }: Props) {
   return (
     <div className={styles.bar}>
-      <Space.Compact block className={styles.compact}>
-        <Input
-          autoFocus
-          size="large"
-          value={value}
-          disabled={busy}
-          allowClear
-          placeholder="向知识库提问，例如：文档发布需要哪些步骤？"
-          onChange={(e) => onChange(e.target.value)}
-          onPressEnter={onSend}
-        />
-        <Tooltip title="混合检索召回条数（1-10）">
-          <InputNumber
-            min={1}
-            max={10}
-            size="large"
-            className={styles.topK}
-            value={topK}
-            disabled={busy}
-            onChange={(next) => onTopKChange(typeof next === 'number' ? next : 5)}
-          />
-        </Tooltip>
-        <Button
-          size="large"
-          type={searchOnly ? 'primary' : 'default'}
-          disabled={busy}
-          onClick={() => onSearchOnlyChange(!searchOnly)}
-        >
-          仅检索
-        </Button>
-        {streaming ? (
-          <Button size="large" onClick={onStop}>
-            停止
-          </Button>
-        ) : (
-          <Button
-            type="primary"
-            size="large"
-            disabled={busy || !value.trim()}
-            loading={busy && !streaming}
-            onClick={onSend}
-          >
-            发送
-          </Button>
+      <Sender
+        className={styles.sender}
+        value={value}
+        disabled={busy}
+        loading={busy}
+        placeholder="向知识库提问，例如：文档发布需要哪些步骤？"
+        submitType="enter"
+        onChange={(next) => onChange(next)}
+        onSubmit={() => onSend()}
+        onCancel={() => onStop?.()}
+        footer={() => (
+          <Space className={styles.footer} size={8} wrap>
+            <Tooltip title="混合检索召回条数（1-10）">
+              <InputNumber
+                min={1}
+                max={10}
+                size="small"
+                className={styles.topK}
+                value={topK}
+                disabled={busy}
+                onChange={(next) => onTopKChange(typeof next === 'number' ? next : 5)}
+              />
+            </Tooltip>
+            <Button
+              size="small"
+              type={searchOnly ? 'primary' : 'default'}
+              disabled={busy}
+              onClick={() => onSearchOnlyChange(!searchOnly)}
+            >
+              仅检索
+            </Button>
+            {streaming ? <span className={styles.streamingHint}>生成中，可点击停止</span> : null}
+          </Space>
         )}
-      </Space.Compact>
+      />
     </div>
   );
 }

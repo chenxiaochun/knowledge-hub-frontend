@@ -13,32 +13,22 @@
   padding: 24px 0;
 }
 
-.bubble {
-  max-width: 92%;
-  min-width: 0;
-  line-height: 1.6;
-  word-break: break-word;
-}
-
-.user {
+.userBubble {
   align-self: flex-end;
-  padding: 10px 14px;
-  border-radius: 12px 12px 4px 12px;
-  background: #1677ff;
-  color: #fff;
-  white-space: pre-wrap;
+  max-width: 92%;
 }
 
-.assistant {
-  align-self: flex-start;
+.assistantBubble {
+  align-self: stretch;
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  overflow: hidden;
-  padding: 14px 16px;
-  border: 1px solid #f0f0f0;
-  border-radius: 12px 12px 12px 4px;
-  background: #fff;
+
+  :global(.ant-bubble-body),
+  :global(.ant-bubble-content) {
+    width: 100%;
+    max-width: 100%;
+  }
 }
 
 .pending {
