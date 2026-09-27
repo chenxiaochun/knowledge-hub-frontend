@@ -10,6 +10,7 @@ import HomePage from '@/pages/Home';
 import LoginPage from '@/pages/Login';
 import RbacPage from '@/pages/Rbac';
 import RegisterPage from '@/pages/Register';
+import VerifyEmailPage from '@/pages/VerifyEmail';
 import ReviewsPage from '@/pages/Reviews';
 import SearchPage from '@/pages/Search';
 import SystemPage from '@/pages/System';
@@ -22,6 +23,7 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route element={<AuthGuard />}>
           <Route element={<BasicLayout />}>
             <Route index element={<HomePage />} />

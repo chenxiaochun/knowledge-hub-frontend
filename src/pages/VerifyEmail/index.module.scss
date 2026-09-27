@@ -1,0 +1,31 @@
+.page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 32px 20px;
+  background:
+    radial-gradient(circle at top, rgba(22, 119, 255, 0.1), transparent 44%),
+    linear-gradient(180deg, #f7faff 0%, #eef3fb 100%);
+}
+
+.result {
+  width: 100%;
+  max-width: 520px;
+
+  :global(.ant-result-title) {
+    font-size: 22px;
+  }
+
+  :global(.ant-result-subtitle) {
+    max-width: 360px;
+    margin-inline: auto;
+    line-height: 1.7;
+  }
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 24px 16px;
+  }
+}

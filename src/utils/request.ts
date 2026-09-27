@@ -27,6 +27,8 @@ export type RequestOption = {
   signal?: AbortSignal;
   /** 覆盖默认超时（毫秒），上传等长耗时可单独加大 */
   timeout?: number;
+  /** 为 true 时不弹出全局错误提示，由调用方自行处理 */
+  silentError?: boolean;
 };
 
 const http: AxiosInstance = axios.create({
@@ -61,12 +63,16 @@ http.interceptors.response.use(
       return response;
     }
 
-    message.error(res.message || '请求失败');
+    const silentError = response.config.silentError;
+    if (!silentError) {
+      message.error(res.message || '请求失败');
+    }
     return Promise.reject(new Error(res.message || '请求失败'));
   },
   (error: AxiosError<ApiResponse>) => {
     const status = error.response?.status;
     const msg = error.response?.data?.message || error.message || '网络异常，请稍后重试';
+    const silentError = error.config?.silentError;
 
     if (status === 401) {
       const isAuthApi = /\/auth\/(login|register)/.test(error.config?.url || '');
@@ -76,10 +82,10 @@ http.interceptors.response.use(
         if (window.location.pathname !== '/login') {
           window.location.assign('/login');
         }
-      } else {
+      } else if (!silentError) {
         message.error(msg);
       }
-    } else {
+    } else if (!silentError) {
       message.error(msg);
     }
 
@@ -139,6 +145,7 @@ export async function request<T = unknown>(url: string, option: RequestOption = 
     headers,
     signal: option.signal,
     timeout: option.timeout,
+    silentError: option.silentError,
     // FormData 时显式去掉默认 JSON Content-Type
     ...(data instanceof FormData
       ? { transformRequest: [(payload, reqHeaders) => {

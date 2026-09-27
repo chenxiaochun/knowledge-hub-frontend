@@ -43,7 +43,10 @@ export default function RegisterPage() {
           email: optionalText(values.email),
         },
       });
-      message.success('注册成功，请登录');
+      const email = optionalText(values.email);
+      message.success(
+        email ? '注册成功，请查收激活邮件并点击链接完成激活' : '注册成功，请登录',
+      );
       navigate('/login', {
         replace: true,
         state: { username: values.username.trim() },
