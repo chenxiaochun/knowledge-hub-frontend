@@ -159,6 +159,7 @@ export default function ChatPage() {
             onTopKChange={setTopK}
             onSearchOnlyChange={setSearchOnlyMode}
             onSend={() => void send()}
+            onSpeechSend={(text) => void send(text)}
             onStop={() => void stop()}
           />
         </div>

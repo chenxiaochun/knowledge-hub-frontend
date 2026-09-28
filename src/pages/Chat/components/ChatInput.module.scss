@@ -11,8 +11,23 @@
   padding: 4px 0 0;
 }
 
-.topK {
-  width: 64px;
+.iconBtnWrap {
+  display: inline-flex;
+  align-items: center;
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconBtnActive {
+  background: rgba(22, 119, 255, 0.12) !important;
+}
+
+.topKInput {
+  width: 72px;
 }
 
 .streamingHint {

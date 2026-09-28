@@ -41,6 +41,8 @@ import type {
   AiMessageEntity,
   UpdateSessionDto,
   ChatStreamDto,
+  AsrUploadDto,
+  AsrResponseDto,
 } from "./definition";
 
 /** @description response type for getApi */
@@ -1802,6 +1804,45 @@ export const postApiAiChatStream = /* #__PURE__ */ (() => {
       method: request.method,
       ...option,
     }) as unknown as Promise<PostApiAiChatStreamResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for postApiSpeechAsr */
+export interface PostApiSpeechAsrOption {
+  body: AsrUploadDto;
+}
+
+/** @description response type for postApiSpeechAsr */
+export interface PostApiSpeechAsrResponse {
+  /**
+   * @description
+   *   识别成功
+   */
+  200: AsrResponseDto;
+}
+
+export type PostApiSpeechAsrResponseSuccess = PostApiSpeechAsrResponse[200];
+/**
+ * @description
+ *   语音识别（一句话识别）
+ * @tags speech
+ */
+export const postApiSpeechAsr = /* #__PURE__ */ (() => {
+  const method = "post";
+  const url = "/api/speech/asr";
+  function request(
+    option: PostApiSpeechAsrOption
+  ): Promise<PostApiSpeechAsrResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<PostApiSpeechAsrResponseSuccess>;
   }
 
   /** http method */

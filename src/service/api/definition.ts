@@ -382,3 +382,22 @@ export interface ChatStreamDto {
   trigger?: any;
   messageId?: any;
 }
+
+export interface AsrUploadDto {
+  /**
+   * @description
+   *   音频文件（支持 wav / mp3 / m4a / ogg / webm 等）
+   * @format binary
+   */
+  audio: File;
+}
+
+export interface AsrResponseDto {
+  /**
+   * @description
+   *   识别出的文本
+   * @example
+   *   你好世界
+   */
+  text: string;
+}

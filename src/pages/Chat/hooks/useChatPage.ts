@@ -198,14 +198,14 @@ export function useChatPage() {
     [busy, loadSessions, message, navigate, sessionId, setMessages],
   );
 
-  const send = useCallback(async () => {
-    const text = input.trim();
+  const send = useCallback(async (textOverride?: string) => {
+    const text = (textOverride ?? input).trim();
     if (!text || busy) return;
 
     setInput('');
     logPinBottomRef.current = true;
 
-    if (searchOnlyMode) {
+    if (searchOnlyMode && !textOverride) {
       const userMsg: LocalMessage = {
         id: `local-user-${Date.now()}`,
         role: 'user',
