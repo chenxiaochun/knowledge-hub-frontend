@@ -17,6 +17,7 @@ import { getToken } from '@/utils/auth';
 import type { KhUIMessage } from '../components/ChatMessageParts';
 import type { LocalMessage, RagChunkHitDto } from '../types';
 import { historyToUIMessages } from '../utils';
+import { useSpeechTts } from './useSpeechTts';
 
 const CHAT_ID = 'kh-chat';
 const DEFAULT_TOP_K = 5;
@@ -51,8 +52,13 @@ export function useChatPage() {
   const topKRef = useRef(topK);
   const logPinBottomRef = useRef(false);
 
+  const { enabled: ttsEnabled, setEnabled: setTtsEnabled, speaking: ttsSpeaking, ensureConnected } =
+    useSpeechTts(sessionId);
+  const ttsEnabledRef = useRef(ttsEnabled);
+
   sessionIdRef.current = sessionId;
   topKRef.current = topK;
+  ttsEnabledRef.current = ttsEnabled;
 
   const transport = useMemo(
     () =>
@@ -235,11 +241,29 @@ export function useChatPage() {
       return;
     }
 
+    let activeSessionId = sessionIdRef.current;
+    if (ttsEnabledRef.current) {
+      if (!activeSessionId) {
+        const created = await postApiAiSessions({ body: {} });
+        activeSessionId = created.id;
+        loadedSessionRef.current = created.id;
+        sessionIdRef.current = created.id;
+        navigate(`/chat?session=${created.id}`, { replace: true });
+      }
+      await ensureConnected(activeSessionId);
+    }
+
     await sendMessage(
       { text },
-      { body: { sessionId: sessionIdRef.current, topK: topKRef.current } },
+      {
+        body: {
+          sessionId: activeSessionId,
+          topK: topKRef.current,
+          enableTts: ttsEnabledRef.current,
+        },
+      },
     );
-  }, [busy, input, searchOnlyMode, sendMessage, topK]);
+  }, [busy, ensureConnected, input, navigate, searchOnlyMode, sendMessage, topK]);
 
   return {
     sessionId,
@@ -258,6 +282,9 @@ export function useChatPage() {
     setInput,
     setTopK,
     setSearchOnlyMode,
+    ttsEnabled,
+    ttsSpeaking,
+    setTtsEnabled,
     switchSession,
     onNewSession,
     onRemoveSession,

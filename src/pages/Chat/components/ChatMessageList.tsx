@@ -1,18 +1,18 @@
-import { Bubble } from '@ant-design/x';
-import { Empty, Spin } from 'antd';
 import { useMemo, useState, type RefObject } from 'react';
 
-import { useDocumentFileExts } from '../hooks/useDocumentFileExts';
-import type { KhUIMessage } from './ChatMessageParts';
-import { textFromParts } from './ChatMessageParts';
-import type { LocalMessage } from '../types';
-import { citedSources, ragHitsToSources } from '../utils';
+import { Bubble } from '@ant-design/x';
+import { Empty, Spin } from 'antd';
 
+import type { LocalMessage } from '../types';
+import type { KhUIMessage } from './ChatMessageParts';
+
+import { useDocumentFileExts } from '../hooks/useDocumentFileExts';
+import { citedSources, ragHitsToSources } from '../utils';
 import AnswerMarkdown from './AnswerMarkdown';
+import styles from './ChatMessageList.module.scss';
+import { textFromParts } from './ChatMessageParts';
 import ChatMessageParts from './ChatMessageParts';
 import SourceCiteList from './SourceCiteList';
-
-import styles from './ChatMessageList.module.scss';
 
 const assistantBubbleStyles = {
   root: { width: '100%', maxWidth: '100%' },
@@ -87,8 +87,7 @@ export default function ChatMessageList({
   return (
     <div className={styles.log}>
       {messages.map((msg, i) => {
-        const liveAssistant =
-          streaming && msg.role === 'assistant' && i === messages.length - 1;
+        const liveAssistant = streaming && msg.role === 'assistant' && i === messages.length - 1;
 
         if (msg.role === 'user') {
           return (

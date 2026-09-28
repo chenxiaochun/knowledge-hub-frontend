@@ -31,6 +31,8 @@ export default function ChatPage() {
     input,
     topK,
     searchOnlyMode,
+    ttsEnabled,
+    ttsSpeaking,
     busy,
     streaming,
     streamError,
@@ -38,6 +40,7 @@ export default function ChatPage() {
     setInput,
     setTopK,
     setSearchOnlyMode,
+    setTtsEnabled,
     switchSession,
     onNewSession,
     onRemoveSession,
@@ -153,11 +156,14 @@ export default function ChatPage() {
             value={input}
             topK={topK}
             searchOnly={searchOnlyMode}
+            ttsEnabled={ttsEnabled}
+            ttsSpeaking={ttsSpeaking}
             busy={busy}
             streaming={streaming}
             onChange={setInput}
             onTopKChange={setTopK}
             onSearchOnlyChange={setSearchOnlyMode}
+            onTtsEnabledChange={setTtsEnabled}
             onSend={() => void send()}
             onSpeechSend={(text) => void send(text)}
             onStop={() => void stop()}

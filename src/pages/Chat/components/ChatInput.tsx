@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { FileSearchOutlined, SlidersOutlined } from '@ant-design/icons';
+import { FileSearchOutlined, SlidersOutlined, SoundOutlined } from '@ant-design/icons';
 import { Sender } from '@ant-design/x';
 import { Button, InputNumber, Popover, Space, Tooltip } from 'antd';
 
@@ -12,11 +12,14 @@ type Props = {
   value: string;
   topK: number;
   searchOnly: boolean;
+  ttsEnabled: boolean;
+  ttsSpeaking?: boolean;
   busy: boolean;
   streaming?: boolean;
   onChange: (value: string) => void;
   onTopKChange: (value: number) => void;
   onSearchOnlyChange: (value: boolean) => void;
+  onTtsEnabledChange: (value: boolean) => void;
   onSend: () => void;
   onSpeechSend: (text: string) => void;
   onStop?: () => void;
@@ -26,11 +29,14 @@ export default function ChatInput({
   value,
   topK,
   searchOnly,
+  ttsEnabled,
+  ttsSpeaking = false,
   busy,
   streaming = false,
   onChange,
   onTopKChange,
   onSearchOnlyChange,
+  onTtsEnabledChange,
   onSend,
   onSpeechSend,
   onStop,
@@ -125,6 +131,27 @@ export default function ChatInput({
                     disabled={inputDisabled}
                     className={footerIconClass(searchOnly)}
                     onClick={() => onSearchOnlyChange(!searchOnly)}
+                  />
+                </span>
+              </Tooltip>
+              <Tooltip
+                title={
+                  ttsSpeaking
+                    ? '朗读中…'
+                    : ttsEnabled
+                      ? '已开启朗读'
+                      : '朗读回答'
+                }
+              >
+                <span className={styles.iconBtnWrap}>
+                  <Button
+                    type="text"
+                    color="primary"
+                    variant="text"
+                    icon={<SoundOutlined />}
+                    disabled={inputDisabled}
+                    className={footerIconClass(ttsEnabled || ttsSpeaking)}
+                    onClick={() => onTtsEnabledChange(!ttsEnabled)}
                   />
                 </span>
               </Tooltip>
