@@ -167,7 +167,9 @@ export default function SpeechWaveOverlay({ mode, levels, onStop }: Props) {
           <span className={styles.waveFadeLeft} aria-hidden />
           <span className={styles.waveFadeRight} aria-hidden />
         </div>
-        <p className={styles.label}>{isRecording ? '正在聆听，点击波形结束' : '语音识别中…'}</p>
+        <p className={styles.label}>
+          {isRecording ? '正在聆听，点击结束 · Esc 取消' : '语音识别中… · Esc 取消'}
+        </p>
       </div>
     </div>
   );

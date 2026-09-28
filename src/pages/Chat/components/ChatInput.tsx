@@ -1,13 +1,12 @@
 import { useState } from 'react';
 
 import { FileSearchOutlined, SlidersOutlined } from '@ant-design/icons';
-import { Button, InputNumber, Popover, Space, Tooltip } from 'antd';
 import { Sender } from '@ant-design/x';
+import { Button, InputNumber, Popover, Space, Tooltip } from 'antd';
 
 import { useBackendSpeechAsr } from '../hooks/useBackendSpeechAsr';
-
-import SpeechWaveOverlay from './SpeechWaveOverlay';
 import styles from './ChatInput.module.scss';
+import SpeechWaveOverlay from './SpeechWaveOverlay';
 
 type Props = {
   value: string;
@@ -36,8 +35,10 @@ export default function ChatInput({
   onSpeechSend,
   onStop,
 }: Props) {
-  const { allowSpeech, processing, recording, audioLevels, stopRecording } =
-    useBackendSpeechAsr(onSpeechSend, busy);
+  const { allowSpeech, processing, recording, audioLevels, stopRecording } = useBackendSpeechAsr(
+    onSpeechSend,
+    busy,
+  );
   const [topKOpen, setTopKOpen] = useState(false);
   const inputDisabled = busy || processing;
   const speechActive = recording || processing;
@@ -57,71 +58,79 @@ export default function ChatInput({
         ) : null}
         <Sender
           className={styles.sender}
-        value={value}
-        disabled={inputDisabled}
-        loading={busy || processing}
-        allowSpeech={allowSpeech}
-        placeholder="向知识库提问，例如：文档发布需要哪些步骤？"
-        submitType="enter"
-        onChange={(next) => onChange(next)}
-        onSubmit={() => onSend()}
-        onCancel={() => onStop?.()}
-        suffix={(_, { components: { SendButton, LoadingButton } }) =>
-          busy || processing ? <LoadingButton /> : <SendButton />
-        }
-        footer={(_, { components: { SpeechButton } }) => (
-          <Space className={styles.footer} size={4} wrap>
-            <Tooltip title={processing ? '语音识别中…' : recording ? '录音中，点击波形或麦克风结束' : '语音输入'}>
-              <span className={styles.iconBtnWrap}>
-                <SpeechButton
-                  disabled={inputDisabled}
-                  className={footerIconClass(recording || processing)}
-                />
-              </span>
-            </Tooltip>
-            <Popover
-              trigger="click"
-              placement="topLeft"
-              open={topKOpen}
-              onOpenChange={setTopKOpen}
-              title="混合检索召回条数"
-              content={
-                <InputNumber
-                  min={1}
-                  max={10}
-                  size="small"
-                  className={styles.topKInput}
-                  value={topK}
-                  disabled={inputDisabled}
-                  onChange={(next) => onTopKChange(typeof next === 'number' ? next : 5)}
-                />
-              }
-            >
-              <Button
-                type="text"
-                color="primary"
-                variant="text"
-                icon={<SlidersOutlined />}
-                disabled={inputDisabled}
-                className={footerIconClass(topKOpen)}
-              />
-            </Popover>
-            <Tooltip title={searchOnly ? '已开启仅检索' : '仅检索'}>
-              <span className={styles.iconBtnWrap}>
+          value={value}
+          disabled={inputDisabled}
+          loading={busy || processing}
+          allowSpeech={allowSpeech}
+          placeholder="向知识库提问，例如：文档发布需要哪些步骤？"
+          submitType="enter"
+          onChange={(next) => onChange(next)}
+          onSubmit={() => onSend()}
+          onCancel={() => onStop?.()}
+          suffix={(_, { components: { SendButton, LoadingButton } }) =>
+            busy || processing ? <LoadingButton /> : <SendButton />
+          }
+          footer={(_, { components: { SpeechButton } }) => (
+            <Space className={styles.footer} size={4} wrap>
+              <Tooltip
+                title={
+                  processing
+                    ? '语音识别中…，Esc 取消'
+                    : recording
+                      ? '录音中，点击波形或麦克风结束，Esc 取消'
+                      : '语音输入'
+                }
+              >
+                <span className={styles.iconBtnWrap}>
+                  <SpeechButton
+                    disabled={inputDisabled}
+                    className={footerIconClass(recording || processing)}
+                  />
+                </span>
+              </Tooltip>
+              <Popover
+                trigger="click"
+                placement="topLeft"
+                open={topKOpen}
+                onOpenChange={setTopKOpen}
+                title="混合检索召回条数"
+                content={
+                  <InputNumber
+                    min={1}
+                    max={10}
+                    size="small"
+                    className={styles.topKInput}
+                    value={topK}
+                    disabled={inputDisabled}
+                    onChange={(next) => onTopKChange(typeof next === 'number' ? next : 5)}
+                  />
+                }
+              >
                 <Button
                   type="text"
                   color="primary"
                   variant="text"
-                  icon={<FileSearchOutlined />}
+                  icon={<SlidersOutlined />}
                   disabled={inputDisabled}
-                  className={footerIconClass(searchOnly)}
-                  onClick={() => onSearchOnlyChange(!searchOnly)}
+                  className={footerIconClass(topKOpen)}
                 />
-              </span>
-            </Tooltip>
-            {streaming ? <span className={styles.streamingHint}>生成中，可点击停止</span> : null}
-          </Space>
-        )}
+              </Popover>
+              <Tooltip title={searchOnly ? '已开启仅检索' : '仅检索'}>
+                <span className={styles.iconBtnWrap}>
+                  <Button
+                    type="text"
+                    color="primary"
+                    variant="text"
+                    icon={<FileSearchOutlined />}
+                    disabled={inputDisabled}
+                    className={footerIconClass(searchOnly)}
+                    onClick={() => onSearchOnlyChange(!searchOnly)}
+                  />
+                </span>
+              </Tooltip>
+              {streaming ? <span className={styles.streamingHint}>生成中，可点击停止</span> : null}
+            </Space>
+          )}
         />
       </div>
     </div>

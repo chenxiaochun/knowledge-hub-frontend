@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { App } from 'antd';
+import axios from 'axios';
 
 import { postApiSpeechAsr } from '@/service/api';
 
@@ -64,6 +65,8 @@ export function useBackendSpeechAsr(onRecognized: (text: string) => void, disabl
   const levelFrameRef = useRef<number | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const mimeTypeRef = useRef('');
+  const cancelledRef = useRef(false);
+  const asrAbortRef = useRef<AbortController | null>(null);
 
   const stopLevelMonitor = useCallback(() => {
     if (levelFrameRef.current !== null) {
@@ -107,22 +110,38 @@ export function useBackendSpeechAsr(onRecognized: (text: string) => void, disabl
 
   const recognizeAudio = useCallback(
     async (blob: Blob) => {
+      asrAbortRef.current?.abort();
+      const abortController = new AbortController();
+      asrAbortRef.current = abortController;
       setProcessing(true);
+
       try {
         const file = toAudioFile(blob, mimeTypeRef.current);
         const response = await postApiSpeechAsr({
           formData: { audio: file },
-        } as Parameters<typeof postApiSpeechAsr>[0] & { formData: { audio: File } });
+          signal: abortController.signal,
+          silentError: true,
+        } as Parameters<typeof postApiSpeechAsr>[0] & {
+          formData: { audio: File };
+          signal: AbortSignal;
+          silentError: boolean;
+        });
         const text = extractAsrText(response);
         if (text) {
           onRecognized(text);
         } else {
           message.warning('未识别到有效语音');
         }
-      } catch {
-        // 错误提示由 request 拦截器统一处理
+      } catch (error) {
+        if (abortController.signal.aborted || axios.isCancel(error)) return;
+        message.error('语音识别失败，请重试');
       } finally {
-        setProcessing(false);
+        if (asrAbortRef.current === abortController) {
+          asrAbortRef.current = null;
+        }
+        if (!abortController.signal.aborted) {
+          setProcessing(false);
+        }
       }
     },
     [message, onRecognized],
@@ -171,6 +190,12 @@ export function useBackendSpeechAsr(onRecognized: (text: string) => void, disabl
         mediaRecorderRef.current = null;
         setRecording(false);
 
+        if (cancelledRef.current) {
+          cancelledRef.current = false;
+          chunksRef.current = [];
+          return;
+        }
+
         const blob = new Blob(chunksRef.current, {
           type: mimeTypeRef.current || recorder.mimeType || 'audio/webm',
         });
@@ -200,6 +225,41 @@ export function useBackendSpeechAsr(onRecognized: (text: string) => void, disabl
     }
   }, [disabled, message, processing, recognizeAudio, releaseStream, startLevelMonitor, stopRecording]);
 
+  const cancelSpeech = useCallback(() => {
+    if (recording || mediaRecorderRef.current) {
+      cancelledRef.current = true;
+      const recorder = mediaRecorderRef.current;
+      if (recorder && recorder.state !== 'inactive') {
+        recorder.stop();
+        return;
+      }
+      releaseStream();
+      setRecording(false);
+      cancelledRef.current = false;
+      chunksRef.current = [];
+      return;
+    }
+
+    if (processing) {
+      asrAbortRef.current?.abort();
+      asrAbortRef.current = null;
+      setProcessing(false);
+    }
+  }, [processing, recording, releaseStream]);
+
+  useEffect(() => {
+    if (!recording && !processing) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      cancelSpeech();
+    };
+
+    window.addEventListener('keydown', onKeyDown, true);
+    return () => window.removeEventListener('keydown', onKeyDown, true);
+  }, [cancelSpeech, processing, recording]);
+
   const onRecordingChange = useCallback(
     (nextRecording: boolean) => {
       if (disabled || processing) return;
@@ -219,6 +279,7 @@ export function useBackendSpeechAsr(onRecognized: (text: string) => void, disabl
         recorder.onstop = null;
         recorder.stop();
       }
+      asrAbortRef.current?.abort();
       releaseStream();
       stopLevelMonitor();
     };
