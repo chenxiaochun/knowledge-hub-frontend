@@ -6,6 +6,7 @@ import { Sender } from '@ant-design/x';
 
 import { useBackendSpeechAsr } from '../hooks/useBackendSpeechAsr';
 
+import SpeechWaveOverlay from './SpeechWaveOverlay';
 import styles from './ChatInput.module.scss';
 
 type Props = {
@@ -35,17 +36,27 @@ export default function ChatInput({
   onSpeechSend,
   onStop,
 }: Props) {
-  const { allowSpeech, processing, recording } = useBackendSpeechAsr(onSpeechSend, busy);
+  const { allowSpeech, processing, recording, audioLevels, stopRecording } =
+    useBackendSpeechAsr(onSpeechSend, busy);
   const [topKOpen, setTopKOpen] = useState(false);
   const inputDisabled = busy || processing;
+  const speechActive = recording || processing;
 
   const footerIconClass = (active: boolean) =>
     active ? `${styles.iconBtn} ${styles.iconBtnActive}` : styles.iconBtn;
 
   return (
     <div className={styles.bar}>
-      <Sender
-        className={styles.sender}
+      <div className={`${styles.senderWrap} ${speechActive ? styles.senderWrapActive : ''}`}>
+        {speechActive ? (
+          <SpeechWaveOverlay
+            mode={processing ? 'processing' : 'recording'}
+            levels={recording ? audioLevels : undefined}
+            onStop={recording ? stopRecording : undefined}
+          />
+        ) : null}
+        <Sender
+          className={styles.sender}
         value={value}
         disabled={inputDisabled}
         loading={busy || processing}
@@ -60,7 +71,7 @@ export default function ChatInput({
         }
         footer={(_, { components: { SpeechButton } }) => (
           <Space className={styles.footer} size={4} wrap>
-            <Tooltip title={processing ? '语音识别中…' : recording ? '录音中，点击结束' : '语音输入'}>
+            <Tooltip title={processing ? '语音识别中…' : recording ? '录音中，点击波形或麦克风结束' : '语音输入'}>
               <span className={styles.iconBtnWrap}>
                 <SpeechButton
                   disabled={inputDisabled}
@@ -111,7 +122,8 @@ export default function ChatInput({
             {streaming ? <span className={styles.streamingHint}>生成中，可点击停止</span> : null}
           </Space>
         )}
-      />
+        />
+      </div>
     </div>
   );
 }
