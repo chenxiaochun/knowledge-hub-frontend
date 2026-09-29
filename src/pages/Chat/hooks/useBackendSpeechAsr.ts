@@ -230,9 +230,11 @@ export function useBackendSpeechAsr(onRecognized: (text: string) => void, disabl
       cancelledRef.current = true;
       const recorder = mediaRecorderRef.current;
       if (recorder && recorder.state !== 'inactive') {
+        void playSpeechTick('end');
         recorder.stop();
         return;
       }
+      void playSpeechTick('end');
       releaseStream();
       setRecording(false);
       cancelledRef.current = false;
@@ -241,6 +243,7 @@ export function useBackendSpeechAsr(onRecognized: (text: string) => void, disabl
     }
 
     if (processing) {
+      void playSpeechTick('end');
       asrAbortRef.current?.abort();
       asrAbortRef.current = null;
       setProcessing(false);

@@ -112,14 +112,18 @@ export default function ChatInput({
                   />
                 }
               >
-                <Button
-                  type="text"
-                  color="primary"
-                  variant="text"
-                  icon={<SlidersOutlined />}
-                  disabled={inputDisabled}
-                  className={footerIconClass(topKOpen)}
-                />
+                <Tooltip title="混合检索召回条数" open={topKOpen ? false : undefined}>
+                  <span className={styles.iconBtnWrap}>
+                    <Button
+                      type="text"
+                      color="primary"
+                      variant="text"
+                      icon={<SlidersOutlined />}
+                      disabled={inputDisabled}
+                      className={footerIconClass(topKOpen)}
+                    />
+                  </span>
+                </Tooltip>
               </Popover>
               <Tooltip title={searchOnly ? '已开启仅检索' : '仅检索'}>
                 <span className={styles.iconBtnWrap}>
