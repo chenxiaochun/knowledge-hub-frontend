@@ -10,7 +10,18 @@ export type DocumentStatusOption = {
 };
 
 /** 文档上传支持的扩展名 */
-export type DocumentUploadExt = 'txt' | 'md' | 'docx' | 'pdf' | 'pptx' | 'xlsx';
+export type DocumentUploadExt =
+  | 'txt'
+  | 'md'
+  | 'docx'
+  | 'pdf'
+  | 'pptx'
+  | 'xlsx'
+  | 'jpg'
+  | 'jpeg'
+  | 'png'
+  | 'webp'
+  | 'gif';
 
 /** 文档详情（含正文） */
 export type DocumentDetail = DocumentEntity & {

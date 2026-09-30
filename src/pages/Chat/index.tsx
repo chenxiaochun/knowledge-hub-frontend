@@ -65,10 +65,9 @@ export default function ChatPage() {
   }, []);
 
   const syncPinBottom = useCallback(() => {
-    const inputEl = inputRef.current;
-    if (!inputEl) return;
-    const dist = inputEl.getBoundingClientRect().bottom - window.innerHeight;
-    logPinBottomRef.current = dist <= 80;
+    const { scrollHeight, scrollTop } = document.documentElement;
+    const distanceFromBottom = scrollHeight - scrollTop - window.innerHeight;
+    logPinBottomRef.current = distanceFromBottom <= 80;
   }, [logPinBottomRef]);
 
   useEffect(() => {
@@ -96,6 +95,7 @@ export default function ChatPage() {
   }, [sessionId, messagesLoading, messages.length, searchOnlyMessages.length, syncInputReserve]);
 
   useEffect(() => {
+    syncPinBottom();
     window.addEventListener('scroll', syncPinBottom, { passive: true });
     return () => window.removeEventListener('scroll', syncPinBottom);
   }, [syncPinBottom]);

@@ -69,9 +69,40 @@ export const DOCUMENT_UPLOAD_EXTS = [
   'pdf',
   'pptx',
   'xlsx',
+  'jpg',
+  'jpeg',
+  'png',
+  'webp',
+  'gif',
 ] as const satisfies readonly DocumentUploadExt[];
 
-export const DOCUMENT_UPLOAD_ACCEPT = DOCUMENT_UPLOAD_EXTS.map((ext) => `.${ext}`).join(',');
+export function documentContentTypeFromExtension(ext: string): string | undefined {
+  switch (ext.toLowerCase().replace(/^\./, '')) {
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'png':
+      return 'image/png';
+    case 'webp':
+      return 'image/webp';
+    case 'gif':
+      return 'image/gif';
+    default:
+      return undefined;
+  }
+}
+
+const DOCUMENT_UPLOAD_IMAGE_MIMES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+] as const;
+
+export const DOCUMENT_UPLOAD_ACCEPT = [
+  ...DOCUMENT_UPLOAD_EXTS.map((ext) => `.${ext}`),
+  ...DOCUMENT_UPLOAD_IMAGE_MIMES,
+].join(',');
 
 export const DOCUMENT_UPLOAD_HINT = DOCUMENT_UPLOAD_EXTS.map((ext) => `.${ext}`).join(' / ');
 
