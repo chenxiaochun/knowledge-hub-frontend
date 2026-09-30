@@ -20,9 +20,12 @@ export function useSpeechTts(sessionId: string | undefined) {
   const playingRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const enabledRef = useRef(false);
+  const playNextRef = useRef<() => void>(() => undefined);
 
-  enabledRef.current = enabled;
-  connectSessionRef.current = sessionId;
+  useEffect(() => {
+    enabledRef.current = enabled;
+    connectSessionRef.current = sessionId;
+  }, [enabled, sessionId]);
 
   const stopPlayback = useCallback(() => {
     audioRef.current?.pause();
@@ -50,7 +53,7 @@ export function useSpeechTts(sessionId: string | undefined) {
       URL.revokeObjectURL(url);
       playingRef.current = false;
       audioRef.current = null;
-      playNext();
+      playNextRef.current();
     };
 
     audio.onended = finish;
@@ -58,13 +61,14 @@ export function useSpeechTts(sessionId: string | undefined) {
     void audio.play().catch(finish);
   }, []);
 
-  const enqueueAudio = useCallback(
-    (data: ArrayBuffer) => {
-      audioQueueRef.current.push(new Blob([data], { type: 'audio/mpeg' }));
-      playNext();
-    },
-    [playNext],
-  );
+  useEffect(() => {
+    playNextRef.current = playNext;
+  }, [playNext]);
+
+  const enqueueAudio = useCallback((data: ArrayBuffer) => {
+    audioQueueRef.current.push(new Blob([data], { type: 'audio/mpeg' }));
+    playNextRef.current();
+  }, []);
 
   const disconnect = useCallback(() => {
     const ws = wsRef.current;

@@ -72,6 +72,7 @@ export default function ChatMessageParts({
   const sources = filterCitedSources(sourcesFromParts(parts), textFromParts(parts));
   const [activeCite, setActiveCite] = useState<number | null>(null);
   const texts = parts.filter((part) => part.type === 'text' && part.text);
+  const hideMarkdownImageUrls = useMemo(() => imageUrlsForMarkdownHide(parts), [parts]);
 
   if (role === 'user') {
     return (
@@ -92,7 +93,6 @@ export default function ChatMessageParts({
     (part): part is { type: 'data-image'; data: ChatImageDto } => part.type === 'data-image',
   );
   const showGenerateTool = persistedImages.length === 0;
-  const hideMarkdownImageUrls = useMemo(() => imageUrlsForMarkdownHide(parts), [parts]);
 
   return (
     <>

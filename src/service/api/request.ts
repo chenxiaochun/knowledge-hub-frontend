@@ -39,6 +39,7 @@ import type {
   AiSessionEntity,
   CreateSessionDto,
   AiMessageEntity,
+  ChatImageDto,
   UpdateSessionDto,
   ChatStreamDto,
   AsrUploadDto,

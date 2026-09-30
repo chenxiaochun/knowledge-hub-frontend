@@ -88,7 +88,10 @@ export default function SpeechWaveOverlay({ mode, levels, onStop }: Props) {
   const timeRef = useRef(0);
   const frameRef = useRef<number | null>(null);
   const levelsRef = useRef(levels);
-  levelsRef.current = levels;
+
+  useEffect(() => {
+    levelsRef.current = levels;
+  }, [levels]);
 
   useEffect(() => {
     const tick = () => {

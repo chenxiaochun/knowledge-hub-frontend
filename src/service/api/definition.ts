@@ -329,14 +329,6 @@ export interface ChatSourceDto {
   score: number;
 }
 
-/** 助手消息中的生图结果（历史 messages 的 images） */
-export interface ChatImageDto {
-  url: string;
-  prompt?: string;
-  mode?: string;
-  size?: string;
-}
-
 export interface ChatResponseDto {
   sessionId: string | null;
   answer: string;
@@ -364,6 +356,13 @@ export interface CreateSessionDto {
   title?: string;
 }
 
+export interface ChatImageDto {
+  url: string;
+  prompt?: string;
+  mode?: string;
+  size?: string;
+}
+
 export interface AiMessageEntity {
   id: string;
   sessionId: string;
@@ -374,7 +373,10 @@ export interface AiMessageEntity {
    *   仅 assistant：引用溯源列表；user 行一般为 null
    */
   sources?: Array<ChatSourceDto> | null;
-  /** 仅 assistant：本轮 generate_image 产出的图片 */
+  /**
+   * @description
+   *   仅 assistant：本轮 generate_image 产出的图片；user 行一般为 null
+   */
   images?: Array<ChatImageDto> | null;
   /** @format date-time */
   createdAt: string;
@@ -388,6 +390,11 @@ export interface ChatStreamDto {
   messages: Array<string>;
   sessionId?: string;
   topK?: number;
+  /**
+   * @description
+   *   为 true 时同步将 AI 文本流推送给 TTS（需前端先连 WS）
+   */
+  enableTts?: boolean;
   id?: string;
   trigger?: any;
   messageId?: any;

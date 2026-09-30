@@ -1,8 +1,10 @@
-import { useChat } from '@ai-sdk/react';
-import { App } from 'antd';
-import { DefaultChatTransport } from 'ai';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+
+import { App } from 'antd';
+
+import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport } from 'ai';
 
 import {
   deleteApiAiSessionsId,
@@ -16,6 +18,7 @@ import { getToken } from '@/utils/auth';
 
 import type { KhUIMessage } from '../components/ChatMessageParts';
 import type { LocalMessage, RagChunkHitDto } from '../types';
+
 import { historyToUIMessages } from '../utils';
 import { useSpeechTts } from './useSpeechTts';
 
@@ -52,13 +55,19 @@ export function useChatPage() {
   const topKRef = useRef(topK);
   const logPinBottomRef = useRef(false);
 
-  const { enabled: ttsEnabled, setEnabled: setTtsEnabled, speaking: ttsSpeaking, ensureConnected } =
-    useSpeechTts(sessionId);
+  const {
+    enabled: ttsEnabled,
+    setEnabled: setTtsEnabled,
+    speaking: ttsSpeaking,
+    ensureConnected,
+  } = useSpeechTts(sessionId);
   const ttsEnabledRef = useRef(ttsEnabled);
 
-  sessionIdRef.current = sessionId;
-  topKRef.current = topK;
-  ttsEnabledRef.current = ttsEnabled;
+  useEffect(() => {
+    sessionIdRef.current = sessionId;
+    topKRef.current = topK;
+    ttsEnabledRef.current = ttsEnabled;
+  }, [sessionId, topK, ttsEnabled]);
 
   const transport = useMemo(
     () =>
@@ -74,14 +83,7 @@ export function useChatPage() {
     [],
   );
 
-  const {
-    messages,
-    sendMessage,
-    setMessages,
-    status,
-    stop,
-    error,
-  } = useChat<KhUIMessage>({
+  const { messages, sendMessage, setMessages, status, stop, error } = useChat<KhUIMessage>({
     id: CHAT_ID,
     transport,
     onData: (part) => {
@@ -204,66 +206,69 @@ export function useChatPage() {
     [busy, loadSessions, message, navigate, sessionId, setMessages],
   );
 
-  const send = useCallback(async (textOverride?: string) => {
-    const text = (textOverride ?? input).trim();
-    if (!text || busy) return;
+  const send = useCallback(
+    async (textOverride?: string) => {
+      const text = (textOverride ?? input).trim();
+      if (!text || busy) return;
 
-    setInput('');
-    logPinBottomRef.current = true;
+      setInput('');
+      logPinBottomRef.current = true;
 
-    if (searchOnlyMode && !textOverride) {
-      const userMsg: LocalMessage = {
-        id: `local-user-${Date.now()}`,
-        role: 'user',
-        content: text,
-      };
-      const pendingId = `local-assistant-${Date.now()}`;
-      setSearchOnlyMessages((prev) => [
-        ...prev,
-        userMsg,
-        { id: pendingId, role: 'assistant', content: '', pending: true },
-      ]);
-      setSearchOnlySending(true);
-      try {
-        const hits = await postApiAiRagSearch({ body: { query: text, topK } });
-        const assistant: LocalMessage = {
-          id: pendingId,
-          role: 'assistant',
-          content: formatSearchOnlyAnswer(hits),
-          ragHits: hits,
+      if (searchOnlyMode && !textOverride) {
+        const userMsg: LocalMessage = {
+          id: `local-user-${Date.now()}`,
+          role: 'user',
+          content: text,
         };
-        setSearchOnlyMessages((prev) => prev.map((m) => (m.id === pendingId ? assistant : m)));
-      } catch {
-        setSearchOnlyMessages((prev) => prev.filter((m) => m.id !== pendingId));
-      } finally {
-        setSearchOnlySending(false);
+        const pendingId = `local-assistant-${Date.now()}`;
+        setSearchOnlyMessages((prev) => [
+          ...prev,
+          userMsg,
+          { id: pendingId, role: 'assistant', content: '', pending: true },
+        ]);
+        setSearchOnlySending(true);
+        try {
+          const hits = await postApiAiRagSearch({ body: { query: text, topK } });
+          const assistant: LocalMessage = {
+            id: pendingId,
+            role: 'assistant',
+            content: formatSearchOnlyAnswer(hits),
+            ragHits: hits,
+          };
+          setSearchOnlyMessages((prev) => prev.map((m) => (m.id === pendingId ? assistant : m)));
+        } catch {
+          setSearchOnlyMessages((prev) => prev.filter((m) => m.id !== pendingId));
+        } finally {
+          setSearchOnlySending(false);
+        }
+        return;
       }
-      return;
-    }
 
-    let activeSessionId = sessionIdRef.current;
-    if (ttsEnabledRef.current) {
-      if (!activeSessionId) {
-        const created = await postApiAiSessions({ body: {} });
-        activeSessionId = created.id;
-        loadedSessionRef.current = created.id;
-        sessionIdRef.current = created.id;
-        navigate(`/chat?session=${created.id}`, { replace: true });
+      let activeSessionId = sessionIdRef.current;
+      if (ttsEnabledRef.current) {
+        if (!activeSessionId) {
+          const created = await postApiAiSessions({ body: {} });
+          activeSessionId = created.id;
+          loadedSessionRef.current = created.id;
+          sessionIdRef.current = created.id;
+          navigate(`/chat?session=${created.id}`, { replace: true });
+        }
+        await ensureConnected(activeSessionId);
       }
-      await ensureConnected(activeSessionId);
-    }
 
-    await sendMessage(
-      { text },
-      {
-        body: {
-          sessionId: activeSessionId,
-          topK: topKRef.current,
-          enableTts: ttsEnabledRef.current,
+      await sendMessage(
+        { text },
+        {
+          body: {
+            sessionId: activeSessionId,
+            topK: topKRef.current,
+            enableTts: ttsEnabledRef.current,
+          },
         },
-      },
-    );
-  }, [busy, ensureConnected, input, navigate, searchOnlyMode, sendMessage, topK]);
+      );
+    },
+    [busy, ensureConnected, input, navigate, searchOnlyMode, sendMessage, topK],
+  );
 
   return {
     sessionId,
