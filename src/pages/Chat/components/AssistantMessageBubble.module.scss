@@ -1,0 +1,25 @@
+.root {
+  align-self: stretch;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  :global(.ant-bubble-body),
+  :global(.ant-bubble-content) {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  :global(.ant-bubble-footer) {
+    margin-block-start: 4px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+
+  &:hover :global(.ant-bubble-footer),
+  &:focus-within :global(.ant-bubble-footer) {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}

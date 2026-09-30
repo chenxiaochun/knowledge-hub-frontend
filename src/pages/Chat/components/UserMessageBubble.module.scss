@@ -1,0 +1,17 @@
+.root {
+  align-self: flex-end;
+  max-width: 92%;
+
+  :global(.ant-bubble-footer) {
+    margin-block-start: 4px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+
+  &:hover :global(.ant-bubble-footer),
+  &:focus-within :global(.ant-bubble-footer) {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}

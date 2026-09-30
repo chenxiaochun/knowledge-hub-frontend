@@ -60,6 +60,7 @@ export function useChatPage() {
     setEnabled: setTtsEnabled,
     speaking: ttsSpeaking,
     ensureConnected,
+    stopPlayback: stopTtsPlayback,
   } = useSpeechTts(sessionId);
   const ttsEnabledRef = useRef(ttsEnabled);
 
@@ -290,6 +291,7 @@ export function useChatPage() {
     ttsEnabled,
     ttsSpeaking,
     setTtsEnabled,
+    stopTtsPlayback,
     switchSession,
     onNewSession,
     onRemoveSession,

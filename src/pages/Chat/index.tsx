@@ -42,6 +42,7 @@ export default function ChatPage() {
     setTopK,
     setSearchOnlyMode,
     setTtsEnabled,
+    stopTtsPlayback,
     switchSession,
     onNewSession,
     onRemoveSession,
@@ -157,6 +158,8 @@ export default function ChatPage() {
             error={streamError}
             logEndRef={logEndRef}
             onOpenDocument={(id) => void openDocument(id)}
+            onRefillUserMessage={setInput}
+            stopTtsPlayback={stopTtsPlayback}
           />
         </Suspense>
 

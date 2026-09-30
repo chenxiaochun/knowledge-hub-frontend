@@ -164,5 +164,6 @@ export function useSpeechTts(sessionId: string | undefined) {
     speaking,
     ensureConnected,
     stopPlayback,
+    disconnect,
   };
 }

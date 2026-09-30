@@ -13,24 +13,6 @@
   padding: 24px 0;
 }
 
-.userBubble {
-  align-self: flex-end;
-  max-width: 92%;
-}
-
-.assistantBubble {
-  align-self: stretch;
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-
-  :global(.ant-bubble-body),
-  :global(.ant-bubble-content) {
-    width: 100%;
-    max-width: 100%;
-  }
-}
-
 .pending {
   display: flex;
   align-items: center;

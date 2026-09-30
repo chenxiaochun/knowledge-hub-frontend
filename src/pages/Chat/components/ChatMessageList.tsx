@@ -1,6 +1,5 @@
 import { useMemo, useState, type RefObject } from 'react';
 
-import { Bubble } from '@ant-design/x';
 import { Empty, Spin } from 'antd';
 
 import type { LocalMessage } from '../types';
@@ -8,17 +7,14 @@ import type { KhUIMessage } from '../chatUiMessage';
 import { textFromParts } from '../chatUiMessage';
 
 import { useDocumentFileExts } from '../hooks/useDocumentFileExts';
+import { useMessageReadAloud } from '../hooks/useMessageReadAloud';
 import { citedSources, ragHitsToSources } from '../utils';
+import AssistantMessageBubble from './AssistantMessageBubble';
 import LazyAnswerMarkdown from './LazyAnswerMarkdown';
 import styles from './ChatMessageList.module.scss';
 import ChatMessageParts from './ChatMessageParts';
 import SourceCiteList from './SourceCiteList';
-
-const assistantBubbleStyles = {
-  root: { width: '100%', maxWidth: '100%' },
-  body: { width: '100%', maxWidth: '100%' },
-  content: { width: '100%', maxWidth: '100%' },
-} as const;
+import UserMessageBubble from './UserMessageBubble';
 
 type Props = {
   messages: KhUIMessage[];
@@ -28,6 +24,8 @@ type Props = {
   error?: Error;
   logEndRef?: RefObject<HTMLDivElement | null>;
   onOpenDocument?: (documentId: string) => void;
+  onRefillUserMessage?: (text: string) => void;
+  stopTtsPlayback?: () => void;
 };
 
 export default function ChatMessageList({
@@ -38,8 +36,16 @@ export default function ChatMessageList({
   error,
   logEndRef,
   onOpenDocument,
+  onRefillUserMessage,
+  stopTtsPlayback,
 }: Props) {
   const [activeCite, setActiveCite] = useState<{ scope: string; index: number } | null>(null);
+  const { activeId: readingMessageId, toggle: toggleReadAloud } = useMessageReadAloud();
+
+  const handleSpeak = (messageId: string, text: string) => {
+    stopTtsPlayback?.();
+    toggleReadAloud(messageId, text);
+  };
 
   const citeDocumentIds = useMemo(() => {
     const ids: string[] = [];
@@ -91,24 +97,26 @@ export default function ChatMessageList({
 
         if (msg.role === 'user') {
           return (
-            <Bubble
+            <UserMessageBubble
               key={msg.id}
-              placement="end"
-              variant="filled"
-              rootClassName={styles.userBubble}
-              content={textFromParts(msg.parts)}
+              text={textFromParts(msg.parts)}
+              onRefill={(text) => onRefillUserMessage?.(text)}
             />
           );
         }
 
+        const answerText = textFromParts(msg.parts);
+
         return (
-          <Bubble
+          <AssistantMessageBubble
             key={msg.id}
-            placement="start"
-            variant="outlined"
+            messageId={msg.id}
+            copyText={answerText}
+            speakText={answerText}
+            speaking={readingMessageId === msg.id}
             streaming={liveAssistant}
-            rootClassName={styles.assistantBubble}
-            styles={assistantBubbleStyles}
+            showActions={!liveAssistant}
+            onSpeak={handleSpeak}
             content={
               <ChatMessageParts
                 messageId={msg.id}
@@ -127,12 +135,10 @@ export default function ChatMessageList({
       {searchOnlyMessages.map((msg) => {
         if (msg.role === 'user') {
           return (
-            <Bubble
+            <UserMessageBubble
               key={msg.id}
-              placement="end"
-              variant="filled"
-              rootClassName={styles.userBubble}
-              content={msg.content}
+              text={msg.content}
+              onRefill={(text) => onRefillUserMessage?.(text)}
             />
           );
         }
@@ -142,12 +148,14 @@ export default function ChatMessageList({
           : citedSources(msg.sources, msg.content);
 
         return (
-          <Bubble
+          <AssistantMessageBubble
             key={msg.id}
-            placement="start"
-            variant="outlined"
-            rootClassName={styles.assistantBubble}
-            styles={assistantBubbleStyles}
+            messageId={msg.id}
+            copyText={msg.content}
+            speakText={msg.content}
+            speaking={readingMessageId === msg.id}
+            showActions={!msg.pending}
+            onSpeak={handleSpeak}
             content={
               msg.pending ? (
                 <div className={styles.pending}>
