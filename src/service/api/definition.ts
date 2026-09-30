@@ -329,6 +329,14 @@ export interface ChatSourceDto {
   score: number;
 }
 
+/** 助手消息中的生图结果（历史 messages 的 images） */
+export interface ChatImageDto {
+  url: string;
+  prompt?: string;
+  mode?: string;
+  size?: string;
+}
+
 export interface ChatResponseDto {
   sessionId: string | null;
   answer: string;
@@ -366,6 +374,8 @@ export interface AiMessageEntity {
    *   仅 assistant：引用溯源列表；user 行一般为 null
    */
   sources?: Array<ChatSourceDto> | null;
+  /** 仅 assistant：本轮 generate_image 产出的图片 */
+  images?: Array<ChatImageDto> | null;
   /** @format date-time */
   createdAt: string;
 }

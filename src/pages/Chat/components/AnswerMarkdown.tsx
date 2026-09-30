@@ -21,6 +21,8 @@ type Props = {
   scope: string;
   onCite?: (index: number) => void;
   streaming?: boolean;
+  /** 已在消息区单独展示缩略图的 url，正文 Markdown 中不再重复渲染 */
+  hideImageUrls?: Set<string>;
 };
 
 export function citeAnchorId(scope: string, index: number) {
@@ -91,6 +93,7 @@ function CiteChips({
 function useMdComponents(
   byIndex: Map<number, ChatSourceDto>,
   handleCite: (index: number) => void,
+  hideImageUrls?: Set<string>,
 ) {
   return useMemo(() => {
     const wrap = (children: ReactNode) => injectCites(children, byIndex, handleCite);
@@ -120,11 +123,22 @@ function useMdComponents(
           <CodeHighlighter lang={resolvedLang}>{children.replace(/\n$/, '')}</CodeHighlighter>
         );
       },
+      img: ({ src }: ComponentProps) => {
+        if (typeof src === 'string' && hideImageUrls?.has(src)) return null;
+        return <img src={typeof src === 'string' ? src : undefined} alt="" loading="lazy" />;
+      },
     };
-  }, [byIndex, handleCite]);
+  }, [byIndex, handleCite, hideImageUrls]);
 }
 
-export default function AnswerMarkdown({ text, sources, scope, onCite, streaming }: Props) {
+export default function AnswerMarkdown({
+  text,
+  sources,
+  scope,
+  onCite,
+  streaming,
+  hideImageUrls,
+}: Props) {
   const byIndex = useMemo(
     () => new Map((sources ?? []).filter((s) => s.index != null).map((s) => [s.index!, s])),
     [sources],
@@ -138,7 +152,7 @@ export default function AnswerMarkdown({ text, sources, scope, onCite, streaming
     [onCite, scope],
   );
 
-  const components = useMdComponents(byIndex, handleCite);
+  const components = useMdComponents(byIndex, handleCite, hideImageUrls);
 
   return (
     <XMarkdown

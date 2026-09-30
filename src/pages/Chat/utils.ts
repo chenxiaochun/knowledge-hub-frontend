@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 
-import type { ChatSourceDto, RagChunkHitDto } from '@/service/api';
+import type { ChatImageDto, ChatSourceDto, RagChunkHitDto } from '@/service/api';
 
 import type { KhUIMessage } from './components/ChatMessageParts';
 import type { LocalMessage } from './types';
@@ -41,6 +41,7 @@ export function toLocalMessages(
     role: 'user' | 'assistant';
     content: string;
     sources?: ChatSourceDto[] | null;
+    images?: ChatImageDto[] | null;
   }>,
 ): LocalMessage[] {
   return rows.map((row) => ({
@@ -57,6 +58,7 @@ export function historyToUIMessages(
     role: 'user' | 'assistant';
     content: string;
     sources?: ChatSourceDto[] | null;
+    images?: ChatImageDto[] | null;
   }>,
 ): KhUIMessage[] {
   return rows.map((row) => {
@@ -70,6 +72,11 @@ export function historyToUIMessages(
     const parts: KhUIMessage['parts'] = [];
     if (row.sources?.length) {
       parts.push({ type: 'data-sources', data: row.sources });
+    }
+    if (row.images?.length) {
+      for (const img of row.images) {
+        parts.push({ type: 'data-image', data: img });
+      }
     }
     parts.push({ type: 'text', text: row.content });
     return { id: row.id, role: 'assistant', parts };

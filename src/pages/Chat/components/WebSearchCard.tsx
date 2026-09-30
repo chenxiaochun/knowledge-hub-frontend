@@ -1,5 +1,6 @@
 import { SearchOutlined } from '@ant-design/icons';
 
+import { parseToolPayload } from '../toolPayload';
 import styles from './ChatMessageParts.module.scss';
 
 type WebSearchHit = {
@@ -75,19 +76,3 @@ function asWebSearchResult(value: unknown): WebSearchResult | null {
   };
 }
 
-function parseToolPayload(value: unknown): Record<string, unknown> | null {
-  if (typeof value === 'string') {
-    try {
-      return parseToolPayload(JSON.parse(value));
-    } catch {
-      return null;
-    }
-  }
-  if (!value || typeof value !== 'object') return null;
-  const rec = value as Record<string, unknown>;
-  if (typeof rec.content === 'string') {
-    const nested = parseToolPayload(rec.content);
-    if (nested) return nested;
-  }
-  return rec;
-}

@@ -1,6 +1,13 @@
 import type { ChatSourceDto, RagChunkHitDto } from '@/service/api';
 
-export type { AiMessageEntity, ChatResponseDto, ChatSourceDto, RagChunkHitDto, SessionPageDto } from '@/service/api';
+export type {
+  AiMessageEntity,
+  ChatImageDto,
+  ChatResponseDto,
+  ChatSourceDto,
+  RagChunkHitDto,
+  SessionPageDto,
+} from '@/service/api';
 
 /** 页面内消息（含仅检索临时态） */
 export type LocalMessage = {

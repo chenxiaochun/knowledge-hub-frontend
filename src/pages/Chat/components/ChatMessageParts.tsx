@@ -1,16 +1,18 @@
 import { Think } from '@ant-design/x';
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 
 import { FileSearchOutlined } from '@ant-design/icons';
 
 import { getToolName, isToolUIPart, type UIMessage } from 'ai';
 
-import type { ChatSourceDto } from '@/service/api';
+import type { ChatImageDto, ChatSourceDto } from '@/service/api';
 
+import { parseToolPayload } from '../toolPayload';
 import { citedSources as filterCitedSources } from '../utils';
 import AnswerMarkdown from './AnswerMarkdown';
 import styles from './ChatMessageParts.module.scss';
 import SourceCiteList from './SourceCiteList';
+import GenerateImageCard, { ChatImagePreview } from './GenerateImageCard';
 import WebSearchCard from './WebSearchCard';
 
 export type RetrieveHit = {
@@ -28,6 +30,7 @@ export type KhUIMessage = UIMessage<
     sources: ChatSourceDto[];
     retrieve: { query: string; items: RetrieveHit[] };
     session: { sessionId: string };
+    image: ChatImageDto;
   }
 >;
 
@@ -85,10 +88,22 @@ export default function ChatMessageParts({
   }
 
   const hasRetrieve = parts.some((part) => part.type === 'data-retrieve');
+  const persistedImages = parts.filter(
+    (part): part is { type: 'data-image'; data: ChatImageDto } => part.type === 'data-image',
+  );
+  const showGenerateTool = persistedImages.length === 0;
+  const hideMarkdownImageUrls = useMemo(() => imageUrlsForMarkdownHide(parts), [parts]);
 
   return (
     <>
-      {renderProcessParts(parts, hasRetrieve)}
+      {renderProcessParts(parts, hasRetrieve, showGenerateTool)}
+      {persistedImages.map((part, i) => (
+        <ChatImagePreview
+          key={`img-${i}-${part.data.url}`}
+          url={part.data.url}
+          alt={part.data.prompt}
+        />
+      ))}
       {texts.map((part, i) =>
         part.type === 'text' ? (
           <div key={`text-${i}`}>
@@ -97,6 +112,7 @@ export default function ChatMessageParts({
               sources={sources}
               scope={messageId}
               streaming={streaming}
+              hideImageUrls={hideMarkdownImageUrls}
               onCite={setActiveCite}
             />
           </div>
@@ -115,7 +131,23 @@ export default function ChatMessageParts({
   );
 }
 
-function renderProcessParts(parts: KhUIMessage['parts'], hasRetrieve: boolean) {
+function imageUrlsForMarkdownHide(parts: KhUIMessage['parts']): Set<string> {
+  const urls = new Set<string>();
+  for (const part of parts) {
+    if (part.type === 'data-image' && part.data.url) urls.add(part.data.url);
+    if (!isToolUIPart(part) || getToolName(part) !== 'generate_image') continue;
+    if (part.state !== 'output-available') continue;
+    const payload = parseToolPayload(part.output);
+    if (payload && typeof payload.url === 'string') urls.add(payload.url);
+  }
+  return urls;
+}
+
+function renderProcessParts(
+  parts: KhUIMessage['parts'],
+  hasRetrieve: boolean,
+  showGenerateTool: boolean,
+) {
   const nodes: ReactNode[] = [];
   let reasoningBuf: string[] = [];
   let reasoningStreaming = false;
@@ -149,6 +181,7 @@ function renderProcessParts(parts: KhUIMessage['parts'], hasRetrieve: boolean) {
       part.type === 'step-start' ||
       part.type === 'data-session' ||
       part.type === 'data-sources' ||
+      part.type === 'data-image' ||
       part.type === 'source-document' ||
       part.type === 'text'
     ) {
@@ -182,6 +215,11 @@ function renderProcessParts(parts: KhUIMessage['parts'], hasRetrieve: boolean) {
 
     if (isToolUIPart(part) && getToolName(part) === 'web_search') {
       nodes.push(<WebSearchCard key={i} part={part} />);
+      return;
+    }
+
+    if (showGenerateTool && isToolUIPart(part) && getToolName(part) === 'generate_image') {
+      nodes.push(<GenerateImageCard key={i} part={part} />);
     }
   });
 
