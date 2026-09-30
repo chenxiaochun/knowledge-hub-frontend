@@ -1,12 +1,13 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Form } from 'antd';
+import { Form, Spin } from 'antd';
 
 import type { DocumentDetail } from '@/types/document';
 
 import DocumentDetailDrawer from '@/components/DocumentDetailDrawer';
-import GraphChart from '@/components/GraphChart';
+
+const GraphChart = lazy(() => import('@/components/GraphChart'));
 import { getApiDocumentId, getApiGraphOverview } from '@/service/api';
 
 import { DEFAULT_DOC_LIMIT, EMPTY_OVERVIEW } from './constants';
@@ -116,12 +117,20 @@ export default function GraphPage() {
 
       <div className={styles.content}>
         <div className={styles.graphArea}>
-          <GraphChart
-            data={chartData}
-            chartOption={chartOption}
-            loading={loading}
-            onDocumentClick={(id) => void openDetail(id)}
-          />
+          <Suspense
+            fallback={
+              <div className={styles.chartLoading}>
+                <Spin size="large" />
+              </div>
+            }
+          >
+            <GraphChart
+              data={chartData}
+              chartOption={chartOption}
+              loading={loading}
+              onDocumentClick={(id) => void openDetail(id)}
+            />
+          </Suspense>
         </div>
 
         <GraphStatsPanel

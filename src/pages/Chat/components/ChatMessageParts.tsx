@@ -15,7 +15,7 @@ import {
 } from '../chatUiMessage';
 import { parseToolPayload } from '../toolPayload';
 import { citedSources as filterCitedSources } from '../utils';
-import AnswerMarkdown from './AnswerMarkdown';
+import LazyAnswerMarkdown from './LazyAnswerMarkdown';
 import styles from './ChatMessageParts.module.scss';
 import GenerateImageCard, { ChatImagePreview } from './GenerateImageCard';
 import SourceCiteList from './SourceCiteList';
@@ -78,7 +78,7 @@ export default function ChatMessageParts({
       {texts.map((part, i) =>
         part.type === 'text' ? (
           <div key={`text-${i}`}>
-            <AnswerMarkdown
+            <LazyAnswerMarkdown
               text={part.text}
               sources={sources}
               scope={messageId}

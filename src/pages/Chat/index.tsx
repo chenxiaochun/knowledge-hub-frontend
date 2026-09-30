@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
-import { Typography } from 'antd';
+import { Spin, Typography } from 'antd';
 
 import type { DocumentDetail } from '@/types/document';
 
@@ -8,8 +8,9 @@ import DocumentDetailDrawer from '@/components/DocumentDetailDrawer';
 import { getApiDocumentId } from '@/service/api';
 
 import ChatInput from './components/ChatInput';
-import ChatMessageList from './components/ChatMessageList';
 import ChatSidebar from './components/ChatSidebar';
+
+const ChatMessageList = lazy(() => import('./components/ChatMessageList'));
 import { useChatPage } from './hooks/useChatPage';
 import styles from './index.module.scss';
 
@@ -141,15 +142,23 @@ export default function ChatPage() {
           流式回答会展示知识库检索、思考与联网搜索过程，并写入左侧会话。「仅检索」不落库。
         </Typography.Paragraph>
 
-        <ChatMessageList
-          messages={messages}
-          searchOnlyMessages={searchOnlyMessages}
-          loading={messagesLoading}
-          streaming={streaming}
-          error={streamError}
-          logEndRef={logEndRef}
-          onOpenDocument={(id) => void openDocument(id)}
-        />
+        <Suspense
+          fallback={
+            <div className={styles.messageLoading}>
+              <Spin size="large" />
+            </div>
+          }
+        >
+          <ChatMessageList
+            messages={messages}
+            searchOnlyMessages={searchOnlyMessages}
+            loading={messagesLoading}
+            streaming={streaming}
+            error={streamError}
+            logEndRef={logEndRef}
+            onOpenDocument={(id) => void openDocument(id)}
+          />
+        </Suspense>
 
         <div ref={inputRef} className={styles.inputSticky}>
           <ChatInput

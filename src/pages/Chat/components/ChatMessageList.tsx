@@ -9,7 +9,7 @@ import { textFromParts } from '../chatUiMessage';
 
 import { useDocumentFileExts } from '../hooks/useDocumentFileExts';
 import { citedSources, ragHitsToSources } from '../utils';
-import AnswerMarkdown from './AnswerMarkdown';
+import LazyAnswerMarkdown from './LazyAnswerMarkdown';
 import styles from './ChatMessageList.module.scss';
 import ChatMessageParts from './ChatMessageParts';
 import SourceCiteList from './SourceCiteList';
@@ -160,7 +160,7 @@ export default function ChatMessageList({
                       仅检索模式：共召回 {msg.ragHits.length} 条资料块，未调用大模型。
                     </div>
                   ) : null}
-                  <AnswerMarkdown
+                  <LazyAnswerMarkdown
                     text={msg.content}
                     sources={sources}
                     scope={msg.id}

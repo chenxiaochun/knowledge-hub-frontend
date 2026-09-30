@@ -2,11 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { CompressOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
 import { Button, Empty, Spin, Tooltip } from 'antd';
-import ReactECharts from 'echarts-for-react';
-import type EChartsReact from 'echarts-for-react';
+import ReactECharts from 'echarts-for-react/lib/core';
+import type EChartsReact from 'echarts-for-react/lib/core';
 import type { EChartsOption } from 'echarts';
 
 import { buildGraphChartOption } from '@/pages/Search/graphChartOption';
+import echarts from '@/utils/echartsGraph';
 import type { GraphSubgraphResultDto } from '@/service/api';
 
 const ZOOM_RATIO = 1.2;
@@ -208,6 +209,7 @@ export default function GraphChart({
     >
       <ReactECharts
         ref={chartRef}
+        echarts={echarts}
         option={option}
         notMerge
         lazyUpdate
