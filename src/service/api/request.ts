@@ -42,6 +42,7 @@ import type {
   ChatImageDto,
   UpdateSessionDto,
   ChatStreamDto,
+  TtsRequestDto,
   AsrUploadDto,
   AsrResponseDto,
 } from "./definition";
@@ -1805,6 +1806,45 @@ export const postApiAiChatStream = /* #__PURE__ */ (() => {
       method: request.method,
       ...option,
     }) as unknown as Promise<PostApiAiChatStreamResponseSuccess>;
+  }
+
+  /** http method */
+  request.method = method;
+  /** request url */
+  request.url = url;
+  return request;
+})();
+
+/** @description request parameter type for postApiSpeechTts */
+export interface PostApiSpeechTtsOption {
+  body: TtsRequestDto;
+}
+
+/** @description response type for postApiSpeechTts */
+export interface PostApiSpeechTtsResponse {
+  /**
+   * @description
+   *   MP3 音频
+   */
+  200: File;
+}
+
+export type PostApiSpeechTtsResponseSuccess = PostApiSpeechTtsResponse[200];
+/**
+ * @description
+ *   文本转语音（返回 MP3）
+ * @tags speech
+ */
+export const postApiSpeechTts = /* #__PURE__ */ (() => {
+  const method = "post";
+  const url = "/api/speech/tts";
+  function request(
+    option: PostApiSpeechTtsOption
+  ): Promise<PostApiSpeechTtsResponseSuccess> {
+    return requester(request.url, {
+      method: request.method,
+      ...option,
+    }) as unknown as Promise<PostApiSpeechTtsResponseSuccess>;
   }
 
   /** http method */

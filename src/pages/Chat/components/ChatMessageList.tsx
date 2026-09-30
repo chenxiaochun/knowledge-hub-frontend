@@ -40,7 +40,11 @@ export default function ChatMessageList({
   stopTtsPlayback,
 }: Props) {
   const [activeCite, setActiveCite] = useState<{ scope: string; index: number } | null>(null);
-  const { activeId: readingMessageId, toggle: toggleReadAloud } = useMessageReadAloud();
+  const {
+    activeId: readingMessageId,
+    loadingId: readingLoadingId,
+    toggle: toggleReadAloud,
+  } = useMessageReadAloud();
 
   const handleSpeak = (messageId: string, text: string) => {
     stopTtsPlayback?.();
@@ -114,6 +118,7 @@ export default function ChatMessageList({
             copyText={answerText}
             speakText={answerText}
             speaking={readingMessageId === msg.id}
+            speakLoading={readingLoadingId === msg.id}
             streaming={liveAssistant}
             showActions={!liveAssistant}
             onSpeak={handleSpeak}
@@ -154,6 +159,7 @@ export default function ChatMessageList({
             copyText={msg.content}
             speakText={msg.content}
             speaking={readingMessageId === msg.id}
+            speakLoading={readingLoadingId === msg.id}
             showActions={!msg.pending}
             onSpeak={handleSpeak}
             content={

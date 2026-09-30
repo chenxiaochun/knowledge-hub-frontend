@@ -29,6 +29,8 @@ export type RequestOption = {
   timeout?: number;
   /** 为 true 时不弹出全局错误提示，由调用方自行处理 */
   silentError?: boolean;
+  /** axios responseType，如 TTS 返回 MP3 时使用 blob */
+  responseType?: AxiosRequestConfig['responseType'];
 };
 
 const http: AxiosInstance = axios.create({
@@ -146,6 +148,7 @@ export async function request<T = unknown>(url: string, option: RequestOption = 
     signal: option.signal,
     timeout: option.timeout,
     silentError: option.silentError,
+    responseType: option.responseType,
     // FormData 时显式去掉默认 JSON Content-Type
     ...(data instanceof FormData
       ? { transformRequest: [(payload, reqHeaders) => {

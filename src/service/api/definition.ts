@@ -400,6 +400,16 @@ export interface ChatStreamDto {
   messageId?: any;
 }
 
+export interface TtsRequestDto {
+  /**
+   * @description
+   *   要朗读的文本
+   * @example
+   *   你好，欢迎使用知识库。
+   */
+  text: string;
+}
+
 export interface AsrUploadDto {
   /**
    * @description

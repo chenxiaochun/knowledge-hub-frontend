@@ -1,5 +1,6 @@
-import { CopyOutlined, SoundOutlined } from '@ant-design/icons';
+import { CopyOutlined, LoadingOutlined, SoundOutlined } from '@ant-design/icons';
 import { Actions, Bubble } from '@ant-design/x';
+import { clsx } from 'clsx';
 import type { ReactNode } from 'react';
 
 import styles from './AssistantMessageBubble.module.scss';
@@ -15,6 +16,7 @@ type Props = {
   copyText: string;
   speakText: string;
   speaking: boolean;
+  speakLoading?: boolean;
   streaming?: boolean;
   showActions?: boolean;
   onSpeak: (messageId: string, text: string) => void;
@@ -26,6 +28,7 @@ export default function AssistantMessageBubble({
   copyText,
   speakText,
   speaking,
+  speakLoading = false,
   streaming = false,
   showActions = true,
   onSpeak,
@@ -33,13 +36,18 @@ export default function AssistantMessageBubble({
 }: Props) {
   const trimmedCopy = copyText.trim();
   const canAct = showActions && trimmedCopy.length > 0;
+  const speakLabel = speakLoading
+    ? '合成中…'
+    : speaking
+      ? '朗读中…'
+      : '朗读回答';
 
   return (
     <Bubble
       placement="start"
       variant="outlined"
       streaming={streaming}
-      rootClassName={styles.root}
+      rootClassName={clsx(styles.root, speaking && styles.speaking)}
       styles={bubbleStyles}
       content={content}
       footer={
@@ -56,8 +64,12 @@ export default function AssistantMessageBubble({
               },
               {
                 key: 'speak',
-                label: speaking ? '朗读中…' : '朗读回答',
-                icon: <SoundOutlined />,
+                label: speakLabel,
+                icon: speakLoading ? (
+                  <LoadingOutlined spin />
+                ) : (
+                  <SoundOutlined />
+                ),
                 onItemClick: () => onSpeak(messageId, speakText),
               },
             ]}
