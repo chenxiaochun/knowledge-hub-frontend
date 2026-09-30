@@ -16,7 +16,7 @@ import {
 } from '@/service/api';
 import { getToken } from '@/utils/auth';
 
-import type { KhUIMessage } from '../components/ChatMessageParts';
+import type { KhUIMessage } from '../chatUiMessage';
 import type { LocalMessage, RagChunkHitDto } from '../types';
 
 import { historyToUIMessages } from '../utils';

@@ -2,7 +2,7 @@ import FileTypeIcon from '@/components/FileTypeIcon';
 
 import type { ChatSourceDto } from '@/service/api';
 
-import { citeAnchorId } from './AnswerMarkdown';
+import { citeAnchorId } from './citeAnchor';
 
 import styles from './SourceCiteList.module.scss';
 

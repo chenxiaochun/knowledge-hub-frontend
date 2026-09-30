@@ -4,13 +4,13 @@ import { Bubble } from '@ant-design/x';
 import { Empty, Spin } from 'antd';
 
 import type { LocalMessage } from '../types';
-import type { KhUIMessage } from './ChatMessageParts';
+import type { KhUIMessage } from '../chatUiMessage';
+import { textFromParts } from '../chatUiMessage';
 
 import { useDocumentFileExts } from '../hooks/useDocumentFileExts';
 import { citedSources, ragHitsToSources } from '../utils';
 import AnswerMarkdown from './AnswerMarkdown';
 import styles from './ChatMessageList.module.scss';
-import { textFromParts } from './ChatMessageParts';
 import ChatMessageParts from './ChatMessageParts';
 import SourceCiteList from './SourceCiteList';
 

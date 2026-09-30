@@ -6,8 +6,6 @@ type Props = {
   className?: string;
 };
 
-export { getFileTypeMeta, normalizeFileExt } from './meta';
-
 export default function FileTypeIcon({ ext, size = 24, className }: Props) {
   const { label, color } = getFileTypeMeta(ext);
   const title = normalizeFileExt(ext) || '未知格式';

@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 
 import type { ChatImageDto, ChatSourceDto, RagChunkHitDto } from '@/service/api';
 
-import type { KhUIMessage } from './components/ChatMessageParts';
+import type { KhUIMessage } from './chatUiMessage';
 import type { LocalMessage } from './types';
 
 export function formatSessionTime(value: string) {

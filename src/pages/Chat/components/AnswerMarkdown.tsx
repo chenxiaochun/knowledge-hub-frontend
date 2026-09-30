@@ -13,6 +13,7 @@ import '@ant-design/x-markdown/themes/light.css';
 
 import type { ChatSourceDto } from '@/service/api';
 
+import { focusCite } from './citeAnchor';
 import styles from './AnswerMarkdown.module.scss';
 
 type Props = {
@@ -24,19 +25,6 @@ type Props = {
   /** 已在消息区单独展示缩略图的 url，正文 Markdown 中不再重复渲染 */
   hideImageUrls?: Set<string>;
 };
-
-export function citeAnchorId(scope: string, index: number) {
-  return `chat-cite-${scope}-${index}`;
-}
-
-export function focusCite(scope: string, index: number) {
-  const el = document.getElementById(citeAnchorId(scope, index));
-  if (!el) return;
-  el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-  el.classList.remove(styles.flash);
-  void el.offsetWidth;
-  el.classList.add(styles.flash);
-}
 
 function injectCites(
   children: ReactNode,
