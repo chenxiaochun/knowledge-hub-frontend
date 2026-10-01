@@ -2,8 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { CompressOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
 import { Button, Empty, Spin, Tooltip } from 'antd';
-import ReactECharts from 'echarts-for-react/lib/core';
-import type EChartsReact from 'echarts-for-react/lib/core';
+import ReactECharts from 'echarts-for-react/esm/core';
+import type EChartsReactCore from 'echarts-for-react/esm/core';
 import type { EChartsOption } from 'echarts';
 
 import { buildGraphChartOption } from '@/pages/Search/graphChartOption';
@@ -40,7 +40,7 @@ export default function GraphChart({
 }: Props) {
   const fillParent = height == null;
   const containerRef = useRef<HTMLDivElement>(null);
-  const chartRef = useRef<EChartsReact>(null);
+  const chartRef = useRef<EChartsReactCore>(null);
   const panRef = useRef<PanOffset>({ x: 0, y: 0 });
   const isDispatchingRoamRef = useRef(false);
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -183,7 +183,7 @@ export default function GraphChart({
   if (loading) {
     return (
       <div ref={containerRef} style={containerStyle}>
-        <Spin tip="加载图谱…" />
+        <Spin description="加载图谱…" />
       </div>
     );
   }

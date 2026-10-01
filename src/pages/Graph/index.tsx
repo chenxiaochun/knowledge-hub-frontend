@@ -7,7 +7,9 @@ import type { DocumentDetail } from '@/types/document';
 
 import DocumentDetailDrawer from '@/components/DocumentDetailDrawer';
 
-const GraphChart = lazy(() => import('@/components/GraphChart'));
+const GraphChartLazy = lazy(() =>
+  import('@/components/GraphChart').then((module) => ({ default: module.default })),
+);
 import { getApiDocumentId, getApiGraphOverview } from '@/service/api';
 
 import { DEFAULT_DOC_LIMIT, EMPTY_OVERVIEW } from './constants';
@@ -124,7 +126,7 @@ export default function GraphPage() {
               </div>
             }
           >
-            <GraphChart
+            <GraphChartLazy
               data={chartData}
               chartOption={chartOption}
               loading={loading}
