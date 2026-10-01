@@ -40,6 +40,18 @@ const FEATURES = [
     title: '文档协同',
     description: '覆盖上传解析、审核发布与权限管控，保障知识资产规范流转。',
   },
+  {
+    title: '智能问答',
+    description: '基于知识库的对话检索，支持引用溯源、语音朗读与按需生图。',
+  },
+  {
+    title: '审核流转',
+    description: '提交审核、通过驳回与重新发布闭环，确保内容质量可控可追溯。',
+  },
+  {
+    title: '角色权限',
+    description: '用户、角色与菜单权限细粒度配置，按职责隔离知识访问范围。',
+  },
 ] as const;
 
 function getGreeting() {
@@ -136,7 +148,7 @@ export default function HomePage() {
             <button
               key={item.key}
               type="button"
-              className={styles.shortcutCard}
+              className={`${styles.shortcutCard} ${styles[`shortcutCard_${item.key}`]}`}
               onClick={() => navigate(item.path)}
             >
               <span className={`${styles.shortcutIcon} ${item.iconClass}`}>{item.icon}</span>
