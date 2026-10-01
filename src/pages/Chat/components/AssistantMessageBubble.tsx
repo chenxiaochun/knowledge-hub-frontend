@@ -36,11 +36,13 @@ export default function AssistantMessageBubble({
 }: Props) {
   const trimmedCopy = copyText.trim();
   const canAct = showActions && trimmedCopy.length > 0;
-  const speakLabel = speakLoading
-    ? '合成中…'
-    : speaking
-      ? '朗读中…'
-      : '朗读回答';
+
+  let speakLabel = '朗读回答';
+  if (speakLoading) {
+    speakLabel = '合成中…';
+  } else if (speaking) {
+    speakLabel = '朗读中…';
+  }
 
   return (
     <Bubble

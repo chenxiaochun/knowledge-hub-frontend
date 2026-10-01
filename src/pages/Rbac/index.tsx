@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, Button, Card, Checkbox, Empty, List, Listy, Space, Tag, Typography, message } from 'antd';
+import { Alert, Button, Card, Checkbox, Empty, Listy, Space, Tag, Typography, message } from 'antd';
 import {
   getApiRbacPermissions,
   getApiRbacRoles,
@@ -169,19 +169,22 @@ export default function RbacPage() {
       >
         <Card title="角色" size="small" loading={rolesLoading}>
           {sortedRoles.length ? (
-            <div className="ant-list ant-list-split">
+            <div className="rbac-role-list">
               <Listy
                 items={sortedRoles}
                 rowKey="roleCode"
                 itemRender={(role) => {
                   const active = role.roleCode === selectedRoleCode;
                   return (
-                    <List.Item
-                      style={{
-                        cursor: 'pointer',
-                        background: active ? '#e6f4ff' : undefined,
-                        borderRadius: 6,
-                        paddingInline: 12,
+                    <div
+                      className="rbac-role-list__item"
+                      data-active={active ? 'true' : undefined}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(event) => {
+                        if (event.key !== 'Enter' && event.key !== ' ') return;
+                        event.preventDefault();
+                        event.currentTarget.click();
                       }}
                       onClick={() => {
                         if (dirty && role.roleCode !== selectedRoleCode) {
@@ -199,7 +202,7 @@ export default function RbacPage() {
                           {role.roleCode}
                         </Typography.Text>
                       </Space>
-                    </List.Item>
+                    </div>
                   );
                 }}
               />

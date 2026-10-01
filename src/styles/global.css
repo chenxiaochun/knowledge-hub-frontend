@@ -80,3 +80,26 @@ body {
     transition: opacity 0.2s ease;
   }
 }
+
+.rbac-role-list .ant-listy-item {
+  padding: 0;
+  margin-bottom: 5px;
+  border-bottom: none;
+  transition: background-color 0.2s ease;
+}
+
+.rbac-role-list .ant-listy-item:last-child {
+  margin-bottom: 0;
+}
+
+.rbac-role-list .ant-listy-item:hover,
+.rbac-role-list .ant-listy-item:has([data-active='true']) {
+  background-color: #e6f4ff;
+}
+
+.rbac-role-list__item {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
