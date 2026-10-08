@@ -61,11 +61,11 @@ $reveal-duration: 0.9s;
 
 .brandTitle {
   margin: 0 0 12px 30px;
-  color: #1f1f1f;
-  font-size: 34px;
-  font-weight: 700;
-  line-height: 1.3;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.35;
   letter-spacing: 0.02em;
+  color: #1f1f1f;
 }
 
 .brandDesc {
@@ -106,10 +106,11 @@ $reveal-duration: 0.9s;
 
 .cardTitle {
   margin: 0 0 8px;
-  color: #1f1f1f;
   font-size: 24px;
   font-weight: 600;
   line-height: 1.4;
+  letter-spacing: 0.02em;
+  color: #1f1f1f;
 }
 
 .cardSubtitle {
@@ -179,7 +180,8 @@ $reveal-duration: 0.9s;
   }
 
   .brandTitle {
-    font-size: 28px;
+    margin-inline: 0;
+    font-size: 26px;
     text-align: center;
   }
 
