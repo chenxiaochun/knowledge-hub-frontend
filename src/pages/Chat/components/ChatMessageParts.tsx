@@ -15,9 +15,13 @@ import {
 } from '../chatUiMessage';
 import { parseToolPayload } from '../toolPayload';
 import { citedSources as filterCitedSources } from '../utils';
+import EvalCard from './EvalCard';
+import GenerateImageCard, { ChatImagePreview } from './GenerateImageCard';
+import IntentCard from './IntentCard';
 import LazyAnswerMarkdown from './LazyAnswerMarkdown';
 import styles from './ChatMessageParts.module.scss';
-import GenerateImageCard, { ChatImagePreview } from './GenerateImageCard';
+import RetrieveKnowledgeCard from './RetrieveKnowledgeCard';
+import RewriteQueryCard from './RewriteQueryCard';
 import SourceCiteList from './SourceCiteList';
 import WebSearchCard from './WebSearchCard';
 
@@ -59,7 +63,9 @@ export default function ChatMessageParts({
     );
   }
 
-  const hasRetrieve = parts.some((part) => part.type === 'data-retrieve');
+  const hasRetrieve =
+    parts.some((part) => part.type === 'data-retrieve') ||
+    parts.some((part) => isToolUIPart(part) && getToolName(part) === 'retrieve_knowledge');
   const persistedImages = parts.filter(
     (part): part is { type: 'data-image'; data: ChatImageDto } => part.type === 'data-image',
   );
@@ -161,12 +167,24 @@ function renderProcessParts(
 
     if (part.type === 'data-status') {
       if (part.data.stage === 'generate') return;
+      if (part.data.stage === 'intent') return; // 有意图卡就不重复灰字
       if (part.data.stage === 'retrieve' && hasRetrieve) return;
+      if (part.data.stage === 'rewrite' && hasRewriteTool(parts)) return;
       nodes.push(
         <div key={i} className={styles.status}>
           {part.data.text}
         </div>,
       );
+      return;
+    }
+
+    if (part.type === 'data-intent') {
+      nodes.push(<IntentCard key={i} data={part.data} />);
+      return;
+    }
+
+    if (part.type === 'data-eval') {
+      nodes.push(<EvalCard key={i} data={part.data} />);
       return;
     }
 
@@ -184,6 +202,16 @@ function renderProcessParts(
       return;
     }
 
+    if (isToolUIPart(part) && getToolName(part) === 'retrieve_knowledge') {
+      nodes.push(<RetrieveKnowledgeCard key={i} part={part} />);
+      return;
+    }
+
+    if (isToolUIPart(part) && getToolName(part) === 'rewrite_query') {
+      nodes.push(<RewriteQueryCard key={i} part={part} />);
+      return;
+    }
+
     if (isToolUIPart(part) && getToolName(part) === 'web_search') {
       nodes.push(<WebSearchCard key={i} part={part} />);
       return;
@@ -196,6 +224,10 @@ function renderProcessParts(
 
   flushReasoning();
   return nodes;
+}
+
+function hasRewriteTool(parts: KhUIMessage['parts']) {
+  return parts.some((part) => isToolUIPart(part) && getToolName(part) === 'rewrite_query');
 }
 
 function RetrieveCard({ query, items }: { query: string; items: RetrieveHit[] }) {

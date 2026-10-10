@@ -9,6 +9,25 @@ export type RetrieveHit = {
   heading: string | null;
 };
 
+/** 与后端 ChatRoutePlan / data-intent 对齐 */
+export type IntentData = {
+  intent: string;
+  label: string;
+  query: string;
+  allowRetrieve: boolean;
+  allowWeb: boolean;
+};
+
+/** 与后端 RetrieveEval / data-eval 对齐 */
+export type EvalData = {
+  ok: boolean;
+  reason: string;
+  text: string;
+  retried: boolean;
+  query: string;
+  retryQuery?: string;
+};
+
 export type KhUIMessage = UIMessage<
   unknown,
   {
@@ -18,6 +37,8 @@ export type KhUIMessage = UIMessage<
     retrieve: { query: string; items: RetrieveHit[] };
     session: { sessionId: string };
     image: ChatImageDto;
+    intent: IntentData;
+    eval: EvalData;
   }
 >;
 

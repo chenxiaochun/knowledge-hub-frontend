@@ -4,6 +4,57 @@
   color: #1677ff;
 }
 
+.intent,
+.eval,
+.rewrite {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0 10px;
+  color: #8c8c8c;
+  font-size: 12px;
+
+  &.pending .webLabel {
+    color: #8c8c8c;
+  }
+
+  &.failed .webLabel {
+    color: #ff4d4f;
+  }
+
+  &.ok .webLabel {
+    color: #52c41a;
+  }
+}
+
+.intentLabel {
+  color: #595959;
+  font-weight: 500;
+}
+
+.evalText {
+  min-width: 0;
+  color: #595959;
+}
+
+.rewritePair {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.rewriteArrow {
+  flex-shrink: 0;
+  color: #bfbfbf;
+}
+
+.webErrInline {
+  color: #ff4d4f;
+}
+
 .think {
   margin-bottom: 10px;
 }
