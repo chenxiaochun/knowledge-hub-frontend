@@ -191,7 +191,6 @@ export default function ReviewsPage() {
         dataSource={data}
         pagination={false}
         scroll={{ x: 800 }}
-        locale={{ emptyText: '暂无待审核文档' }}
       />
 
       <Modal
