@@ -3,14 +3,14 @@
   align-items: flex-start;
   gap: 0;
   width: 100%;
-  margin: -24px;
+  margin: 0;
   padding: 0;
 }
 
 .main {
   flex: 1;
   min-width: 0;
-  padding: 20px 24px 0;
+  padding: 20px 0 0 24px;
   border-left: 1px solid #f0f0f0;
 }
 
@@ -27,7 +27,7 @@
   position: sticky;
   bottom: 0;
   z-index: 5;
-  margin: 16px -24px 0;
+  margin: 16px 0 0;
   padding: 12px 24px 16px;
   background: #fff;
   border-top: 1px solid #f0f0f0;
@@ -36,7 +36,6 @@
 @media (max-width: 900px) {
   .page {
     flex-direction: column;
-    margin: -16px;
   }
 
   .main {
@@ -45,7 +44,6 @@
   }
 
   .inputSticky {
-    margin-inline: -16px;
     padding-inline: 16px;
   }
 }

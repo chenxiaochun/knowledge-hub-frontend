@@ -1,16 +1,14 @@
-$layout-header-height: 64px;
-
 .sidebar {
   position: sticky;
-  top: $layout-header-height;
+  top: 84px;
   display: flex;
   flex-direction: column;
   align-self: flex-start;
   gap: 12px;
   width: 240px;
   min-width: 240px;
-  max-height: calc(100vh - #{$layout-header-height});
-  padding: 16px;
+  max-height: calc(100vh - 84px);
+  padding-right: 24px;
   overflow: hidden;
   background: #fff;
 }
