@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { CompressOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
 import { Button, Empty, Spin, Tooltip } from 'antd';
@@ -31,7 +31,7 @@ type PanOffset = {
   y: number;
 };
 
-export default function GraphChart({
+function GraphChart({
   data,
   chartOption,
   loading,
@@ -43,24 +43,31 @@ export default function GraphChart({
   const chartRef = useRef<EChartsReactCore>(null);
   const panRef = useRef<PanOffset>({ x: 0, y: 0 });
   const isDispatchingRoamRef = useRef(false);
+  const onDocumentClickRef = useRef(onDocumentClick);
+  useEffect(() => {
+    onDocumentClickRef.current = onDocumentClick;
+  }, [onDocumentClick]);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [viewDirty, setViewDirty] = useState(false);
 
+  // 用内容指纹而不是对象引用，避免父组件流式重渲时 setOption 重跑力导向
+  const dataKey = data?.nodes?.length ? JSON.stringify(data) : '';
+
   const option = useMemo(() => {
-    if (!data || data.nodes.length === 0) return {};
+    if (!dataKey) return {};
     if (chartOption) return chartOption;
-    return buildGraphChartOption(data as GraphSubgraphResultDto);
-  }, [chartOption, data]);
+    return buildGraphChartOption(JSON.parse(dataKey) as GraphSubgraphResultDto);
+  }, [chartOption, dataKey]);
 
   const onEvents = useMemo(
     () => ({
       click: (params: { dataType?: string; data?: { documentId?: string } }) => {
         if (params.dataType === 'node' && params.data?.documentId) {
-          onDocumentClick?.(params.data.documentId);
+          onDocumentClickRef.current?.(params.data.documentId);
         }
       },
     }),
-    [onDocumentClick],
+    [],
   );
 
   const getRoamOrigin = useCallback(() => {
@@ -131,11 +138,11 @@ export default function GraphChart({
     panRef.current = { x: 0, y: 0 };
     setZoomLevel(1);
     setViewDirty(false);
-  }, [data]);
+  }, [dataKey]);
 
   useEffect(() => {
     const chart = chartRef.current?.getEchartsInstance();
-    if (!chart || !data?.nodes.length) return;
+    if (!chart || !dataKey) return;
 
     const onGraphRoam = (...args: unknown[]) => {
       const params = args[0] as { dx?: number; dy?: number } | undefined;
@@ -149,7 +156,7 @@ export default function GraphChart({
     return () => {
       chart.off('graphRoam', onGraphRoam);
     };
-  }, [data]);
+  }, [dataKey]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -166,7 +173,7 @@ export default function GraphChart({
     return () => {
       observer.disconnect();
     };
-  }, [fillParent, loading, data]);
+  }, [fillParent, loading, dataKey]);
 
   const containerStyle = {
     position: 'relative' as const,
@@ -268,3 +275,14 @@ export default function GraphChart({
     </div>
   );
 }
+
+export default memo(GraphChart, (prev, next) => {
+  const prevKey = prev.data?.nodes?.length ? JSON.stringify(prev.data) : '';
+  const nextKey = next.data?.nodes?.length ? JSON.stringify(next.data) : '';
+  return (
+    prevKey === nextKey &&
+    prev.chartOption === next.chartOption &&
+    prev.loading === next.loading &&
+    prev.height === next.height
+  );
+});

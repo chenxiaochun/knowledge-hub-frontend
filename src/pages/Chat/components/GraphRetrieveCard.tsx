@@ -1,17 +1,49 @@
+import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
+
 import { ApartmentOutlined } from '@ant-design/icons';
+
+import GraphChart from '@/components/GraphChart';
+import type { GraphSubgraphResultDto } from '@/service/api';
 
 import type { GraphChatHit } from '../chatUiMessage';
 import { parseToolPayload } from '../toolPayload';
 import styles from './ChatMessageParts.module.scss';
 
+type Props = {
+  data: GraphChatHit;
+  /** 流式输出中只展示过程摘要，结束后再挂载图表，避免闪动 */
+  streaming?: boolean;
+  onOpenDocument?: (documentId: string) => void;
+};
+
 /** 流式 data-graph 结果卡 */
-export default function GraphRetrieveCard({ data }: { data: GraphChatHit }) {
-  return <GraphHitView hit={normalizeHit(data)} />;
+function GraphRetrieveCard({ data, streaming = false, onOpenDocument }: Props) {
+  const hitKey = graphHitFingerprint(data);
+  // data 内容由 hitKey 表征
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const hit = useMemo(() => normalizeHit(data), [hitKey]);
+  return (
+    <GraphHitView
+      hit={hit}
+      hitKey={hitKey}
+      streaming={streaming}
+      onOpenDocument={onOpenDocument}
+    />
+  );
 }
+
+export default memo(GraphRetrieveCard, (prev, next) => {
+  return (
+    graphHitFingerprint(prev.data) === graphHitFingerprint(next.data) &&
+    prev.streaming === next.streaming
+  );
+});
 
 /** tool retrieve_graph 过程卡（尚无 data-graph 时展示 pending / 失败） */
 export function GraphRetrieveToolCard({
   part,
+  streaming = false,
+  onOpenDocument,
 }: {
   part: {
     state: string;
@@ -19,12 +51,14 @@ export function GraphRetrieveToolCard({
     output?: unknown;
     errorText?: string;
   };
+  streaming?: boolean;
+  onOpenDocument?: (documentId: string) => void;
 }) {
   const input = asRecord(part.input);
   const queryFromInput = typeof input.query === 'string' ? input.query : '';
   const pending = part.state === 'input-streaming' || part.state === 'input-available';
   const output = asGraphHit(part.output);
-  const failed = part.state === 'output-error' || Boolean(output && 'error' in output && output.error);
+  const failed = part.state === 'output-error' || Boolean(output?.error);
 
   if (pending) {
     return (
@@ -39,8 +73,7 @@ export function GraphRetrieveToolCard({
   }
 
   if (failed) {
-    const err =
-      (output && typeof output.error === 'string' && output.error) || part.errorText || '图谱检索失败';
+    const err = output?.error || part.errorText || '图谱检索失败';
     return (
       <details className={`${styles.web} ${styles.failed}`}>
         <summary>
@@ -53,63 +86,157 @@ export function GraphRetrieveToolCard({
     );
   }
 
-  if (output && !('error' in output && output.error)) {
-    return <GraphHitView hit={normalizeHit(output)} />;
+  if (output && !output.error) {
+    const hit = normalizeHit(output);
+    return (
+      <GraphHitView
+        hit={hit}
+        hitKey={graphHitFingerprint(hit)}
+        streaming={streaming}
+        onOpenDocument={onOpenDocument}
+      />
+    );
   }
 
   return null;
 }
 
-function GraphHitView({ hit }: { hit: GraphChatHit }) {
-  const entityCount = hit.entities.length;
-  const relationCount = hit.relations.length;
-  const empty = !entityCount && !relationCount;
-  const label = empty ? '图谱无匹配实体' : '已检索图谱';
+const GraphHitView = memo(
+  function GraphHitView({
+    hit,
+    hitKey,
+    streaming,
+    onOpenDocument,
+  }: {
+    hit: GraphChatHit;
+    hitKey: string;
+    streaming: boolean;
+    onOpenDocument?: (documentId: string) => void;
+  }) {
+    const entityCount = hit.entities.length;
+    const relationCount = hit.relations.length;
+    const empty = !entityCount && !relationCount;
+    const label = empty ? '图谱无匹配实体' : '已检索图谱';
+    // 流式阶段不挂载 ECharts；回答结束后再画一次
+    const showChart = !streaming && !empty;
 
-  return (
-    <details className={`${styles.web}${empty ? ` ${styles.pending}` : ''}`}>
-      <summary>
-        <ApartmentOutlined />
-        <span className={styles.webLabel}>{label}</span>
-        {hit.query ? <span className={styles.webQ}>{hit.query}</span> : null}
-        {!empty ? (
-          <span className={styles.webN}>
-            {entityCount} 实体 · {relationCount} 关系
-          </span>
+    const chartData = useMemo(
+      () => (showChart ? toSubgraph(hit) : null),
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- hit 由 hitKey 表征
+      [showChart, hitKey],
+    );
+
+    const onOpenRef = useRef(onOpenDocument);
+    useEffect(() => {
+      onOpenRef.current = onOpenDocument;
+    }, [onOpenDocument]);
+    const handleDocClick = useCallback((documentId: string) => {
+      onOpenRef.current?.(documentId);
+    }, []);
+
+    return (
+      <details
+        className={`${styles.web}${empty ? ` ${styles.pending}` : ''}`}
+        open={showChart}
+      >
+        <summary>
+          <ApartmentOutlined />
+          <span className={styles.webLabel}>{label}</span>
+          {hit.query ? <span className={styles.webQ}>{hit.query}</span> : null}
+          {!empty ? (
+            <span className={styles.webN}>
+              {entityCount} 实体 · {relationCount} 关系
+              {hit.documents.length ? ` · ${hit.documents.length} 文档` : ''}
+            </span>
+          ) : null}
+        </summary>
+        {showChart && chartData ? (
+          <div className={styles.graphBody}>
+            <div className={styles.graphChart}>
+              <GraphChart data={chartData} height={300} onDocumentClick={handleDocClick} />
+            </div>
+            {relationCount ? (
+              <ul className={styles.webList}>
+                {hit.relations.map((rel, i) => (
+                  <li key={`${rel.source}-${rel.relation}-${rel.target}-${i}`}>
+                    {rel.source} —{rel.relation}→ {rel.target}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
         ) : null}
-      </summary>
-      {!empty ? (
-        <div className={styles.graphBody}>
-          {entityCount ? (
-            <ul className={styles.webList}>
-              {hit.entities.map((ent) => (
-                <li key={ent.name}>
-                  {ent.name}
-                  {ent.type ? `（${ent.type}）` : ''}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-          {relationCount ? (
-            <ul className={styles.webList}>
-              {hit.relations.map((rel, i) => (
-                <li key={`${rel.source}-${rel.relation}-${rel.target}-${i}`}>
-                  {rel.source} —{rel.relation}→ {rel.target}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-          {hit.documents.length ? (
-            <ul className={styles.webList}>
-              {hit.documents.map((doc) => (
-                <li key={doc.documentId}>{doc.title || doc.documentId}</li>
-              ))}
-            </ul>
-          ) : null}
-        </div>
-      ) : null}
-    </details>
-  );
+      </details>
+    );
+  },
+  (prev, next) => prev.hitKey === next.hitKey && prev.streaming === next.streaming,
+);
+
+function graphHitFingerprint(hit: GraphChatHit): string {
+  return JSON.stringify({
+    query: hit.query ?? '',
+    entities: hit.entities ?? [],
+    relations: hit.relations ?? [],
+    documents: hit.documents ?? [],
+  });
+}
+
+function toSubgraph(hit: GraphChatHit): GraphSubgraphResultDto {
+  const nodes: GraphSubgraphResultDto['nodes'] = [];
+  const edges: GraphSubgraphResultDto['edges'] = [];
+  const nodeIds = new Set<string>();
+
+  for (const ent of hit.entities) {
+    const id = `entity:${ent.name}`;
+    if (nodeIds.has(id)) continue;
+    nodeIds.add(id);
+    nodes.push({
+      id,
+      name: ent.name,
+      label: 'KnowledgeEntity',
+      type: ent.type,
+    });
+  }
+
+  for (const doc of hit.documents) {
+    const id = `doc:${doc.documentId}`;
+    if (nodeIds.has(id)) continue;
+    nodeIds.add(id);
+    nodes.push({
+      id,
+      name: doc.title || doc.documentId,
+      label: 'KnowledgeDocument',
+      documentId: doc.documentId,
+    });
+  }
+
+  for (const rel of hit.relations) {
+    const source = `entity:${rel.source}`;
+    const target = `entity:${rel.target}`;
+    if (!nodeIds.has(source) || !nodeIds.has(target)) continue;
+    edges.push({
+      source,
+      target,
+      relation: rel.relation || '关联',
+      weight: 0.6,
+    });
+  }
+
+  if (hit.documents.length && hit.entities.length) {
+    for (const doc of hit.documents) {
+      const docId = `doc:${doc.documentId}`;
+      for (const ent of hit.entities) {
+        edges.push({
+          source: docId,
+          target: `entity:${ent.name}`,
+          relation: '提及',
+          weight: 0.35,
+        });
+      }
+    }
+  }
+
+  return { nodes, edges };
 }
 
 function asRecord(value: unknown): Record<string, unknown> {

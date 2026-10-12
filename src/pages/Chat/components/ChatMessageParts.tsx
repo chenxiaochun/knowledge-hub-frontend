@@ -75,7 +75,14 @@ export default function ChatMessageParts({
 
   return (
     <>
-      {renderProcessParts(parts, hasRetrieve, showGenerateTool, hasDataGraph)}
+      {renderProcessParts(
+        parts,
+        hasRetrieve,
+        showGenerateTool,
+        hasDataGraph,
+        streaming,
+        onOpenDocument,
+      )}
       {persistedImages.map((part, i) => (
         <ChatImagePreview
           key={`img-${i}-${part.data.url}`}
@@ -122,11 +129,33 @@ function imageUrlsForMarkdownHide(parts: KhUIMessage['parts']): Set<string> {
   return urls;
 }
 
+/**
+ * 过程条固定顺序（与 Agent 检索环一致）：
+ * 意图 → 搜库 → 图谱 → 评估 → 改词 → 联网 → 生图 → 其它 → 思考
+ */
+function processPartRank(part: KhUIMessage['parts'][number]): number {
+  if (part.type === 'data-intent') return 10;
+  if (part.type === 'data-status') return 20;
+  if (part.type === 'data-retrieve') return 30;
+  if (isToolUIPart(part) && getToolName(part) === 'retrieve_knowledge') return 30;
+  if (part.type === 'data-graph') return 40;
+  if (isToolUIPart(part) && getToolName(part) === 'retrieve_graph') return 40;
+  if (part.type === 'data-eval') return 50;
+  if (isToolUIPart(part) && getToolName(part) === 'rewrite_query') return 60;
+  if (isToolUIPart(part) && getToolName(part) === 'web_search') return 70;
+  if (part.type === 'source-url') return 75;
+  if (isToolUIPart(part) && getToolName(part) === 'generate_image') return 80;
+  if (part.type === 'reasoning' || part.type === 'data-think') return 90;
+  return 100;
+}
+
 function renderProcessParts(
   parts: KhUIMessage['parts'],
   hasRetrieve: boolean,
   showGenerateTool: boolean,
   hasDataGraph: boolean,
+  streaming: boolean,
+  onOpenDocument?: (documentId: string) => void,
 ) {
   const nodes: ReactNode[] = [];
   let reasoningBuf: string[] = [];
@@ -147,7 +176,14 @@ function renderProcessParts(
     reasoningStreaming = false;
   };
 
-  parts.forEach((part, i) => {
+  const ordered = parts
+    .map((part, index) => ({ part, index }))
+    .sort((a, b) => {
+      const rank = processPartRank(a.part) - processPartRank(b.part);
+      return rank !== 0 ? rank : a.index - b.index;
+    });
+
+  ordered.forEach(({ part, index: i }) => {
     if (part.type === 'reasoning' || part.type === 'data-think') {
       const text = 'text' in part && typeof part.text === 'string' ? part.text : '';
       if (text) reasoningBuf.push(text);
@@ -170,7 +206,7 @@ function renderProcessParts(
 
     if (part.type === 'data-status') {
       if (part.data.stage === 'generate') return;
-      if (part.data.stage === 'intent') return; // 有意图卡就不重复灰字
+      if (part.data.stage === 'intent') return;
       if (part.data.stage === 'retrieve' && hasRetrieve) return;
       if (part.data.stage === 'rewrite' && hasRewriteTool(parts)) return;
       nodes.push(
@@ -192,7 +228,14 @@ function renderProcessParts(
     }
 
     if (part.type === 'data-graph') {
-      nodes.push(<GraphRetrieveCard key={i} data={part.data} />);
+      nodes.push(
+        <GraphRetrieveCard
+          key={i}
+          data={part.data}
+          streaming={streaming}
+          onOpenDocument={onOpenDocument}
+        />,
+      );
       return;
     }
 
@@ -216,9 +259,15 @@ function renderProcessParts(
     }
 
     if (isToolUIPart(part) && getToolName(part) === 'retrieve_graph') {
-      // 已有 data-graph 时只留结果卡，避免 tool + data 双份
       if (hasDataGraph) return;
-      nodes.push(<GraphRetrieveToolCard key={i} part={part} />);
+      nodes.push(
+        <GraphRetrieveToolCard
+          key={i}
+          part={part}
+          streaming={streaming}
+          onOpenDocument={onOpenDocument}
+        />,
+      );
       return;
     }
 
