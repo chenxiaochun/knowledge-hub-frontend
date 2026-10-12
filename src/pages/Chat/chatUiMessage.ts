@@ -16,6 +16,8 @@ export type IntentData = {
   query: string;
   allowRetrieve: boolean;
   allowWeb: boolean;
+  allowGraph?: boolean;
+  graphQueries?: string[];
 };
 
 /** 与后端 RetrieveEval / data-eval 对齐 */
@@ -26,6 +28,18 @@ export type EvalData = {
   retried: boolean;
   query: string;
   retryQuery?: string;
+};
+
+/** 与后端 GraphChatHit / data-graph 对齐 */
+export type GraphChatHit = {
+  query: string;
+  entities: Array<{
+    name: string;
+    type: string | null;
+    description: string | null;
+  }>;
+  relations: Array<{ source: string; relation: string; target: string }>;
+  documents: Array<{ documentId: string; title: string }>;
 };
 
 export type KhUIMessage = UIMessage<
@@ -39,6 +53,7 @@ export type KhUIMessage = UIMessage<
     image: ChatImageDto;
     intent: IntentData;
     eval: EvalData;
+    graph: GraphChatHit;
   }
 >;
 

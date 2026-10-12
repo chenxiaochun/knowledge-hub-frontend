@@ -17,6 +17,7 @@ import { parseToolPayload } from '../toolPayload';
 import { citedSources as filterCitedSources } from '../utils';
 import EvalCard from './EvalCard';
 import GenerateImageCard, { ChatImagePreview } from './GenerateImageCard';
+import GraphRetrieveCard, { GraphRetrieveToolCard } from './GraphRetrieveCard';
 import IntentCard from './IntentCard';
 import LazyAnswerMarkdown from './LazyAnswerMarkdown';
 import styles from './ChatMessageParts.module.scss';
@@ -66,6 +67,7 @@ export default function ChatMessageParts({
   const hasRetrieve =
     parts.some((part) => part.type === 'data-retrieve') ||
     parts.some((part) => isToolUIPart(part) && getToolName(part) === 'retrieve_knowledge');
+  const hasDataGraph = parts.some((part) => part.type === 'data-graph');
   const persistedImages = parts.filter(
     (part): part is { type: 'data-image'; data: ChatImageDto } => part.type === 'data-image',
   );
@@ -73,7 +75,7 @@ export default function ChatMessageParts({
 
   return (
     <>
-      {renderProcessParts(parts, hasRetrieve, showGenerateTool)}
+      {renderProcessParts(parts, hasRetrieve, showGenerateTool, hasDataGraph)}
       {persistedImages.map((part, i) => (
         <ChatImagePreview
           key={`img-${i}-${part.data.url}`}
@@ -124,6 +126,7 @@ function renderProcessParts(
   parts: KhUIMessage['parts'],
   hasRetrieve: boolean,
   showGenerateTool: boolean,
+  hasDataGraph: boolean,
 ) {
   const nodes: ReactNode[] = [];
   let reasoningBuf: string[] = [];
@@ -188,6 +191,11 @@ function renderProcessParts(
       return;
     }
 
+    if (part.type === 'data-graph') {
+      nodes.push(<GraphRetrieveCard key={i} data={part.data} />);
+      return;
+    }
+
     if (part.type === 'data-retrieve') {
       nodes.push(<RetrieveCard key={i} query={part.data.query} items={part.data.items} />);
       return;
@@ -204,6 +212,13 @@ function renderProcessParts(
 
     if (isToolUIPart(part) && getToolName(part) === 'retrieve_knowledge') {
       nodes.push(<RetrieveKnowledgeCard key={i} part={part} />);
+      return;
+    }
+
+    if (isToolUIPart(part) && getToolName(part) === 'retrieve_graph') {
+      // 已有 data-graph 时只留结果卡，避免 tool + data 双份
+      if (hasDataGraph) return;
+      nodes.push(<GraphRetrieveToolCard key={i} part={part} />);
       return;
     }
 
