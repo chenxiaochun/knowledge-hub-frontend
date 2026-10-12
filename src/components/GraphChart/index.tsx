@@ -89,7 +89,7 @@ function GraphChart({
   const dispatchRoam = useCallback(
     (payload: { zoom?: number; dx?: number; dy?: number }) => {
       const chart = chartRef.current?.getEchartsInstance();
-      if (!chart) return;
+      if (!chart || chart.isDisposed()) return;
 
       const { originX, originY } = getRoamOrigin();
       isDispatchingRoamRef.current = true;
@@ -142,9 +142,10 @@ function GraphChart({
 
   useEffect(() => {
     const chart = chartRef.current?.getEchartsInstance();
-    if (!chart || !dataKey) return;
+    if (!chart || chart.isDisposed() || !dataKey) return;
 
     const onGraphRoam = (...args: unknown[]) => {
+      if (chart.isDisposed()) return;
       const params = args[0] as { dx?: number; dy?: number } | undefined;
       if (isDispatchingRoamRef.current || !params) return;
       if (params.dx) panRef.current.x += params.dx;
@@ -154,7 +155,9 @@ function GraphChart({
 
     chart.on('graphRoam', onGraphRoam);
     return () => {
-      chart.off('graphRoam', onGraphRoam);
+      if (!chart.isDisposed()) {
+        chart.off('graphRoam', onGraphRoam);
+      }
     };
   }, [dataKey]);
 
@@ -163,7 +166,9 @@ function GraphChart({
     if (!container || !fillParent) return;
 
     const resizeChart = () => {
-      chartRef.current?.getEchartsInstance()?.resize();
+      const chart = chartRef.current?.getEchartsInstance();
+      if (!chart || chart.isDisposed()) return;
+      chart.resize();
     };
 
     const observer = new ResizeObserver(resizeChart);

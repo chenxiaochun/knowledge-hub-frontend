@@ -134,6 +134,7 @@ export interface DocumentEntity {
    */
   contentId: string;
   authorId?: string | null;
+  teamId?: string | null;
   fileUrl?: string | null;
   fileExt?: string | null;
   status: ComponentsSchemasDocumentEntityStatus;
@@ -146,6 +147,7 @@ export interface DocumentEntity {
   /** @format date-time */
   publishTime?: string | null;
   deleted: boolean;
+  isPublic: boolean;
 }
 
 export interface UpdateDocumentDto {
@@ -363,6 +365,30 @@ export interface ChatImageDto {
   size?: string;
 }
 
+export interface ChatGraphEntityDto {
+  name: string;
+  type: string | null;
+  description: string | null;
+}
+
+export interface ChatGraphRelationDto {
+  source: string;
+  relation: string;
+  target: string;
+}
+
+export interface ChatGraphDocumentDto {
+  documentId: string;
+  title: string;
+}
+
+export interface ChatGraphDto {
+  query: string;
+  entities: Array<ChatGraphEntityDto>;
+  relations: Array<ChatGraphRelationDto>;
+  documents: Array<ChatGraphDocumentDto>;
+}
+
 export interface AiMessageEntity {
   id: string;
   sessionId: string;
@@ -378,6 +404,11 @@ export interface AiMessageEntity {
    *   仅 assistant：本轮 generate_image 产出的图片；user 行一般为 null
    */
   images?: Array<ChatImageDto> | null;
+  /**
+   * @description
+   *   仅 assistant：本轮图谱检索命中；user 行一般为 null
+   */
+  graph?: ChatGraphDto | null;
   /** @format date-time */
   createdAt: string;
 }

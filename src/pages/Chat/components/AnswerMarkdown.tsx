@@ -106,7 +106,10 @@ function useMdComponents(
         if (!block) return <code>{wrap(children)}</code>;
         if (typeof children !== 'string') return null;
         const langFromClass = className?.match(/language-([\w-]+)/)?.[1];
-        const resolvedLang = lang || langFromClass || 'text';
+        // Prism 无 text/plain 模块；不传 lang 时用默认高亮，避免动态 import 失败
+        const rawLang = (lang || langFromClass || '').toLowerCase();
+        const resolvedLang =
+          !rawLang || /^(text|plain|plaintext|txt)$/.test(rawLang) ? undefined : rawLang;
         return (
           <CodeHighlighter lang={resolvedLang}>{children.replace(/\n$/, '')}</CodeHighlighter>
         );

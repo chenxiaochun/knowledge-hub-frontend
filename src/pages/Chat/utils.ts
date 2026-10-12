@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 
 import type { ChatImageDto, ChatSourceDto, RagChunkHitDto } from '@/service/api';
 
-import type { KhUIMessage } from './chatUiMessage';
+import type { GraphChatHit, KhUIMessage } from './chatUiMessage';
 import type { LocalMessage } from './types';
 
 export function formatSessionTime(value: string) {
@@ -59,6 +59,7 @@ export function historyToUIMessages(
     content: string;
     sources?: ChatSourceDto[] | null;
     images?: ChatImageDto[] | null;
+    graph?: GraphChatHit | null;
   }>,
 ): KhUIMessage[] {
   return rows.map((row) => {
@@ -72,6 +73,9 @@ export function historyToUIMessages(
     const parts: KhUIMessage['parts'] = [];
     if (row.sources?.length) {
       parts.push({ type: 'data-sources', data: row.sources });
+    }
+    if (row.graph) {
+      parts.push({ type: 'data-graph', data: row.graph });
     }
     if (row.images?.length) {
       for (const img of row.images) {
