@@ -14,15 +14,12 @@
   gap: 8px;
 }
 
-.card {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.item {
   min-width: 0;
-  padding: 8px 10px;
-  border: 1px solid #e6f4ff;
-  border-radius: 6px;
-  background: #f7fbff;
+  overflow: hidden;
+  border: 1px solid #f0f0f0;
+  border-radius: 10px;
+  background: #fafafa;
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
@@ -33,41 +30,27 @@
   box-shadow: 0 0 0 1px rgba(22, 119, 255, 0.15);
 }
 
-.cardHead {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.card {
+  width: 100%;
   min-width: 0;
-}
 
-.docTitle {
-  min-width: 0;
-  flex: 1;
-  color: #1677ff;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.35;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-button.docTitle {
-  padding: 0;
-  border: none;
-  background: transparent;
-  text-align: left;
-  cursor: pointer;
-
-  &:hover {
-    color: #4096ff;
-    text-decoration: underline;
+  :global(.ant-file-card-file) {
+    width: 100%;
+    background: transparent;
   }
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 12px 10px;
 }
 
 .heading {
   color: rgba(0, 0, 0, 0.65);
-  font-size: 11px;
+  font-size: 12px;
+  font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -75,10 +58,16 @@ button.docTitle {
 
 .excerpt {
   color: rgba(0, 0, 0, 0.45);
-  font-size: 11px;
-  line-height: 1.4;
+  font-size: 12px;
+  line-height: 1.45;
   display: -webkit-box;
-  -webkit-line-clamp: 1;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .rail {
+    grid-template-columns: 1fr;
+  }
 }

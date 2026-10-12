@@ -4,7 +4,7 @@ import { Descriptions, Drawer, Space, Tag, Typography } from 'antd';
 
 import dayjs from 'dayjs';
 
-import FileTypeIcon from '@/components/FileTypeIcon';
+import FileCardIcon from '@/components/FileCardIcon';
 import MarkdownPreview from '@/components/MarkdownPreview';
 import { getDocumentStatusMeta } from '@/constants/document';
 import type { DocumentDetail } from '@/types/document';
@@ -81,7 +81,7 @@ export default function DocumentDetailDrawer({ open, loading, detail, extra, onC
                 label: '格式',
                 children: detail.fileExt ? (
                   <Space size={6}>
-                    <FileTypeIcon ext={detail.fileExt} size={24} />
+                    <FileCardIcon ext={detail.fileExt} size={24} />
                     <span>.{detail.fileExt}</span>
                   </Space>
                 ) : (

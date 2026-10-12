@@ -11,7 +11,7 @@ import { Button, Empty, Spin, Typography } from 'antd';
 import dayjs from 'dayjs';
 import type { ReactNode } from 'react';
 
-import FileTypeIcon from '@/components/FileTypeIcon';
+import FileCardIcon from '@/components/FileCardIcon';
 
 import type {
   GraphOverviewRecentNodeDto,
@@ -185,7 +185,7 @@ export default function GraphStatsPanel({
                       className={styles.recentItem}
                       onClick={() => onRecentClick?.(docId)}
                     >
-                      <FileTypeIcon ext={ext} size={20} />
+                      <FileCardIcon ext={ext} size={20} />
                       <Typography.Text className={styles.recentName} ellipsis={{ tooltip: item.name }}>
                         {item.name}
                       </Typography.Text>

@@ -1,0 +1,22 @@
+.iconOnly {
+  display: inline-flex;
+  width: auto;
+  line-height: 0;
+  vertical-align: middle;
+
+  :global(.ant-file-card-file) {
+    width: auto;
+    height: auto;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+  }
+
+  :global(.ant-file-card-file-content) {
+    display: none;
+  }
+
+  :global(.ant-file-card-file-icon) {
+    margin-inline-end: 0 !important;
+  }
+}

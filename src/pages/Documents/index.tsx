@@ -8,7 +8,7 @@ import dayjs from 'dayjs';
 import type { RequestOption } from '@/utils/request';
 
 import DocumentDetailDrawer from '@/components/DocumentDetailDrawer';
-import FileTypeIcon from '@/components/FileTypeIcon';
+import FileCardIcon from '@/components/FileCardIcon';
 import { canEditContent, getDocumentStatusMeta } from '@/constants/document';
 import { RoleCode } from '@/constants/roles';
 import {
@@ -270,7 +270,7 @@ export default function DocumentsPage() {
       ellipsis: true,
       render: (title: string, record) => (
         <Space size={8}>
-          <FileTypeIcon ext={record.fileExt} size={24} />
+          <FileCardIcon ext={record.fileExt} size={24} />
           <Button
             type="link"
             style={{ paddingInline: 0 }}
