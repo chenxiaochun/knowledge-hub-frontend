@@ -111,7 +111,7 @@ export default function LoginPage() {
           <Form.Item name="remember" valuePropName="checked" noStyle>
             <Checkbox tabIndex={3}>记住账号</Checkbox>
           </Form.Item>
-          <Typography.Link tabIndex={4} onClick={() => message.info('请联系管理员重置密码')}>
+          <Typography.Link tabIndex={4} onClick={() => navigate('/forgot-password')}>
             忘记密码?
           </Typography.Link>
         </div>

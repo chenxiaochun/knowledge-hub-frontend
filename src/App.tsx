@@ -11,6 +11,7 @@ const ChatPage = lazy(() => import('@/pages/Chat'));
 const DocumentsPage = lazy(() => import('@/pages/Documents'));
 const GraphPage = lazy(() => import('@/pages/Graph'));
 const HomePage = lazy(() => import('@/pages/Home'));
+const ForgotPasswordPage = lazy(() => import('@/pages/ForgotPassword'));
 const LoginPage = lazy(() => import('@/pages/Login'));
 const RbacPage = lazy(() => import('@/pages/Rbac'));
 const RegisterPage = lazy(() => import('@/pages/Register'));
@@ -43,6 +44,7 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route element={<AuthGuard />}>
             <Route element={<BasicLayout />}>

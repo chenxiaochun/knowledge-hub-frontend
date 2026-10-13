@@ -13,8 +13,8 @@ type RegisterFormValues = {
   username: string;
   password: string;
   confirmPassword: string;
+  email: string;
   realName?: string;
-  email?: string;
 };
 
 function optionalText(value?: string): string | undefined {
@@ -39,14 +39,11 @@ export default function RegisterPage() {
         body: {
           username: values.username.trim(),
           password: values.password,
+          email: values.email.trim(),
           realName: optionalText(values.realName),
-          email: optionalText(values.email),
         },
       });
-      const email = optionalText(values.email);
-      message.success(
-        email ? '注册成功，请查收激活邮件并点击链接完成激活' : '注册成功，请登录',
-      );
+      message.success('注册成功，请查收激活邮件并点击链接完成激活');
       navigate('/login', {
         replace: true,
         state: { username: values.username.trim() },
@@ -121,20 +118,26 @@ export default function RegisterPage() {
           />
         </Form.Item>
 
+        <Form.Item
+          name="email"
+          rules={[
+            { required: true, message: '请输入邮箱' },
+            { type: 'email', message: '邮箱格式不正确' },
+          ]}
+        >
+          <Input
+            prefix={<MailOutlined style={{ color: '#bfbfbf' }} />}
+            placeholder="请输入邮箱（用于激活与找回密码）"
+            autoComplete="email"
+            tabIndex={4}
+          />
+        </Form.Item>
+
         <Form.Item name="realName">
           <Input
             prefix={<IdcardOutlined style={{ color: '#bfbfbf' }} />}
             placeholder="真实姓名（可选）"
             autoComplete="name"
-            tabIndex={4}
-          />
-        </Form.Item>
-
-        <Form.Item name="email" rules={[{ type: 'email', message: '邮箱格式不正确' }]}>
-          <Input
-            prefix={<MailOutlined style={{ color: '#bfbfbf' }} />}
-            placeholder="邮箱（可选）"
-            autoComplete="email"
             tabIndex={5}
           />
         </Form.Item>
