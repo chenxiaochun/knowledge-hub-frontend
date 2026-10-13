@@ -11,7 +11,7 @@ type Props = {
   className?: string;
 };
 
-export function resolveFileCardIcon(ext?: string | null): FileCardProps['icon'] {
+function resolveFileCardIcon(ext?: string | null): FileCardProps['icon'] {
   const e = (ext ?? '').replace(/^\./, '').toLowerCase();
   switch (e) {
     case 'pdf':
@@ -70,6 +70,8 @@ export default function FileCardIcon({ ext, name = 'file', size = 24, className 
       className={`${styles.iconOnly}${className ? ` ${className}` : ''}`}
       size="small"
       name={fileName}
+      // 强制 file：否则 jpg/png 等会走 Image 缩略图且无 src 导致空白
+      type="file"
       icon={resolveFileCardIcon(ext)}
       description={false}
       styles={{ icon: { fontSize: size, lineHeight: 1 } }}
