@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { FileSearchOutlined, SlidersOutlined, SoundOutlined } from '@ant-design/icons';
 import { Sender } from '@ant-design/x';
@@ -9,31 +9,31 @@ import styles from './ChatInput.module.scss';
 import SpeechWaveOverlay from './SpeechWaveOverlay';
 
 type Props = {
-  value: string;
+  draftKey?: number;
+  draftText?: string;
   topK: number;
   searchOnly: boolean;
   ttsEnabled: boolean;
   ttsSpeaking?: boolean;
   busy: boolean;
   streaming?: boolean;
-  onChange: (value: string) => void;
   onTopKChange: (value: number) => void;
   onSearchOnlyChange: (value: boolean) => void;
   onTtsEnabledChange: (value: boolean) => void;
-  onSend: () => void;
+  onSend: (text: string) => void;
   onSpeechSend: (text: string) => void;
   onStop?: () => void;
 };
 
 export default function ChatInput({
-  value,
+  draftKey,
+  draftText,
   topK,
   searchOnly,
   ttsEnabled,
   ttsSpeaking = false,
   busy,
   streaming = false,
-  onChange,
   onTopKChange,
   onSearchOnlyChange,
   onTtsEnabledChange,
@@ -41,6 +41,7 @@ export default function ChatInput({
   onSpeechSend,
   onStop,
 }: Props) {
+  const [value, setValue] = useState('');
   const { allowSpeech, processing, recording, audioLevels, stopRecording } = useBackendSpeechAsr(
     onSpeechSend,
     busy,
@@ -49,8 +50,20 @@ export default function ChatInput({
   const inputDisabled = busy || processing;
   const speechActive = recording || processing;
 
+  useEffect(() => {
+    if (draftKey == null || draftText == null) return;
+    setValue(draftText);
+  }, [draftKey, draftText]);
+
   const footerIconClass = (active: boolean) =>
     active ? `${styles.iconBtn} ${styles.iconBtnActive}` : styles.iconBtn;
+
+  const submit = () => {
+    const text = value.trim();
+    if (!text || inputDisabled) return;
+    setValue('');
+    onSend(text);
+  };
 
   return (
     <div className={styles.bar}>
@@ -70,8 +83,8 @@ export default function ChatInput({
           allowSpeech={allowSpeech}
           placeholder="向知识库提问，例如：文档发布需要哪些步骤？"
           submitType="enter"
-          onChange={(next) => onChange(next)}
-          onSubmit={() => onSend()}
+          onChange={setValue}
+          onSubmit={submit}
           onCancel={() => onStop?.()}
           suffix={(_, { components: { SendButton, LoadingButton } }) =>
             busy || processing ? <LoadingButton /> : <SendButton />

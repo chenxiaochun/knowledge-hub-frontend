@@ -45,7 +45,6 @@ export function useChatPage() {
   const [sessionsLoading, setSessionsLoading] = useState(false);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [searchOnlyMessages, setSearchOnlyMessages] = useState<LocalMessage[]>([]);
-  const [input, setInput] = useState('');
   const [topK, setTopK] = useState(DEFAULT_TOP_K);
   const [searchOnlyMode, setSearchOnlyMode] = useState(false);
   const [searchOnlySending, setSearchOnlySending] = useState(false);
@@ -208,18 +207,17 @@ export function useChatPage() {
   );
 
   const send = useCallback(
-    async (textOverride?: string) => {
-      const text = (textOverride ?? input).trim();
-      if (!text || busy) return;
+    async (text: string) => {
+      const next = text.trim();
+      if (!next || busy) return;
 
-      setInput('');
       logPinBottomRef.current = true;
 
-      if (searchOnlyMode && !textOverride) {
+      if (searchOnlyMode) {
         const userMsg: LocalMessage = {
           id: `local-user-${Date.now()}`,
           role: 'user',
-          content: text,
+          content: next,
         };
         const pendingId = `local-assistant-${Date.now()}`;
         setSearchOnlyMessages((prev) => [
@@ -229,7 +227,7 @@ export function useChatPage() {
         ]);
         setSearchOnlySending(true);
         try {
-          const hits = await postApiAiRagSearch({ body: { query: text, topK } });
+          const hits = await postApiAiRagSearch({ body: { query: next, topK } });
           const assistant: LocalMessage = {
             id: pendingId,
             role: 'assistant',
@@ -258,7 +256,7 @@ export function useChatPage() {
       }
 
       await sendMessage(
-        { text },
+        { text: next },
         {
           body: {
             sessionId: activeSessionId,
@@ -268,7 +266,7 @@ export function useChatPage() {
         },
       );
     },
-    [busy, ensureConnected, input, navigate, searchOnlyMode, sendMessage, topK],
+    [busy, ensureConnected, navigate, searchOnlyMode, sendMessage, topK],
   );
 
   return {
@@ -278,14 +276,12 @@ export function useChatPage() {
     messages,
     searchOnlyMessages,
     messagesLoading,
-    input,
     topK,
     searchOnlyMode,
     busy,
     streaming,
     streamError: error,
     logPinBottomRef,
-    setInput,
     setTopK,
     setSearchOnlyMode,
     ttsEnabled,

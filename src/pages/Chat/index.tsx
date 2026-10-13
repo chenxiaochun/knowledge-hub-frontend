@@ -29,7 +29,6 @@ export default function ChatPage() {
     messages,
     searchOnlyMessages,
     messagesLoading,
-    input,
     topK,
     searchOnlyMode,
     ttsEnabled,
@@ -38,7 +37,6 @@ export default function ChatPage() {
     streaming,
     streamError,
     logPinBottomRef,
-    setInput,
     setTopK,
     setSearchOnlyMode,
     setTtsEnabled,
@@ -53,6 +51,7 @@ export default function ChatPage() {
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detail, setDetail] = useState<DocumentDetail | null>(null);
+  const [inputDraft, setInputDraft] = useState<{ key: number; text: string } | null>(null);
 
   const inputRef = useRef<HTMLDivElement>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
@@ -158,25 +157,25 @@ export default function ChatPage() {
             error={streamError}
             logEndRef={logEndRef}
             onOpenDocument={(id) => void openDocument(id)}
-            onRefillUserMessage={setInput}
+            onRefillUserMessage={(text) => setInputDraft({ key: Date.now(), text })}
             stopTtsPlayback={stopTtsPlayback}
           />
         </Suspense>
 
         <div ref={inputRef} className={styles.inputSticky}>
           <ChatInput
-            value={input}
+            draftKey={inputDraft?.key}
+            draftText={inputDraft?.text}
             topK={topK}
             searchOnly={searchOnlyMode}
             ttsEnabled={ttsEnabled}
             ttsSpeaking={ttsSpeaking}
             busy={busy}
             streaming={streaming}
-            onChange={setInput}
             onTopKChange={setTopK}
             onSearchOnlyChange={setSearchOnlyMode}
             onTtsEnabledChange={setTtsEnabled}
-            onSend={() => void send()}
+            onSend={(text) => void send(text)}
             onSpeechSend={(text) => void send(text)}
             onStop={() => void stop()}
           />
