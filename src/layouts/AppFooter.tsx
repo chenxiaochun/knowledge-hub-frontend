@@ -28,7 +28,7 @@ export default function AppFooter({ links }: Props) {
               <Logo size={32} className={styles.brandIcon} />
               <div>
                 <Typography.Title level={4} className={styles.brandTitle}>
-                  智能知识库
+                  企业智能知识库
                 </Typography.Title>
                 <Typography.Paragraph className={styles.brandDesc}>
                   面向企业内部知识沉淀与智能检索的统一平台，覆盖全文检索、语义检索与知识图谱能力，
@@ -75,7 +75,7 @@ export default function AppFooter({ links }: Props) {
 
         <div className={styles.bottom}>
           <Typography.Text className={styles.copy}>
-            © {CURRENT_YEAR} 智能知识库 · Knowledge Hub. All rights reserved.
+            © {CURRENT_YEAR} 企业智能知识库 · Knowledge Hub. All rights reserved.
           </Typography.Text>
           <Typography.Text className={styles.copy}>企业内部知识管理系统</Typography.Text>
         </div>

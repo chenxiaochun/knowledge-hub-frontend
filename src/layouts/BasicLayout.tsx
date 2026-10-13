@@ -132,7 +132,7 @@ export default function BasicLayout() {
             strong
             style={{ fontSize: 16, whiteSpace: 'nowrap', color: headerText }}
           >
-            智能知识库
+            企业智能知识库
           </Typography.Text>
         </Space>
 
