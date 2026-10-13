@@ -1,13 +1,15 @@
-import type { ReactNode } from 'react';
+import { lazy, startTransition, Suspense, useEffect, useState, type ReactNode } from 'react';
 
-import { Descriptions, Drawer, Space, Tag, Typography } from 'antd';
+import { Descriptions, Drawer, Space, Spin, Tag, Typography } from 'antd';
 
 import dayjs from 'dayjs';
 
 import FileCardIcon from '@/components/FileCardIcon';
-import MarkdownPreview from '@/components/MarkdownPreview';
 import { getDocumentStatusMeta } from '@/constants/document';
+import { getApiDocumentId } from '@/service/api';
 import type { DocumentDetail } from '@/types/document';
+
+const MarkdownPreview = lazy(() => import('@/components/MarkdownPreview'));
 
 function getSourceFileName(fileUrl: string, fallback?: string) {
   try {
@@ -22,13 +24,65 @@ function getSourceFileName(fileUrl: string, fallback?: string) {
 
 type Props = {
   open: boolean;
-  loading: boolean;
-  detail: DocumentDetail | null;
+  /** 传入后由抽屉内部拉详情；与受控 detail/loading 二选一 */
+  documentId?: string | null;
+  loading?: boolean;
+  detail?: DocumentDetail | null;
   extra?: ReactNode;
   onClose: () => void;
 };
 
-export default function DocumentDetailDrawer({ open, loading, detail, extra, onClose }: Props) {
+export default function DocumentDetailDrawer({
+  open,
+  documentId,
+  loading: loadingProp,
+  detail: detailProp,
+  extra,
+  onClose,
+}: Props) {
+  const selfFetch = documentId != null && documentId !== '';
+  const [innerLoading, setInnerLoading] = useState(false);
+  const [innerDetail, setInnerDetail] = useState<DocumentDetail | null>(null);
+
+  useEffect(() => {
+    if (!open || !selfFetch || !documentId) {
+      return;
+    }
+
+    let cancelled = false;
+    setInnerDetail(null);
+    setInnerLoading(true);
+
+    void getApiDocumentId({ path: { id: documentId } })
+      .then((res) => {
+        if (cancelled) return;
+        startTransition(() => {
+          setInnerDetail(res as DocumentDetail);
+          setInnerLoading(false);
+        });
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setInnerLoading(false);
+        onClose();
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // onClose 由调用方内联时勿列入依赖，避免重复请求
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 仅随 open/documentId 拉数
+  }, [open, documentId, selfFetch]);
+
+  useEffect(() => {
+    if (open || !selfFetch) return;
+    setInnerDetail(null);
+    setInnerLoading(false);
+  }, [open, selfFetch]);
+
+  const loading = selfFetch ? innerLoading : Boolean(loadingProp);
+  const detail = selfFetch ? innerDetail : (detailProp ?? null);
+
   return (
     <Drawer
       title={detail?.title || '文档详情'}
@@ -53,7 +107,9 @@ export default function DocumentDetailDrawer({ open, loading, detail, extra, onC
       }}
     >
       {loading ? (
-        <Typography.Text type="secondary">加载中…</Typography.Text>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: 48 }}>
+          <Spin />
+        </div>
       ) : detail ? (
         <div
           style={{
@@ -132,17 +188,25 @@ export default function DocumentDetailDrawer({ open, loading, detail, extra, onC
                 : []),
             ]}
           />
-          <MarkdownPreview
-            content={detail.content}
-            style={{
-              padding: 16,
-              background: '#fafafa',
-              borderRadius: 8,
-              flex: 1,
-              minHeight: 0,
-              overflow: 'auto',
-            }}
-          />
+          <Suspense
+            fallback={
+              <div style={{ display: 'flex', justifyContent: 'center', padding: 32 }}>
+                <Spin />
+              </div>
+            }
+          >
+            <MarkdownPreview
+              content={detail.content}
+              style={{
+                padding: 16,
+                background: '#fafafa',
+                borderRadius: 8,
+                flex: 1,
+                minHeight: 0,
+                overflow: 'auto',
+              }}
+            />
+          </Suspense>
         </div>
       ) : null}
     </Drawer>

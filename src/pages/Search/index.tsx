@@ -3,11 +3,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { FileSearchOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button, Input, Space, Typography, message, Collapse } from 'antd';
 
-import type { DocumentDetail } from '@/types/document';
-
 import DocumentDetailDrawer from '@/components/DocumentDetailDrawer';
 import {
-  getApiDocumentId,
   getApiSearch,
   getApiSearchSemantic,
   type SearchDocumentHitDto,
@@ -35,9 +32,7 @@ export default function SearchPage() {
 
   const [layoutActive, setLayoutActive] = useState(false);
 
-  const [detailOpen, setDetailOpen] = useState(false);
-  const [detailLoading, setDetailLoading] = useState(false);
-  const [detail, setDetail] = useState<DocumentDetail | null>(null);
+  const [detailDocId, setDetailDocId] = useState<string | null>(null);
 
   const fetchSearch = useCallback(async (next: SearchQuery) => {
     const keyword = next.keyword.trim();
@@ -121,18 +116,8 @@ export default function SearchPage() {
     });
   };
 
-  const openDetail = async (id: string) => {
-    setDetailOpen(true);
-    setDetail(null);
-    setDetailLoading(true);
-    try {
-      const res = (await getApiDocumentId({ path: { id } })) as DocumentDetail;
-      setDetail(res);
-    } catch {
-      setDetailOpen(false);
-    } finally {
-      setDetailLoading(false);
-    }
+  const openDetail = (id: string) => {
+    setDetailDocId(id);
   };
 
   const hasSearched = Boolean(query?.keyword);
@@ -226,10 +211,9 @@ export default function SearchPage() {
       ) : null}
 
       <DocumentDetailDrawer
-        open={detailOpen}
-        loading={detailLoading}
-        detail={detail}
-        onClose={() => setDetailOpen(false)}
+        open={Boolean(detailDocId)}
+        documentId={detailDocId}
+        onClose={() => setDetailDocId(null)}
       />
     </div>
   );

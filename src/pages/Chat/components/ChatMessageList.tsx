@@ -1,4 +1,4 @@
-import { useMemo, useState, type RefObject } from 'react';
+import { memo, useMemo, useState, type RefObject } from 'react';
 
 import { Empty, Spin } from 'antd';
 
@@ -28,7 +28,7 @@ type Props = {
   stopTtsPlayback?: () => void;
 };
 
-export default function ChatMessageList({
+function ChatMessageList({
   messages,
   searchOnlyMessages = [],
   loading,
@@ -199,3 +199,5 @@ export default function ChatMessageList({
     </div>
   );
 }
+
+export default memo(ChatMessageList);

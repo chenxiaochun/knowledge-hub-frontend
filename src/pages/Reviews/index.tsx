@@ -10,13 +10,11 @@ import DocumentDetailDrawer from '@/components/DocumentDetailDrawer';
 import { getDocumentStatusMeta } from '@/constants/document';
 import { RoleCode } from '@/constants/roles';
 import {
-  getApiDocumentId,
   getApiDocumentReviewsPending,
   putApiDocumentReviewsReviewIdApprove,
   putApiDocumentReviewsReviewIdReject,
   type DocumentReviewEntity,
 } from '@/service/api';
-import type { DocumentDetail } from '@/types/document';
 import { getUserInfo } from '@/utils/auth';
 
 type RejectFormValues = {
@@ -33,9 +31,7 @@ export default function ReviewsPage() {
   const [actingId, setActingId] = useState<string | null>(null);
   const [data, setData] = useState<DocumentReviewEntity[]>([]);
 
-  const [detailOpen, setDetailOpen] = useState(false);
-  const [detailLoading, setDetailLoading] = useState(false);
-  const [detail, setDetail] = useState<DocumentDetail | null>(null);
+  const [detailDocId, setDetailDocId] = useState<string | null>(null);
 
   const [rejectOpen, setRejectOpen] = useState(false);
   const [rejectReviewId, setRejectReviewId] = useState<string | null>(null);
@@ -57,18 +53,8 @@ export default function ReviewsPage() {
     if (canReview) void fetchList();
   }, [canReview, fetchList]);
 
-  const openDocument = async (documentId: string) => {
-    setDetailOpen(true);
-    setDetail(null);
-    setDetailLoading(true);
-    try {
-      const res = (await getApiDocumentId({ path: { id: documentId } })) as DocumentDetail;
-      setDetail(res);
-    } catch {
-      setDetailOpen(false);
-    } finally {
-      setDetailLoading(false);
-    }
+  const openDocument = (documentId: string) => {
+    setDetailDocId(documentId);
   };
 
   const handleApprove = async (reviewId: string) => {
@@ -216,10 +202,9 @@ export default function ReviewsPage() {
       </Modal>
 
       <DocumentDetailDrawer
-        open={detailOpen}
-        loading={detailLoading}
-        detail={detail}
-        onClose={() => setDetailOpen(false)}
+        open={Boolean(detailDocId)}
+        documentId={detailDocId}
+        onClose={() => setDetailDocId(null)}
       />
     </div>
   );

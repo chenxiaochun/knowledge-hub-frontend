@@ -2,10 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 
 import { Spin, Typography } from 'antd';
 
-import type { DocumentDetail } from '@/types/document';
-
 import DocumentDetailDrawer from '@/components/DocumentDetailDrawer';
-import { getApiDocumentId } from '@/service/api';
 
 import ChatInput from './components/ChatInput';
 import ChatSidebar from './components/ChatSidebar';
@@ -48,9 +45,7 @@ export default function ChatPage() {
     stop,
   } = useChatPage();
 
-  const [detailOpen, setDetailOpen] = useState(false);
-  const [detailLoading, setDetailLoading] = useState(false);
-  const [detail, setDetail] = useState<DocumentDetail | null>(null);
+  const [detailDocId, setDetailDocId] = useState<string | null>(null);
   const [inputDraft, setInputDraft] = useState<{ key: number; text: string } | null>(null);
 
   const inputRef = useRef<HTMLDivElement>(null);
@@ -109,19 +104,13 @@ export default function ChatPage() {
     });
   }, [messages, searchOnlyMessages, streaming, logPinBottomRef, syncInputReserve]);
 
-  const openDocument = async (documentId: string) => {
-    setDetailOpen(true);
-    setDetail(null);
-    setDetailLoading(true);
-    try {
-      const res = (await getApiDocumentId({ path: { id: documentId } })) as DocumentDetail;
-      setDetail(res);
-    } catch {
-      setDetailOpen(false);
-    } finally {
-      setDetailLoading(false);
-    }
-  };
+  const openDocument = useCallback((documentId: string) => {
+    setDetailDocId(documentId);
+  }, []);
+
+  const refillInput = useCallback((text: string) => {
+    setInputDraft({ key: Date.now(), text });
+  }, []);
 
   return (
     <div className={styles.page}>
@@ -156,8 +145,8 @@ export default function ChatPage() {
             streaming={streaming}
             error={streamError}
             logEndRef={logEndRef}
-            onOpenDocument={(id) => void openDocument(id)}
-            onRefillUserMessage={(text) => setInputDraft({ key: Date.now(), text })}
+            onOpenDocument={openDocument}
+            onRefillUserMessage={refillInput}
             stopTtsPlayback={stopTtsPlayback}
           />
         </Suspense>
@@ -183,10 +172,9 @@ export default function ChatPage() {
       </div>
 
       <DocumentDetailDrawer
-        open={detailOpen}
-        loading={detailLoading}
-        detail={detail}
-        onClose={() => setDetailOpen(false)}
+        open={Boolean(detailDocId)}
+        documentId={detailDocId}
+        onClose={() => setDetailDocId(null)}
       />
     </div>
   );

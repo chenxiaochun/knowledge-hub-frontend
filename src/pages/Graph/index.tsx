@@ -3,14 +3,12 @@ import { useNavigate } from 'react-router-dom';
 
 import { Form, Spin } from 'antd';
 
-import type { DocumentDetail } from '@/types/document';
-
 import DocumentDetailDrawer from '@/components/DocumentDetailDrawer';
 
 const GraphChartLazy = lazy(() =>
   import('@/components/GraphChart').then((module) => ({ default: module.default })),
 );
-import { getApiDocumentId, getApiGraphOverview } from '@/service/api';
+import { getApiGraphOverview } from '@/service/api';
 
 import { DEFAULT_DOC_LIMIT, EMPTY_OVERVIEW } from './constants';
 import GraphFilterForm from './GraphFilterForm';
@@ -29,9 +27,7 @@ export default function GraphPage() {
   const [loading, setLoading] = useState(false);
   const [overview, setOverview] = useState<GraphOverviewResultDto>(EMPTY_OVERVIEW);
 
-  const [detailOpen, setDetailOpen] = useState(false);
-  const [detailLoading, setDetailLoading] = useState(false);
-  const [detail, setDetail] = useState<DocumentDetail | null>(null);
+  const [detailDocId, setDetailDocId] = useState<string | null>(null);
 
   const fetchOverview = useCallback(async (nextQuery: GraphOverviewQuery) => {
     setLoading(true);
@@ -93,18 +89,8 @@ export default function GraphPage() {
     setQuery(toOverviewQuery('', '', null, DEFAULT_DOC_LIMIT));
   };
 
-  const openDetail = async (id: string) => {
-    setDetailOpen(true);
-    setDetail(null);
-    setDetailLoading(true);
-    try {
-      const res = (await getApiDocumentId({ path: { id } })) as DocumentDetail;
-      setDetail(res);
-    } catch {
-      setDetailOpen(false);
-    } finally {
-      setDetailLoading(false);
-    }
+  const openDetail = (id: string) => {
+    setDetailDocId(id);
   };
 
   return (
@@ -130,7 +116,7 @@ export default function GraphPage() {
               data={chartData}
               chartOption={chartOption}
               loading={loading}
-              onDocumentClick={(id) => void openDetail(id)}
+              onDocumentClick={openDetail}
             />
           </Suspense>
         </div>
@@ -140,16 +126,15 @@ export default function GraphPage() {
           stats={overview.stats}
           topEntities={overview.topEntities}
           recentNodes={overview.recentNodes}
-          onRecentClick={(id) => void openDetail(id)}
+          onRecentClick={openDetail}
           onViewMoreRecent={() => navigate('/documents')}
         />
       </div>
 
       <DocumentDetailDrawer
-        open={detailOpen}
-        loading={detailLoading}
-        detail={detail}
-        onClose={() => setDetailOpen(false)}
+        open={Boolean(detailDocId)}
+        documentId={detailDocId}
+        onClose={() => setDetailDocId(null)}
       />
     </div>
   );
