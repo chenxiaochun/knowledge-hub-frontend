@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, Button, Card, Checkbox, Empty, Listy, Space, Tag, Typography, message } from 'antd';
+
+import { Alert, Button, Checkbox, List, Space, Tag, Typography, message } from 'antd';
+
 import {
   getApiRbacPermissions,
   getApiRbacRoles,
@@ -55,7 +57,6 @@ export default function RbacPage() {
       value: item.permissionCode as PermissionCodeValue,
       description: undefined as string | undefined,
     }));
-    // 固定常量优先，API 多出的码追加在后
     const extras = fromApi.filter((item) => !known.has(item.value as PermissionCodeValue));
     return [...PERMISSION_OPTIONS, ...extras];
   }, [permissions]);
@@ -149,134 +150,104 @@ export default function RbacPage() {
   }
 
   const selectedRole = sortedRoles.find((role) => role.roleCode === selectedRoleCode);
+  const permissionHeader = (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+      <span>
+        {selectedRole
+          ? `权限配置 · ${selectedRole.roleName || getRoleLabel(selectedRole.roleCode)}`
+          : '权限配置'}
+      </span>
+      {selectedRoleCode ? (
+        <Space>
+          {dirty ? <Tag color="orange">未保存</Tag> : <Tag>已同步</Tag>}
+          <Button onClick={handleReset} disabled={!dirty || saving}>
+            重置
+          </Button>
+          <Button type="primary" loading={saving} disabled={!dirty} onClick={() => void handleSave()}>
+            保存
+          </Button>
+        </Space>
+      ) : null}
+    </div>
+  );
 
   return (
-    <div>
-      <Typography.Title level={4} style={{ marginTop: 0 }}>
-        角色权限
-      </Typography.Title>
-      <Typography.Paragraph type="secondary">
-        角色与权限资源码均为系统预置；在此为每个角色勾选可访问的权限码。
-      </Typography.Paragraph>
-
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(220px, 280px) 1fr',
-          gap: 16,
-          alignItems: 'start',
-        }}
-      >
-        <Card title="角色" size="small" loading={rolesLoading}>
-          {sortedRoles.length ? (
-            <div className="rbac-role-list">
-              <Listy
-                items={sortedRoles}
-                rowKey="roleCode"
-                itemRender={(role) => {
-                  const active = role.roleCode === selectedRoleCode;
-                  return (
-                    <div
-                      className="rbac-role-list__item"
-                      data-active={active ? 'true' : undefined}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(event) => {
-                        if (event.key !== 'Enter' && event.key !== ' ') return;
-                        event.preventDefault();
-                        event.currentTarget.click();
-                      }}
-                      onClick={() => {
-                        if (dirty && role.roleCode !== selectedRoleCode) {
-                          message.warning('请先保存或重置当前角色的修改');
-                          return;
-                        }
-                        setSelectedRoleCode(role.roleCode);
-                      }}
-                    >
-                      <Space orientation="vertical" size={0}>
-                        <Typography.Text strong>
-                          {role.roleName || getRoleLabel(role.roleCode)}
-                        </Typography.Text>
-                        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                          {role.roleCode}
-                        </Typography.Text>
-                      </Space>
-                    </div>
-                  );
-                }}
-              />
-            </div>
-          ) : (
-            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无角色" />
-          )}
-        </Card>
-
-        <Card
-          title={
-            selectedRole
-              ? `权限配置 · ${selectedRole.roleName || getRoleLabel(selectedRole.roleCode)}`
-              : '权限配置'
-          }
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'minmax(220px, 280px) 1fr',
+        gap: 16,
+        alignItems: 'start',
+      }}
+    >
+        <List
+          header="角色"
+          bordered
           size="small"
-          loading={permLoading}
-          extra={
-            selectedRoleCode ? (
-              <Space>
-                {dirty ? <Tag color="orange">未保存</Tag> : <Tag>已同步</Tag>}
-                <Button onClick={handleReset} disabled={!dirty || saving}>
-                  重置
-                </Button>
-                <Button type="primary" loading={saving} disabled={!dirty} onClick={() => void handleSave()}>
-                  保存
-                </Button>
-              </Space>
-            ) : null
-          }
+          loading={rolesLoading}
+          dataSource={sortedRoles}
+          locale={{ emptyText: '暂无角色' }}
+          rowKey="roleCode"
+          renderItem={(role) => {
+            const active = role.roleCode === selectedRoleCode;
+            return (
+              <List.Item
+                style={{
+                  cursor: 'pointer',
+                  background: active ? '#e6f4ff' : undefined,
+                }}
+                onClick={() => {
+                  if (dirty && role.roleCode !== selectedRoleCode) {
+                    message.warning('请先保存或重置当前角色的修改');
+                    return;
+                  }
+                  setSelectedRoleCode(role.roleCode);
+                }}
+              >
+                <List.Item.Meta
+                  title={role.roleName || getRoleLabel(role.roleCode)}
+                  description={role.roleCode}
+                />
+              </List.Item>
+            );
+          }}
+        />
+
+        <Checkbox.Group
+          style={{ width: '100%' }}
+          value={checkedCodes}
+          onChange={(values) => setCheckedCodes(values as string[])}
         >
-          {!selectedRoleCode ? (
-            <Empty description="请选择左侧角色" />
-          ) : (
-            <Checkbox.Group
-              style={{ width: '100%' }}
-              value={checkedCodes}
-              onChange={(values) => setCheckedCodes(values as string[])}
-            >
-              <Space orientation="vertical" size={12} style={{ width: '100%' }}>
-                {permissionOptions.map((item) => (
-                  <label
-                    key={item.value}
-                    style={{
-                      display: 'flex',
-                      gap: 12,
-                      alignItems: 'flex-start',
-                      padding: '8px 12px',
-                      border: '1px solid #f0f0f0',
-                      borderRadius: 8,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <Checkbox value={item.value} style={{ marginTop: 2 }} />
-                    <Space orientation="vertical" size={0}>
-                      <Space wrap>
-                        <Typography.Text strong>{item.label}</Typography.Text>
-                        <Typography.Text type="secondary" code>
-                          {item.value}
-                        </Typography.Text>
-                      </Space>
-                      {item.description ? (
-                        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                          {item.description}
-                        </Typography.Text>
-                      ) : null}
-                    </Space>
-                  </label>
-                ))}
-              </Space>
-            </Checkbox.Group>
-          )}
-        </Card>
-      </div>
+          <List
+            header={permissionHeader}
+            bordered
+            size="small"
+            loading={permLoading}
+            dataSource={selectedRoleCode ? permissionOptions : []}
+            locale={{ emptyText: selectedRoleCode ? '暂无权限项' : '请选择左侧角色' }}
+            rowKey="value"
+            style={{ width: '100%' }}
+            renderItem={(item) => (
+              <List.Item>
+                <Checkbox value={item.value}>
+                  <Space wrap size={4}>
+                    <Typography.Text strong>{item.label}</Typography.Text>
+                    <Typography.Text type="secondary" code>
+                      {item.value}
+                    </Typography.Text>
+                  </Space>
+                  {item.description ? (
+                    <div>
+                      <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                        {item.description}
+                      </Typography.Text>
+                    </div>
+                  ) : null}
+                </Checkbox>
+              </List.Item>
+            )}
+          />
+        </Checkbox.Group>
     </div>
   );
 }
